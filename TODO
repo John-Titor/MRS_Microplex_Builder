@@ -6,9 +6,13 @@ MRS Microplex Firmware Builder:
       ☐ receive interrupt
       ☐ filtering
     ☐ PWM output
+      ✔ 7H PWM assignments for ch5/6 @done (22-06-01 12:17)
     ☐ ADC
     ☐ timer
     ☐ protothreads
+    ☐ 7H/7L support
+      ✔ verify initial pin config @done (22-06-01 12:17)
+      ☐ test on module
 
   investigations:
    ✔ scrub compiler `-WmsgSd` args to see if any can be pragma'ed instead, since making them the default may not be desirable @done (22-06-01 09:46)

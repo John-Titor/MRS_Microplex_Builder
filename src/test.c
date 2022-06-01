@@ -10,6 +10,7 @@ void
 main(void)
 {
     Microplex_7X_init();
+    time_init();
     CAN_init(CAN_BR_500, CAN_FM_NONE, 0);
 
     print("testing");
