@@ -2,8 +2,7 @@
  * Utility library.
  */
 
-#ifndef CORE_LIB_H_
-#define CORE_LIB_H_
+#pragma ONCE
 
 #include <stdint.h>
 
@@ -45,5 +44,3 @@ extern void printn(const char *format, ...);
  * Print a hexdump of a range of memory.
  */
 extern void hexdump(uint8_t *addr, unsigned int count);
-
-#endif /* LIB_H_ */

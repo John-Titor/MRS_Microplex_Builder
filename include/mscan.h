@@ -2,8 +2,7 @@
  * MSCAN driver.
  */
 
-#ifndef _MSCAN_H
-#define _MSCAN_H
+#pragma ONCE
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -102,5 +101,3 @@ extern bool CAN_recv(CAN_message_t *msg);
  * Send a character over the CAN console stream.
  */
 extern void can_putchar(char c);
-
-#endif // _MSCAN_H

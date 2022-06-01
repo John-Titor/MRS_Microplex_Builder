@@ -11,6 +11,6 @@ MRS Microplex Firmware Builder:
     ☐ protothreads
 
   investigations:
-   ☐ scrub compiler `-WmsgSd` args to see if any can be pragma'ed instead, since making them the default may not be desirable
-   ☐ scrub linker `-WmsgSd` args to see if segment / object overlap is still a problem.
-   ☐ verify whether `mc9s08dz60.c` is required.
+   ✔ scrub compiler `-WmsgSd` args to see if any can be pragma'ed instead, since making them the default may not be desirable @done (22-06-01 09:46)
+   ✔ scrub linker `-WmsgSd` args to see if segment / object overlap is still a problem - no @done (22-06-01 09:40)
+   ✔ verify whether `mc9s08dz60.c` is required - yes @done (22-06-01 09:38)

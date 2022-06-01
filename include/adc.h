@@ -2,8 +2,7 @@
  * Analog to digital conversion.
  */
 
-#ifndef _ADC_H
-#define _ADC_H
+#pragma ONCE
 
 #include <math.h>
 #include <stdint.h>
@@ -33,5 +32,3 @@ extern void     adc_configure_direct(uint8_t channel);
 // these functions can be safely called from interrupt context
 extern void     adc_update(adc_channel_state_t *state);
 extern uint16_t adc_sample_direct(uint8_t channel);
-
-#endif // _ADC_H

@@ -56,8 +56,8 @@ clean:
 
 # build an application / generate s-records
 $(OBJDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)
-	@mkdir -p $(notdir $@)
-	@echo ==== LINK $(@D)
+	@mkdir -p $(@D)
+	@echo ==== LINK $(notdir $@)
 	$(V)wine $(LD) -ArgFile$(_CWD)/resources/link.args -O$@
 
 # build an object file from a source file in ./src

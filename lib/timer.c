@@ -16,27 +16,24 @@
  *
  */
 
-#include <assert.h>
 #include <stdlib.h>
 #include <stdint.h>
 
 #include <lib.h>
 #include <timer.h>
-//#include <debug.h>
 
-static timer_t          *timer_list;
-static timer_call_t     *timer_call_list;
+#define timer_registered(_timer)    ((_timer)._next != NULL)
+
+#define TIMER_LIST_END      (timer_t *)4
+#define TIMER_CALL_LIST_END (timer_call_t *)8
+
+static timer_t          *timer_list = TIMER_LIST_END;
+static timer_call_t     *timer_call_list = TIMER_CALL_LIST_END;
 static volatile uint16_t timebase_high_word;
-
-#define TIMER_LIST_END      (timer_t *)&timer_list
-#define TIMER_CALL_LIST_END (timer_call_t *)&timer_call_list
 
 void
 time_init(void)
 {
-    timer_list = TIMER_LIST_END;
-    timer_call_list = TIMER_CALL_LIST_END;
-
     TPM2SC = 0;
     TPM2SC_CLKSx = 2;   // select fixed clock
     TPM2SC_PS = 0;      // /1 prescaler
@@ -53,28 +50,25 @@ time_init(void)
 microseconds
 time_us(void)
 {
-    union {
-        microseconds us;
-        uint16_t    w[2];
-    } tv;
+    uint32_t        tv;
+    bool            overflow;
 
-    ENTER_CRITICAL_SECTION;
+    // loop if we detect overflow, as it's possible that the high
+    // and low words we fetched are out of sync
+    do {
+        ENTER_CRITICAL_SECTION;
 
-    // get the "current" time value
-    tv.w[0] = timebase_high_word;
-    tv.w[1] = TPM2CNT;
+        // get the "current" time value
+        tv = ((uint32_t)timebase_high_word << 16) + TPM2CNT;
 
-    // if we have raced with overflow, increment the
-    // high word and re-fetch the low word
-    if (TPM2SC & TPM2SC_TOF_MASK)
-    {
-        tv.w[0]++;
-        tv.w[1] = TPM2CNT;
-    }
+        // check whether we might have raced with overflow...
+        overflow = TPM2SC & TPM2SC_TOF_MASK;
 
-    EXIT_CRITICAL_SECTION;
+        EXIT_CRITICAL_SECTION;
 
-    return tv.us;
+    } while (overflow);
+
+    return tv;
 }
 
 
@@ -102,32 +96,35 @@ Vtpm2ovf_handler(void)
 }
 
 void
-timer_register(timer_t *timer)
+_timer_register(timer_t *timer)
 {
     ENTER_CRITICAL_SECTION;
 
-    assert(timer != NULL);
-    assert(timer->_next == NULL);
+    REQUIRE(timer != NULL);
 
-    // singly-linked insertion at head
-    timer->_next = timer_list;
-    timer_list = timer;
+    if (!timer_registered(*timer)) {
+        // singly-linked insertion at head
+        timer->_next = timer_list;
+        timer_list = timer;
+    }
 
     EXIT_CRITICAL_SECTION;
 }
 
 void
-timer_call_register(timer_call_t *call)
+_timer_call_register(timer_call_t *call)
 {
     ENTER_CRITICAL_SECTION;
 
-    assert(call != NULL);
-    assert(call->_next == NULL);
-    assert(call->callback != NULL);
+    REQUIRE(call != NULL);
+    REQUIRE(call->callback != NULL);
 
-    // singly-linked insertion at head
-    call->_next = timer_call_list;
-    timer_call_list = call;
+    if (!timer_registered(*call)) {
+
+        // singly-linked insertion at head
+        call->_next = timer_call_list;
+        timer_call_list = call;
+    }   
 
     EXIT_CRITICAL_SECTION;
 }
@@ -141,7 +138,9 @@ Vtpm2ch1_handler(void)
 
     // re-set compare for next tick
     // must update TPM2C1V *after* clearing the interrupt
+#pragma MESSAGE DISABLE C2705
     TPM2C1SC &= ~TPM2C1SC_CH1F_MASK;
+#pragma MESSAGE DEFAULT C2705
     TPM2C1V += 1000;
 
     // update timers
@@ -170,5 +169,7 @@ Vtpm2ch1_handler(void)
             }
         }
     }
-    assert(!TPM2C1SC_CH1F);
+
+    // verify that we have not run into the next tick
+    REQUIRE(!TPM2C1SC_CH1F);
 }

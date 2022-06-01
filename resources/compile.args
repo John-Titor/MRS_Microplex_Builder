@@ -14,8 +14,6 @@
 -F2
 -ViewHidden
 -WmsgFob"%f%e:%l:%k:%d %m\n"
--WmsgSd4443
--WmsgSd5919
 -WmsgSd4001
 -WmsgNu=abcde
 -Cs08

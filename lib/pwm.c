@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include <mc9s08dz60.h>
+
 #include <pwm.h>
 
 static uint16_t pwm_period_cycles;

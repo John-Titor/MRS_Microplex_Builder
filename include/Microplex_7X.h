@@ -10,8 +10,7 @@
 // LDO:                 MIC2951
 //
 
-#ifndef _MICROPLEX_7X_H
-#define _MICROPLEX_7X_H
+#pragma ONCE
 
 //
 // Memory Map:
@@ -292,5 +291,3 @@ Microplex_7X_init(void)
 
     EnableInterrupts;
 }
-
-#endif // _MICROPLEX_7X_H

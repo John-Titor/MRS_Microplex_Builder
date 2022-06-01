@@ -2,8 +2,8 @@
  * MSCAN driver.
  */
 
-#include <assert.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 
 #include <mc9s08dz60.h>
@@ -33,8 +33,8 @@ CAN_init(CAN_bitrate bitrate,
          CAN_filter_mode filter_mode,
          const CAN_filters *filters)
 {
-    assert(bitrate <= (sizeof(btr_table) / sizeof(btr_table[0])));
-    assert(filter_mode <= CAN_FM_NONE);
+    REQUIRE(bitrate <= (sizeof(btr_table) / sizeof(btr_table[0])));
+    REQUIRE(filter_mode <= CAN_FM_NONE);
 
     // set INITRQ and wait for it to be acknowledged
     CANCTL0 = CANCTL0_INITRQ_MASK;
@@ -110,8 +110,8 @@ _CAN_send(const CAN_message_t *msg,
 {
     uint8_t txe;
 
-    assert(msg != NULL);
-    assert(wait_mode <= WM_SENT);
+    REQUIRE(msg != NULL);
+    REQUIRE(wait_mode <= WM_SENT);
 
     // wait for a buffer to be free
     for (;;) {
@@ -159,7 +159,7 @@ _CAN_send(const CAN_message_t *msg,
 bool
 CAN_recv(CAN_message_t *msg)
 {
-    assert(msg != NULL);
+    REQUIRE(msg != NULL);
 
     // check for message in FIFO
     if (!CANRFLG_RXF) {
