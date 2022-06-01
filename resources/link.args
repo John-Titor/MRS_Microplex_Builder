@@ -1,0 +1,10 @@
+$(RSRCDIR)/Microplex_7.prm
+-M
+-B
+-ViewHidden
+-WmsgFob"%f%e:%l:%k:%d %m\n"
+-WmsgSd1100
+-WmsgSd1912 
+-WmsgNu=abcd
+-W1
+-Add( $(OBJS) $(LIBS) )

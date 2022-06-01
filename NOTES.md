@@ -1,0 +1,73 @@
+MRS Microplex 7 Firmware Builder
+================================
+A wrapper around the (free) Freescale CodeWarrior for MCU using Wine for
+non-Windows systems.
+
+
+bootstrapping
+=============
+
+Wine setup
+----------
+A Wine install with the `wine` and `winetricks` commandline tools are required.
+Homebrew users can `brew install wine winetricks`.
+Configure wine with `winetricks mfc42`.
+
+CW full install
+---------------
+Download the CodeWarrior for MCU Offline installer, e.g.
+`CW_MCU_v11.1_b181224_PE_Offline.exe` and run 
+`wine CW_MCU_v11.1_b181224_PE_Offline.exe` to install.
+
+No need to install updates 1-4, as they have no relevant content. No need to
+actually run CodeWarrior.
+
+The default CW_INSTALL_DIR value is set assuming this install method on a
+default Wine prefix.
+
+CW minimal install
+------------------
+Most of the bulk of the CW for MCU install is not required; it's possible to
+just extract the toolchain and support files from the Eclipse installer
+bundles.
+
+Download the HCS08 updatesite bundle
+`com.freescale.mcu11_1.hcs08_rs08.updatesite.zip` and unzip.
+
+From the `binary` directory, unzip `com.freescale.hcs.buildtools_root_1.0.1` and
+`com.freescale.hcs.architecture_root_1.0.9`.
+
+Place the resulting MCU directory somewhere and point `CW_INSTALL_DIR` at it.
+
+Note that `MCU_Build_Tools_Utilities.pdf` is not installed with this method.
+
+notes
+=====
+
+hardware
+--------
+See `include/Microplex_7.h` for hardware details and magic numbers.
+
+args
+----
+ - compiler / linker options are in `resources/*.args`.
+ - all sources build with the same args file
+ - see documentation in `$(CW_INSTALL_DIR)/MCU/Help/PDF`, particularly 
+   `MCU_Build_Tools_Utilities.pdf` and `MCU_HCS08_compiler.pdf`.
+
+linker file
+-----------
+The stock linker files don't work with the MRS ROM; use 
+`resources/Microplex_7.prm` instead.
+
+ - ROM is 0x2200 - 0xaf7f.
+ - Branch directly to `_Startup` as there's no need to do any clock init.
+ - More stack is nice.
+
+TODO
+====
+ - scrub compiler `-WmsgSd` args to see if any can be pragma'ed instead, since 
+   making them the default may not be desirable
+ - scrub linker `-WmsgSd` args to see if segment / object overlap is still a
+   problem.
+ - verify whether `mc9s08dz60.c` is required.

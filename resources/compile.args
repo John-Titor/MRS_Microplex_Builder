@@ -1,0 +1,22 @@
+-Ms 
+-D__NO_FLOAT__
+-I$(SRCDIR)include
+-I$(MCU)/lib/hc08c/device/src
+-I$(MCU)/lib/hc08c/lib
+-I$(MCU)/lib/hc08c/src
+-I$(MCU)/lib/hc08c/device/include
+-I$(MCU)/lib/hc08c/include
+-I$(MCU)/lib/hc08c/device/asm_include
+-BfaTSRON
+-LmCfg=xilmou
+-Qvtpnone
+-Cc
+-F2
+-ViewHidden
+-WmsgFob"%f%e:%l:%k:%d %m\n"
+-WmsgSd4443
+-WmsgSd5919
+-WmsgSd4001
+-WmsgNu=abcde
+-Cs08
+-Lp
