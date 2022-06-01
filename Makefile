@@ -56,20 +56,20 @@ clean:
 
 # build an application / generate s-records
 $(OBJDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)
-	@mkdir -p $(@D)
+	@mkdir -p $(notdir $@)
 	@echo ==== LINK $(@D)
 	$(V)wine $(LD) -ArgFile$(_CWD)/resources/link.args -O$@
 
 # build an object file from a source file in ./src
 $(OBJDIR)/%.obj: %.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
-	@echo ==== COMPILE $(@D)
+	@echo ==== COMPILE $(notdir $@)
 	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args -ObjN=$@ $< -Lm=$(@:%.obj=%.d)
 
 # build an object file from a source file supplied by CW MCU
 $(OBJDIR)/mcu_lib/%.obj: $(MCU)/lib/%.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
-	@echo ==== COMPILE $(@D)
+	@echo ==== COMPILE $(notdir $@)
 	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args -ObjN=$@ $< -Lm=$(@:%.obj=%.d)
 
 $(MCU_SRCS): $(MCU)
