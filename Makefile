@@ -16,9 +16,9 @@ ifeq ($(VERBOSE),)
 V		 = @
 endif
 
-OBJDIR		?= $(_CWD)obj
+BUILDDIR	?= $(_CWD)build
 export SRCDIR	 = $(_CWD)
-export MCU	 = $(OBJDIR)/MCU
+export MCU	 = $(BUILDDIR)/MCU
 export RSRCDIR	 = $(_CWD)resources
 
 CC		 = $(MCU)/prog/chc08.exe
@@ -39,37 +39,38 @@ MCU_SRCS	 = $(MCU)/lib/hc08c/src/start08.c \
 		   $(MCU)/lib/hc08c/device/src/mc9s08dz60.c
 
 # export these so the linker can pick it up from its config
-export OBJS	:= $(patsubst %.c,$(OBJDIR)/%.obj,$(APP_SRCS) $(LIB_SRCS)) \
-		   $(patsubst $(MCU)/lib/%.c,$(OBJDIR)/mcu_lib/%.obj,$(MCU_SRCS))
+export OBJS	:= $(patsubst %.c,$(BUILDDIR)/%.obj,$(APP_SRCS) $(LIB_SRCS)) \
+		   $(patsubst $(MCU)/lib/%.c,$(BUILDDIR)/mcu_lib/%.obj,$(MCU_SRCS))
 export LIBS	 = $(MCU)/lib/hc08c/lib/ansiis.lib
 
 # make the linker put its artifacts somewhere sensible
-export TEXTPATH	 = $(OBJDIR)
-export ERRORFILE = $(OBJDIR)/%n_link_errors.txt
+export TEXTPATH	 = $(BUILDDIR)
+export ERRORFILE = $(BUILDDIR)/%n_link_errors.txt
 
 .PHONY: all clean
+.SECONDARY:
 
-all:	$(OBJDIR)/microplex.elf
+all:	$(BUILDDIR)/microplex.elf
 
 clean:
-	rm -rf $(OBJDIR)
+	rm -rf $(BUILDDIR)
 
 # build an application / generate s-records
-$(OBJDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)
+$(BUILDDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== LINK $(notdir $@)
 	$(V)wine $(LD) -ArgFile$(_CWD)/resources/link.args -O$@
 
 # build an object file from a source file in ./src
-$(OBJDIR)/%.obj: %.c $(GLOBAL_DEPS)
+$(BUILDDIR)/%.obj: %.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
-	@echo ==== COMPILE $(notdir $@)
+	@echo ==== COMPILE $<
 	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args -ObjN=$@ $< -Lm=$(@:%.obj=%.d)
 
 # build an object file from a source file supplied by CW MCU
-$(OBJDIR)/mcu_lib/%.obj: $(MCU)/lib/%.c $(GLOBAL_DEPS)
+$(BUILDDIR)/mcu_lib/%.obj: $(MCU)/lib/%.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
-	@echo ==== COMPILE $(notdir $@)
+	@echo ==== COMPILE $<
 	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args -ObjN=$@ $< -Lm=$(@:%.obj=%.d)
 
 $(MCU_SRCS): $(MCU)
