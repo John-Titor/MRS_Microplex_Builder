@@ -1,32 +1,31 @@
 //
-// Hardware defines for the Microplex 7H, mostly obtained by
+// Hardware defines for the Microplex 7L, mostly obtained by
 // digging through the sources supplied with the awful
 // Microplex Studio app, with some reference to the (brief)
 // datasheet PDF.
 //
 // SoC:                 MC9S08DZ60
 // CAN:                 TJA1043
-// High-side drivers:   VNQ5050
+// Low-side drivers:    Unknown (datasheet in error)
 // LDO:                 MIC2951
 //
 
 #pragma ONCE
 
-//
 // Pin              functions
 // ---------------------------------------------------------------------------
 // 1                ground
-// 2                DO_HSD_6, PWM_HSD_6
+// 2                DO_LSD_6, PWM_LSD_6
 // 3                +12V
 // 4                CAN_L
 // 5                CAN_H
 // 6                DI_KL15
-// 7                DO_HSD_7
-// 8                DO_HSD_5, PWM_HSD5
-// 9                DO_HSD_4, PWM_HSD4
-// 10               DO_HSD_3, PWM_HSD3
-// 11               DO_HSD_2, PWM_HSD2
-// 12               DO_HSD_1, PWM_HSD1
+// 7                DO_LSD_7
+// 8                DO_LSD_5, PWM_LSD5
+// 9                DO_LSD_4, PWM_LSD4
+// 10               DO_LSD_3, PWM_LSD3
+// 11               DO_LSD_2, PWM_LSD2
+// 12               DO_LSD_1, PWM_LSD1
 //
 // Digital inputs   port        pin
 // ---------------------------------------------------------------------------
@@ -37,63 +36,46 @@
 // CAN_EN           PORT_F.0    -   CAN transceiver EN
 // CAN_STB_N        PORT_F.2    -   CAN transceiver STB
 // CAN_WAKE         PORT_E.5    -   CAN transceiver WAKE
-// DO_HSD_1         PORT_D.4    12
-// DO_HSD_2         PORT_D.7    11
-// DO_HSD_3         PORT_D.5    10
-// DO_HSD_4         PORT_D.6    9
-// DO_HSD_5         PORT_D.2    8
-// DO_HSD_6         PORT_D.3    2
-// DO_HSD_7         PORT_D.0    7
-// DO_HSD_SEN1      PORT_A.5    -   internal current sense select (STAT_DIS?)
-// DO_HSD_SEN2      PORT_A.3    -   internal current sense select (STAT_DIS?)
+// DO_EN_VM         PORT_F.1    -   LSD output enable
+// DO_LSD_1         PORT_D.4    12
+// DO_LSD_2         PORT_D.7    11
+// DO_LSD_3         PORT_D.5    10
+// DO_LSD_4         PORT_D.6    9
+// DO_LSD_5         PORT_D.2    8
+// DO_LSD_6         PORT_D.3    2
+// DO_LSD_7         PORT_D.0    7
 // DO_POWER         PORT_E.2    -   keep-alive when KL15 is removed
 //
 // Analog inputs    ADC chan    pin
 // ---------------------------------------------------------------------------
-// AI_CS_1          10          -   DO_HSD_1 sense pin
-// AI_CS_2          2           -   DO_HSD_2 sense pin
-// AI_CS_3          11          -   DO_HSD_3 sense pin
-// AI_CS_4          12          -   DO_HSD_4 sense pin
-// AI_CS_5          0           -   DO_HSD_5 sense pin
-// AI_CS_6          1           -   DO_HSD_6 sense pin
-// AI_CS_7          8           -   DO_HSD_7 sense pin
 // AI_KL15          14          6   KL15 voltage
 // AI_TEMP          26          -   Internal temperature sensor
 //
 // PWM outputs      tpm1 chan   pin digital pin
 // ---------------------------------------------------------------------------
-// PWM_HSD1         2           12  DO_HSD_1
-// PWM_HSD2         5           11  DO_HSD_2
-// PWM_HSD3         3           10  DO_HSD_3
-// PWM_HSD4         4           9   DO_HSD_4
-// PWM_HSD5         0           8   DO_HSD_5
-// PWM_HSD6         1           2   DO_HSD_6
+// PWM_LSD1         2           12  DO_LSD_1
+// PWM_LSD2         5           11  DO_LSD_2
+// PWM_LSD3         3           10  DO_LSD_3
+// PWM_LSD4         4           9   DO_LSD_4
+// PWM_LSD5         0           8   DO_LSD_5
+// PWM_LSD6         1           2   DO_LSD_6
 //
 // PortA
 // -----
-// DI_CS_5          PORT_A.0    -   DO_HSD_5 current sense
-// DI_CS_6          PORT_A.1    -   DO_HSD_6 current sense
-// DI_CS_2          PORT_A.2    -   DO_HSD_2 current sense
-// DO_HSD_SEN2      PORT_A.3    -   internal current sense select (CS_DIS?)
-// DO_HSD_SEN1      PORT_A.5    -   internal current sense select (CS_DIS?)
 //
 // PortB
 // -----
-// DI_CS_7          PORT_B.0    -   DO_HSD_7 current sense
-// DI_CS_1          PORT_B.2    -   DO_HSD_1 current sense
-// DI_CS_3          PORT_B.3    -   DO_HSD_3 current sense
-// DI_CS_4          PORT_B.4    -   DO_HSD_4 current sense
 // DI_KL15          PORT_B.6    6   KL15
 //
 // PortD
 // -----
-// DO_HSD_7         PORT_D.0    7
-// DO_HSD_5         PORT_D.2    8
-// DO_HSD_6         PORT_D.3    2
-// DO_HSD_1         PORT_D.4    12
-// DO_HSD_3         PORT_D.5    10
-// DO_HSD_4         PORT_D.6    9
-// DO_HSD_2         PORT_D.7    11
+// DO_LSD_7         PORT_D.0    7
+// DO_LSD_5         PORT_D.2    8
+// DO_LSD_6         PORT_D.3    2
+// DO_LSD_1         PORT_D.4    12
+// DO_LSD_3         PORT_D.5    10
+// DO_LSD_4         PORT_D.6    9
+// DO_LSD_2         PORT_D.7    11
 //
 // PortE
 // -----
@@ -110,36 +92,35 @@
 // Notes:
 //  - For normal operation, set CAN_EN and CAN_STB_N high. See TJA1043
 //    datasheet for other modes and the use of the CAN_WAKE signal.
-//
 
 #include <mc9s08dz60.h>
-#include <stdlib.h>
+
+#define HAL_7X          0
+#define HAL_7H          0
+#define HAL_7L          1
+
+#include <HAL/adc.h>
+#include <HAL/can.h>
+#include <HAL/pwm.h>
+#include <HAL/timer.h>
 
 #define DI_AI_KL15      _PTBD.Bits.PTBD6
 #define DI_CAN_ERR      _PTFD.Bits.PTFD3
-#define DI_CS_1         _PTBD.Bits.PTBD2
-#define DI_CS_2         _PTAD.Bits.PTAD2
-#define DI_CS_3         _PTBD.Bits.PTBD3
-#define DI_CS_4         _PTBD.Bits.PTBD4
-#define DI_CS_5         _PTAD.Bits.PTAD0
-#define DI_CS_6         _PTAD.Bits.PTAD1
-#define DI_CS_7         _PTBD.Bits.PTBD0
 
 #define CAN_EN          _PTFD.Bits.PTFD0
 #define CAN_STB_N       _PTFD.Bits.PTFD2
 #define CAN_WAKE        _PTED.Bits.PTED5
-#define DO_HSD_1        _PTDD.Bits.PTDD4
-#define DO_HSD_2        _PTDD.Bits.PTDD7
-#define DO_HSD_3        _PTDD.Bits.PTDD5
-#define DO_HSD_4        _PTDD.Bits.PTDD6
-#define DO_HSD_5        _PTDD.Bits.PTDD2
-#define DO_HSD_6        _PTDD.Bits.PTDD3
-#define DO_HSD_7        _PTDD.Bits.PTDD0
-#define DO_HSD_SEN1     _PTAD.Bits.PTAD3
-#define DO_HSD_SEN2     _PTAD.Bits.PTAD5
+#define DO_EN_VM        _PTFD.Bits.PTFD1
+#define DO_LSD_1        _PTDD.Bits.PTDD4
+#define DO_LSD_2        _PTDD.Bits.PTDD7
+#define DO_LSD_3        _PTDD.Bits.PTDD5
+#define DO_LSD_4        _PTDD.Bits.PTDD6
+#define DO_LSD_5        _PTDD.Bits.PTDD2
+#define DO_LSD_6        _PTDD.Bits.PTDD3
+#define DO_LSD_7        _PTDD.Bits.PTDD0
 #define DO_POWER        _PTED.Bits.PTED2
 
-// TPM1 channels corresponding to the HSD outputs
+// TPM1 channels corresponding to the LSD outputs
 #define PWM_HSD_1           2
 #define PWM_HSD_2           5
 #define PWM_HSD_3           3
@@ -148,13 +129,6 @@
 #define PWM_HSD_6           1
 
 // ADC channel assignments
-#define AI_CS_1             10
-#define AI_CS_2             2
-#define AI_CS_3             11
-#define AI_CS_4             12
-#define AI_CS_5             0
-#define AI_CS_6             1
-#define AI_CS_7             8
 #define AI_KL15             14
 #define AI_TEMP             26
 
@@ -172,16 +146,10 @@
 //
 // Current sense outputs are the same but for mA.
 //
-// AI_CS_1/2/3/4:
-// -------------
-
-#define ADC_SCALE_FACTOR_DO_I   4531    // VALIDATED @ 1.000A
-
 // AI_KL15:
 // -------
 // Clamped at 11V; mostly useful to help detect input sag and
 // avoid faulting outputs when T30 is low.
-//
 
 #define ADC_SCALE_FACTOR_KL15   5507    // VALIDATED @ 8.368V
 
@@ -194,14 +162,13 @@
 // Initialize pins to suit the module.
 //
 // Note: analog inputs are configured as digital inputs
-//       by default; adc_configure will claim them later.
-//
+//       by default; HAL_adc_configure will claim them later.
 
 static void
-Microplex_7H_init(void)
+HAL_init(void)
 {
     _PTAD.Byte = 0x00;
-    _PTADD.Byte = 0x28;
+    _PTADD.Byte = 0x00;
     _PTASE.Byte = 0xff;
     _PTAPE.Byte = 0x00;
     _PTADS.Byte = 0x00;
@@ -231,10 +198,10 @@ Microplex_7H_init(void)
     _PTEDS.Byte = 0x00;
 
     _PTFD.Byte = 0x05;
-    _PTFDD.Byte = 0x05;
+    _PTFDD.Byte = 0x07;
     _PTFSE.Byte = 0xff;
     _PTFPE.Byte = 0x00;
     _PTFDS.Byte = 0x00;
 
-    EnableInterrupts;
+    __asm CLI;
 }

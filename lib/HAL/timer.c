@@ -20,19 +20,19 @@
 #include <stdint.h>
 
 #include <lib.h>
-#include <timer.h>
+#include <HAL/timer.h>
 
-#define timer_registered(_timer)    ((_timer)._next != NULL)
+#define _timer_registered(_timer)    ((_timer)._next != NULL)
 
-#define TIMER_LIST_END      (timer_t *)4
-#define TIMER_CALL_LIST_END (timer_call_t *)8
+#define TIMER_LIST_END      (HAL_timer_t *)4
+#define TIMER_CALL_LIST_END (HAL_timer_call_t *)8
 
-static timer_t          *timer_list = TIMER_LIST_END;
-static timer_call_t     *timer_call_list = TIMER_CALL_LIST_END;
+static HAL_timer_t      *timer_list = TIMER_LIST_END;
+static HAL_timer_call_t *timer_call_list = TIMER_CALL_LIST_END;
 static volatile uint16_t timebase_high_word;
 
 void
-time_init(void)
+HAL_timer_init(void)
 {
     TPM2SC = 0;
     TPM2SC_CLKSx = 2;   // select fixed clock
@@ -47,8 +47,8 @@ time_init(void)
     TPM2C1SC_CH1IE = 1; // enable interrupt
 }
 
-microseconds
-time_us(void)
+HAL_microseconds
+HAL_timer_us(void)
 {
     uint32_t        tv;
     bool            overflow;
@@ -73,21 +73,21 @@ time_us(void)
 
 
 bool
-time_elapsed_us(microseconds since_us, uint16_t interval_us)
+HAL_timer_elapsed_us(HAL_microseconds since_us, uint16_t interval_us)
 {
-    return (time_us() - since_us) >= interval_us;
+    return (HAL_timer_us() - since_us) >= interval_us;
 }
 
 void
-time_wait_us(uint16_t delay_us)
+HAL_timer_wait_us(uint16_t delay_us)
 {
-    microseconds then = time_us();
+    HAL_microseconds then = HAL_timer_us();
 
-    while (!time_elapsed_us(then, delay_us)) {
+    while (!HAL_timer_elapsed_us(then, delay_us)) {
     }
 }
 
-void
+static void
 __interrupt VectorNumber_Vtpm2ovf
 Vtpm2ovf_handler(void)
 {
@@ -96,13 +96,13 @@ Vtpm2ovf_handler(void)
 }
 
 void
-_timer_register(timer_t *timer)
+_HAL_timer_register(HAL_timer_t *timer)
 {
     ENTER_CRITICAL_SECTION;
 
     REQUIRE(timer != NULL);
 
-    if (!timer_registered(*timer)) {
+    if (!_timer_registered(*timer)) {
         // singly-linked insertion at head
         timer->_next = timer_list;
         timer_list = timer;
@@ -112,29 +112,29 @@ _timer_register(timer_t *timer)
 }
 
 void
-_timer_call_register(timer_call_t *call)
+_HAL_timer_call_register(HAL_timer_call_t *call)
 {
     ENTER_CRITICAL_SECTION;
 
     REQUIRE(call != NULL);
     REQUIRE(call->callback != NULL);
 
-    if (!timer_registered(*call)) {
+    if (!_timer_registered(*call)) {
 
         // singly-linked insertion at head
         call->_next = timer_call_list;
         timer_call_list = call;
-    }   
+    }
 
     EXIT_CRITICAL_SECTION;
 }
 
-void
+static void
 __interrupt VectorNumber_Vtpm2ch1
 Vtpm2ch1_handler(void)
 {
-    timer_t *t;
-    timer_call_t *tc;
+    HAL_timer_t *t;
+    HAL_timer_call_t *tc;
 
     // re-set compare for next tick
     // must update TPM2C1V *after* clearing the interrupt
@@ -145,8 +145,8 @@ Vtpm2ch1_handler(void)
 
     // update timers
     for (t = timer_list;
-         t != TIMER_LIST_END;
-         t = t->_next) {
+            t != TIMER_LIST_END;
+            t = t->_next) {
         if (t->delay_ms > 0) {
             t->delay_ms--;
         }
@@ -154,8 +154,8 @@ Vtpm2ch1_handler(void)
 
     // run timer calls
     for (tc = timer_call_list;
-         tc != TIMER_CALL_LIST_END;
-         tc = tc->_next) {
+            tc != TIMER_CALL_LIST_END;
+            tc = tc->_next) {
 
         // if the call is active...
         if (tc->delay_ms > 0) {

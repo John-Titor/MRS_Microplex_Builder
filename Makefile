@@ -32,7 +32,8 @@ GLOBAL_DEPS	:= $(MAKEFILE_LIST) \
 APP_SRCS	:= $(wildcard src/*.c)
 
 # library sources
-LIB_SRCS	:= $(wildcard lib/*.c)
+LIB_SRCS	:= $(wildcard lib/*.c) \
+		   $(wildcard lib/HAL/*.c)
 
 # needed sources from CW MCU
 MCU_SRCS	 = $(MCU)/lib/hc08c/src/start08.c \

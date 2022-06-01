@@ -21,7 +21,7 @@ void
 pt_list_run(void)
 {
     pt_list_entry_t     *entry = list;
-    
+
     while (entry != PT_LIST_END) {
         entry->func(&entry->pt);
         entry = entry->next;

@@ -8,10 +8,10 @@
 
 #include <mc9s08dz60.h>
 
-#include <mscan.h>
 #include <lib.h>
+#include <HAL/can.h>
 
-static const uint8_t btr_table[][2] = {
+static const uint8_t _CAN_btr_table[][2] = {
     { 0x04, 0x1c }, // 100kHz
     { 0x03, 0x1c }, // 125kHz
     { 0x01, 0x1c }, // 250kHz
@@ -23,21 +23,22 @@ typedef enum {
     WM_NONE,
     WM_SPACE,
     WM_SENT
-} CAN_wait_mode;
+} _CAN_wait_mode;
 
-static bool _CAN_send(const CAN_message_t *msg,
-                      CAN_wait_mode wait);
+static bool _CAN_send(const HAL_CAN_message_t *msg,
+                      _CAN_wait_mode wait);
 
 void
-CAN_init(CAN_bitrate bitrate,
-         CAN_filter_mode filter_mode,
-         const CAN_filters *filters)
+HAL_CAN_init(HAL_CAN_bitrate bitrate,
+             HAL_CAN_filter_mode filter_mode,
+             const HAL_CAN_filters *filters)
 {
-    REQUIRE(bitrate <= (sizeof(btr_table) / sizeof(btr_table[0])));
-    REQUIRE(filter_mode <= CAN_FM_NONE);
+    REQUIRE(bitrate <= (sizeof(_CAN_btr_table) / sizeof(_CAN_btr_table[0])));
+    REQUIRE(filter_mode <= HAL_CAN_FM_NONE);
 
     // set INITRQ and wait for it to be acknowledged
     CANCTL0 = CANCTL0_INITRQ_MASK;
+
     while (!(CANCTL1 & CANCTL1_INITAK_MASK)) {
     }
 
@@ -45,14 +46,15 @@ CAN_init(CAN_bitrate bitrate,
     CANCTL1 = CANCTL1_CANE_MASK;
 
     // configure for selected bitrate
-    CANBTR0 = btr_table[bitrate][0];
-    CANBTR1 = btr_table[bitrate][1];
+    CANBTR0 = _CAN_btr_table[bitrate][0];
+    CANBTR1 = _CAN_btr_table[bitrate][1];
 
     // configure filters
-    if (filter_mode == CAN_FM_NONE) {
+    if (filter_mode == HAL_CAN_FM_NONE) {
         CANIDAC = CANIDAC_IDAM1_MASK; // 8-bit filters
         CANIDAR0 = 0;                 // mask result 0
         CANIDMR0 = 0;                 // look at no bits
+
     } else {
         CANIDAC = filter_mode << 4;
         CANIDAR0 = filters->filter_8.accept[0];
@@ -77,26 +79,27 @@ CAN_init(CAN_bitrate bitrate,
 #pragma MESSAGE DISABLE C2705
     CANCTL0 &= ~CANCTL0_INITRQ_MASK;
 #pragma MESSAGE DEFAULT C2705
+
     while (CANCTL1 & CANCTL1_INITAK_MASK) {
     }
 }
 
 bool
-CAN_send(const CAN_message_t *msg)
+HAL_CAN_send(const HAL_CAN_message_t *msg)
 {
     // return false if not possible to send immediately.
     return _CAN_send(msg, WM_NONE);
 }
 
 void
-CAN_send_blocking(const CAN_message_t *msg)
+HAL_CAN_send_blocking(const HAL_CAN_message_t *msg)
 {
     // wait for space to send message
     (void)_CAN_send(msg, WM_SPACE);
 }
 
 void
-CAN_send_debug(const CAN_message_t *msg)
+HAL_CAN_send_debug(const HAL_CAN_message_t *msg)
 {
     // wait for space and wait for message to be sent -
     // debug messages are thus sent in the order they are
@@ -105,8 +108,8 @@ CAN_send_debug(const CAN_message_t *msg)
 }
 
 static bool
-_CAN_send(const CAN_message_t *msg,
-          CAN_wait_mode wait_mode)
+_CAN_send(const HAL_CAN_message_t *msg,
+          _CAN_wait_mode wait_mode)
 {
     uint8_t txe;
 
@@ -116,9 +119,11 @@ _CAN_send(const CAN_message_t *msg,
     // wait for a buffer to be free
     for (;;) {
         txe = CANTFLG;
+
         if (txe != 0) {
             break;
         }
+
         // ... or don't
         if (wait_mode == WM_NONE) {
             return false;
@@ -153,11 +158,12 @@ _CAN_send(const CAN_message_t *msg,
     // wait for message to send, or don't
     while ((wait_mode == WM_SENT) && !(CANTFLG & txe)) {
     }
+
     return true;
 }
 
 bool
-CAN_recv(CAN_message_t *msg)
+HAL_CAN_recv(HAL_CAN_message_t *msg)
 {
     REQUIRE(msg != NULL);
 
@@ -187,10 +193,10 @@ CAN_recv(CAN_message_t *msg)
 }
 
 void
-can_putchar(char c)
+HAL_CAN_putchar(char c)
 {
-    static CAN_message_t msg = {
-        { MSCAN_ID_EXT(0x1ffffffe) },   // id
+    static HAL_CAN_message_t msg = {
+        { HAL_CAN_ID_EXT(0x1ffffffe) }, // id
         { 0 },                          // data
         0,                              // dlc
         128                             // priority
@@ -200,7 +206,7 @@ can_putchar(char c)
 
     // send message if full or newline
     if ((c == '\n') || (msg.dlc == 8)) {
-        CAN_send_debug(&msg);
+        HAL_CAN_send_debug(&msg);
         msg.dlc = 0;
     }
 }

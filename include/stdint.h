@@ -1,5 +1,5 @@
 /*
- * Subset of the standard integer types
+ * Subset of the standard integer types.
  */
 
 #pragma ONCE

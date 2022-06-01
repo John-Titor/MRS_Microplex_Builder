@@ -12,7 +12,7 @@ extern void _Startup(void);     // from start08.c in MCU library code
 #pragma CODE_SEG .init
 #pragma NO_FRAME
 #pragma NO_EXIT
-void 
+void
 __interrupt VectorNumber_Vreset
 __start(void)
 {

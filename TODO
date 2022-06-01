@@ -1,6 +1,9 @@
 MRS Microplex Firmware Builder:
 
   features:
+    ☐ HAL
+      ☐ more functional ADC abstraction
+      ☐ more functional PWM / output abstraction
     ☐ CAN
       ✘ transmit, console @cancelled (22-06-01 09:33)
       ☐ receive interrupt
