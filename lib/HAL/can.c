@@ -9,14 +9,18 @@
 #include <mc9s08dz60.h>
 
 #include <lib.h>
-#include <HAL/can.h>
+#include <HAL/_can.h>
+#include <HAL/_bootrom.h>
 
+/* entries here match the MRS_CAN_*BPS constants in <HAL/_bootrom.h> */
 static const uint8_t _CAN_btr_table[][2] = {
-    { 0x04, 0x1c }, // 100kHz
-    { 0x03, 0x1c }, // 125kHz
-    { 0x01, 0x1c }, // 250kHz
+    { 0x00, 0x00 }, // -
+    { 0x00, 0x05 }, // 1MHz
+    { 0x00, 0x05 }, // 800kHz XXX
     { 0x00, 0x1c }, // 500kHz
-    { 0x00, 0x05 }  // 1MHz
+    { 0x01, 0x1c }, // 250kHz
+    { 0x03, 0x1c }, // 125kHz
+    { 0x04, 0x1c }  // 100kHz
 };
 
 typedef enum {
@@ -25,16 +29,23 @@ typedef enum {
     WM_SENT
 } _CAN_wait_mode;
 
-static bool _CAN_send(const HAL_CAN_message_t *msg,
+static bool _CAN_send(uint32_t id,
+                      uint8_t dlc,
+                      const uint8_t *data,
                       _CAN_wait_mode wait);
 
 void
-HAL_CAN_init(HAL_CAN_bitrate bitrate,
-             HAL_CAN_filter_mode filter_mode,
-             const HAL_CAN_filters *filters)
+HAL_CAN_configure(uint8_t bitrate,
+                  HAL_CAN_filter_mode filter_mode,
+                  const HAL_CAN_filters *filters)
 {
     REQUIRE(bitrate <= (sizeof(_CAN_btr_table) / sizeof(_CAN_btr_table[0])));
     REQUIRE(filter_mode <= HAL_CAN_FM_NONE);
+
+    // if rate not set, get default from ROM
+    if (bitrate == 0) {
+        bitrate = mrs_can_bitrate();
+    }
 
     // set INITRQ and wait for it to be acknowledged
     CANCTL0 = CANCTL0_INITRQ_MASK;
@@ -85,35 +96,36 @@ HAL_CAN_init(HAL_CAN_bitrate bitrate,
 }
 
 bool
-HAL_CAN_send(const HAL_CAN_message_t *msg)
+HAL_CAN_send(uint32_t id, uint8_t dlc, const uint8_t *data)
 {
     // return false if not possible to send immediately.
-    return _CAN_send(msg, WM_NONE);
+    return _CAN_send(id, dlc, data, WM_NONE);
 }
 
 void
-HAL_CAN_send_blocking(const HAL_CAN_message_t *msg)
+HAL_CAN_send_blocking(uint32_t id, uint8_t dlc, const uint8_t *data)
 {
     // wait for space to send message
-    (void)_CAN_send(msg, WM_SPACE);
+    (void)_CAN_send(id, dlc, data, WM_SPACE);
 }
 
 void
-HAL_CAN_send_debug(const HAL_CAN_message_t *msg)
+HAL_CAN_send_debug(uint32_t id, uint8_t dlc, const uint8_t *data)
 {
     // wait for space and wait for message to be sent -
     // debug messages are thus sent in the order they are
     // queued.
-    (void)_CAN_send(msg, WM_SENT);
+    (void)_CAN_send(id, dlc, data, WM_SENT);
 }
 
 static bool
-_CAN_send(const HAL_CAN_message_t *msg,
+_CAN_send(uint32_t id,
+          uint8_t dlc,
+          const uint8_t *data,
           _CAN_wait_mode wait_mode)
 {
     uint8_t txe;
 
-    REQUIRE(msg != NULL);
     REQUIRE(wait_mode <= WM_SENT);
 
     // wait for a buffer to be free
@@ -137,20 +149,28 @@ _CAN_send(const HAL_CAN_message_t *msg,
     txe = CANTBSEL;
 
     // copy message to registers
-    CANTIDR0 = msg->id.regs[0];
-    CANTIDR1 = msg->id.regs[1];
-    CANTIDR2 = msg->id.regs[2];
-    CANTIDR3 = msg->id.regs[3];
-    CANTDSR0 = msg->data[0];
-    CANTDSR1 = msg->data[1];
-    CANTDSR2 = msg->data[2];
-    CANTDSR3 = msg->data[3];
-    CANTDSR4 = msg->data[4];
-    CANTDSR5 = msg->data[5];
-    CANTDSR6 = msg->data[6];
-    CANTDSR7 = msg->data[7];
-    CANTDLR = msg->dlc;
-    CANTTBPR = msg->priority;
+    if (id & HAL_CAN_ID_EXT) {
+        CANTIDR0 = (id >> 21) & 0xff;
+        CANTIDR1 = (((id >> 18 & 0x07) << 5) |
+                    CANTIDR1_IDE_MASK | CANTIDR1_SRR_MASK |
+                    ((id >> 15) & 0x07));
+        CANTIDR2 = (id >> 7) & 0xff;
+        CANTIDR3 = ((id << 1) & 0xfe);
+    } else {
+        CANTIDR0 = (id >> 3) & 0xff;
+        CANTIDR1 = (id & 0x07) << 5;
+        CANTIDR3 = 0;
+    }
+    CANTDSR0 = data[0];
+    CANTDSR1 = data[1];
+    CANTDSR2 = data[2];
+    CANTDSR3 = data[3];
+    CANTDSR4 = data[4];
+    CANTDSR5 = data[5];
+    CANTDSR6 = data[6];
+    CANTDSR7 = data[7];
+    CANTDLR = dlc;
+    CANTTBPR = 0;
 
     // mark the buffer as not-empty to start transmission
     CANTFLG = txe;
@@ -173,10 +193,17 @@ HAL_CAN_recv(HAL_CAN_message_t *msg)
     }
 
     // copy message from registers
-    msg->id.regs[0] = CANRIDR0;
-    msg->id.regs[1] = CANRIDR1;
-    msg->id.regs[2] = CANRIDR2;
-    msg->id.regs[3] = CANRIDR3;
+    if (CANRIDR1_IDE) {
+        msg->id = (((uint32_t)CANRIDR0 << 21) |
+                   ((uint32_t)CANRIDR1_ID_18 << 18) |
+                   ((uint32_t)CANRIDR1_ID_15 << 15) |
+                   ((uint32_t)CANRIDR2 << 7) |
+                   (uint32_t)CANRIDR3_ID) |
+                   HAL_CAN_ID_EXT;
+    } else {
+        msg->id = (((uint32_t)CANRIDR0 << 3) |
+                   (uint32_t)CANRIDR1_ID_18);
+    }
     msg->data[0] = CANRDSR0;
     msg->data[1] = CANRDSR1;
     msg->data[2] = CANRDSR2;
@@ -195,18 +222,14 @@ HAL_CAN_recv(HAL_CAN_message_t *msg)
 void
 HAL_CAN_putchar(char c)
 {
-    static HAL_CAN_message_t msg = {
-        { HAL_CAN_ID_EXT(0x1ffffffe) }, // id
-        { 0 },                          // data
-        0,                              // dlc
-        128                             // priority
-    };
+    static uint8_t data[8];
+    static uint8_t dlc;
 
-    msg.data[msg.dlc++] = c;
+    data[dlc++] = c;
 
     // send message if full or newline
-    if ((c == '\n') || (msg.dlc == 8)) {
-        HAL_CAN_send_debug(&msg);
-        msg.dlc = 0;
+    if ((c == '\n') || (dlc == 8)) {
+        HAL_CAN_send_debug(HAL_CAN_ID_EXT | 0x1ffffffeUL, dlc, &data[0]);
+        dlc = 0;
     }
 }

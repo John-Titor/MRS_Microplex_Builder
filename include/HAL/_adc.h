@@ -21,7 +21,7 @@ typedef struct {
 
 #define HAL_ADC_UNSCALED    4096
 
-extern void     HAL_adc_init();
+extern void     _HAL_adc_init(void);
 extern void     HAL_adc_configure(HAL_adc_channel_state_t *state);
 extern uint16_t HAL_adc_result(HAL_adc_channel_state_t *state);
 extern uint16_t HAL_adc_result_unscaled(HAL_adc_channel_state_t *state);

@@ -9,14 +9,6 @@
 #include <stdbool.h>
 
 typedef enum {
-    HAL_CAN_BR_100,     // index into the BTRx table
-    HAL_CAN_BR_125,
-    HAL_CAN_BR_250,
-    HAL_CAN_BR_500,
-    HAL_CAN_BR_1000
-} HAL_CAN_bitrate;
-
-typedef enum {
     HAL_CAN_FM_2x32,    // maps to the CANIDAC IDAMx bits
     HAL_CAN_FM_4x16,
     HAL_CAN_FM_8x8,
@@ -38,52 +30,35 @@ typedef union {
     } filter_8;
 } HAL_CAN_filters;
 
-// extended ID
-#define HAL_CAN_ID_EXT(_id) ((((uint32_t)(_id) << 3) & (uint32_t)0xffe00000) |\
-                             (((uint32_t)(_id) << 1) & (uint32_t)0x0007fffe) |\
-                             (((uint32_t)3 << 19)))
-
-// standard ID
-#define HAL_CAN_ID(_id)     ((uint32_t)(_id) << 21)
-
-// match an extended ID
-#define HAL_CAN_ID_MATCH_EXT(_id, _msg) (_msg.id.mscan_id == HAL_CAN_ID_EXT(_id))
-
-// match a standard ID - must ignore x bits
-#define HAL_CAN_ID_MATCH(_id, _msg)     ((_msg.id.mscan_id & 0xfff80000) == HAL_CAN_ID(_id))
-
+#define HAL_CAN_ID_EXT  ((uint32_t)1 << 31)
 
 typedef struct {
-    union {
-        uint32_t    mscan_id;
-        uint8_t     regs[4];
-    } id;
+    uint32_t        id;
     uint8_t         data[8];
     uint8_t         dlc;
-    uint8_t         priority;
 } HAL_CAN_message_t;
 
 /**
- * Init MSCAN for the given bitrate.
+ * Configure CAN for the given bitrate.
  *
  * Set filter_mode to CAN_FM_NONE and pass NULL for filters
  * to receive all messages.
  */
-extern void HAL_CAN_init(HAL_CAN_bitrate bitrate,
-                         HAL_CAN_filter_mode filter_mode,
-                         const HAL_CAN_filters *filters);
+extern void HAL_CAN_configure(uint8_t bitrate,
+                              HAL_CAN_filter_mode filter_mode,
+                              const HAL_CAN_filters *filters);
 
 /**
  * Send a CAN message if there is buffer space available.
  *
  * Returns false if the message cannot be queued immediately.
  */
-extern bool HAL_CAN_send(const HAL_CAN_message_t *msg);
+extern bool HAL_CAN_send(uint32_t id, uint8_t dlc, const uint8_t *data);
 
 /**
  * Send a CAN message; waits for buffer space.
  */
-extern void HAL_CAN_send_blocking(const HAL_CAN_message_t *msg);
+extern void HAL_CAN_send_blocking(uint32_t id, uint8_t dlc, const uint8_t *data);
 
 /**
  * Send a CAN message for debug purposes; waits for buffer space
@@ -91,7 +66,7 @@ extern void HAL_CAN_send_blocking(const HAL_CAN_message_t *msg);
  *
  * Debug messages are always ordered vs. other debug messages.
  */
-extern void HAL_CAN_send_debug(const HAL_CAN_message_t *msg);
+extern void HAL_CAN_send_debug(uint32_t id, uint8_t dlc, const uint8_t *data);
 
 /**
  * Attempt to receive a CAN message

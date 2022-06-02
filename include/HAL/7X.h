@@ -119,16 +119,19 @@
 //  - For normal operation, set CAN_EN and CAN_STB_N high. See TJA1043
 //    datasheet for other modes and the use of the CAN_WAKE signal.
 
+#include <stddef.h>
 #include <mc9s08dz60.h>
+#include <lib.h>
 
 #define HAL_7X          1
 #define HAL_7H          0
 #define HAL_7L          0
 
-#include <HAL/adc.h>
-#include <HAL/can.h>
-#include <HAL/pwm.h>
-#include <HAL/timer.h>
+#include <HAL/_adc.h>
+#include <HAL/_can.h>
+#include <HAL/_eeprom.h>
+#include <HAL/_pwm.h>
+#include <HAL/_timer.h>
 
 #define DI_AI_1         _PTBD.Bits.PTBD5
 #define DI_AI_2         _PTAD.Bits.PTAD6
@@ -271,6 +274,11 @@ HAL_init(void)
     _PTFSE.Byte = 0xff;
     _PTFPE.Byte = 0x00;
     _PTFDS.Byte = 0x00;
+
+    _HAL_timer_init();
+    _HAL_pwm_init();
+    _HAL_adc_init();
+    HAL_CAN_configure(0, HAL_CAN_FM_NONE, NULL);
 
     __asm CLI;
 }

@@ -22,18 +22,24 @@
 
 #include <mc9s08dz60.h>
 
-#include <HAL/pwm.h>
+#include <HAL/_pwm.h>
 
 static uint16_t pwm_period_cycles;
 
 void
-HAL_pwm_init(uint8_t period_ms)
+_HAL_pwm_init(void)
 {
-    pwm_period_cycles = (uint16_t)period_ms * (1000 / 4);
-
     TPM1SC = 0;
     TPM1SC_CLKSx = 2;           // select fixed clock
     TPM1SC_PS = 2;              // /4 prescaler
+    HAL_pwm_set_period(8);      // sensible default
+}
+
+void
+HAL_pwm_set_period(uint8_t period_ms)
+{
+    pwm_period_cycles = (uint16_t)period_ms * (1000 / 4);
+
     TPM1MOD = pwm_period_cycles;    // set PWM period
     TPM1CNT = 0;                // reset the period
 }

@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 #include <lib.h>
-#include <HAL/timer.h>
+#include <HAL/_timer.h>
 
 #define _timer_registered(_timer)    ((_timer)._next != NULL)
 
@@ -32,7 +32,7 @@ static HAL_timer_call_t *timer_call_list = TIMER_CALL_LIST_END;
 static volatile uint16_t timebase_high_word;
 
 void
-HAL_timer_init(void)
+_HAL_timer_init(void)
 {
     TPM2SC = 0;
     TPM2SC_CLKSx = 2;   // select fixed clock

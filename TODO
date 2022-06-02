@@ -8,6 +8,7 @@ MRS Microplex Firmware Builder:
       ✘ transmit, console @cancelled (22-06-01 09:33)
       ☐ receive interrupt
       ☐ filtering
+      ☐ fix 800kHz BTR values
     ☐ PWM output
       ✔ 7H PWM assignments for ch5/6 @done (22-06-01 12:17)
     ☐ ADC

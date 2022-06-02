@@ -7,7 +7,7 @@
 #include <mc9s08dz60.h>
 
 #include <lib.h>
-#include <HAL/can.h>
+#include <HAL/_can.h>
 
 void
 print(const char *format, ...)

@@ -6,12 +6,14 @@
 
 #include <stdint.h>
 
+extern void _HAL_pwm_init(void);
+
 /**
- * Initialize the PWM timer.
+ * Set the PWM period.
  *
  * @param period_ms [in]        PWM period in milliseconds.
  */
-extern void HAL_pwm_init(uint8_t period_ms);
+extern void HAL_pwm_set_period(uint8_t period_ms);
 
 /**
  * Configure a PWM output.

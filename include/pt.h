@@ -7,7 +7,7 @@
 
 #pragma ONCE
 
-#include <stddef.h>
+#include <HAL/_timer.h>
 
 /* Protothread status values */
 #define PT_STATUS_BLOCKED   0
@@ -123,6 +123,23 @@ struct pt {
         pt_label(pt, stat); \
         return;             \
     } while (0)
+
+
+/**
+ * Blocking delay.
+ *
+ * The current thread will be blocked until the delay has expired.
+ *
+ * @param pt            The current protothread
+ * @param timer         The timer to use
+ * @param ms            The number of milliseconds to block
+ */
+#define pt_delay(pt, timer, ms)                 \
+    do {                                        \
+        HAL_timer_reset(timer, ms);             \
+        pt_wait(pt, HAL_timer_expired(timer));  \
+    } while(0)
+
 
 /**
  * Thread list.

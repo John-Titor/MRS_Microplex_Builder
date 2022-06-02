@@ -5,10 +5,10 @@
 #include <mc9s08dz60.h>
 
 #include <lib.h>
-#include <HAL/adc.h>
+#include <HAL/_adc.h>
 
 void
-HAL_adc_init()
+_HAL_adc_init(void)
 {
     ADCCFG_ADICLK = 0;  // bus clock (20MHz)
     ADCCFG_MODE = 2;    // 10-bit mode

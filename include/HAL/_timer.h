@@ -33,10 +33,7 @@ typedef struct _timer_call {
  */
 typedef uint32_t HAL_microseconds;
 
-/**
- * initialize the timers
- */
-extern void         HAL_timer_init(void);
+extern void         _HAL_timer_init(void);
 
 /**
  * get the current time
@@ -83,18 +80,3 @@ extern void         _HAL_timer_call_register(HAL_timer_call_t *call);
  * Test whether a timer or callback has expired
  */
 #define HAL_timer_expired(_timer)           ((_timer).delay_ms == 0)
-
-/**
- * Blocking delay for protothreads
- *
- * The current thread will be blocked until the delay has expired.
- *
- * @param pt            The current protothread
- * @param timer         The timer to use
- * @param ms            The number of milliseconds to block
- */
-#define pt_delay(pt, timer, ms)                 \
-    do {                                    \
-        timer_reset(timer, ms);             \
-        pt_wait(pt, timer_expired(timer));  \
-    } while(0)

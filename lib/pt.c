@@ -2,6 +2,8 @@
  * pt.c
  */
 
+#include <stddef.h>
+
 #include <lib.h>
 #include <pt.h>
 
