@@ -48,6 +48,9 @@ export LIBS	 = $(MCU)/lib/hc08c/lib/ansiis.lib
 export TEXTPATH	 = $(BUILDDIR)
 export ERRORFILE = $(BUILDDIR)/%n_link_errors.txt
 
+# make Wine quieter - turn this off when debugging Wine problems
+export WINEDEBUG = -all
+
 .PHONY: all clean
 .SECONDARY:
 

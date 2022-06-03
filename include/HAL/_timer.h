@@ -63,7 +63,7 @@ extern void         _HAL_timer_register(HAL_timer_t *timer);
  *
  * @note does nothing to an already-registered callback.
  */
-#define HAL_timer_call_register(_t) _timer_call_register(&_t)
+#define HAL_timer_call_register(_t) _HAL_timer_call_register(&_t)
 extern void         _HAL_timer_call_register(HAL_timer_call_t *call);
 
 /**

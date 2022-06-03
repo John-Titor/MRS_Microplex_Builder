@@ -73,8 +73,8 @@
 // DI_CS_5          PORT_A.0    -   DO_HSD_5 current sense
 // DI_CS_6          PORT_A.1    -   DO_HSD_6 current sense
 // DI_CS_2          PORT_A.2    -   DO_HSD_2 current sense
-// DO_HSD_SEN2      PORT_A.3    -   internal current sense select (CS_DIS?)
-// DO_HSD_SEN1      PORT_A.5    -   internal current sense select (CS_DIS?)
+// DO_HSD_SEN2      PORT_A.3    -   internal current sense disable
+// DO_HSD_SEN1      PORT_A.5    -   internal current sense disable
 //
 // PortB
 // -----
@@ -110,145 +110,33 @@
 //  - For normal operation, set CAN_EN and CAN_STB_N high. See TJA1043
 //    datasheet for other modes and the use of the CAN_WAKE signal.
 
-#include <stddef.h>
 #include <mc9s08dz60.h>
-#include <lib.h>
-
-#define HAL_7X          0
-#define HAL_7H          1
-#define HAL_7L          0
 
 #include <HAL/_adc.h>
 #include <HAL/_can.h>
 #include <HAL/_eeprom.h>
+#include <HAL/_init.h>
+#include <HAL/_pin.h>
 #include <HAL/_pwm.h>
 #include <HAL/_timer.h>
 
-#define DI_AI_KL15      _PTBD.Bits.PTBD6
+// GPIOs
 #define DI_CAN_ERR      _PTFD.Bits.PTFD3
-#define DI_CS_1         _PTBD.Bits.PTBD2
-#define DI_CS_2         _PTAD.Bits.PTAD2
-#define DI_CS_3         _PTBD.Bits.PTBD3
-#define DI_CS_4         _PTBD.Bits.PTBD4
-#define DI_CS_5         _PTAD.Bits.PTAD0
-#define DI_CS_6         _PTAD.Bits.PTAD1
-#define DI_CS_7         _PTBD.Bits.PTBD0
-
 #define CAN_EN          _PTFD.Bits.PTFD0
 #define CAN_STB_N       _PTFD.Bits.PTFD2
 #define CAN_WAKE        _PTED.Bits.PTED5
-#define DO_HSD_1        _PTDD.Bits.PTDD4
-#define DO_HSD_2        _PTDD.Bits.PTDD7
-#define DO_HSD_3        _PTDD.Bits.PTDD5
-#define DO_HSD_4        _PTDD.Bits.PTDD6
-#define DO_HSD_5        _PTDD.Bits.PTDD2
-#define DO_HSD_6        _PTDD.Bits.PTDD3
-#define DO_HSD_7        _PTDD.Bits.PTDD0
+#define DO_POWER        _PTED.Bits.PTED2
 #define DO_HSD_SEN1     _PTAD.Bits.PTAD3
 #define DO_HSD_SEN2     _PTAD.Bits.PTAD5
-#define DO_POWER        _PTED.Bits.PTED2
 
-// TPM1 channels corresponding to the HSD outputs
-#define PWM_HSD_1           2
-#define PWM_HSD_2           5
-#define PWM_HSD_3           3
-#define PWM_HSD_4           4
-#define PWM_HSD_5           0
-#define PWM_HSD_6           1
+// Module pins - see _pin.h for API
+#define OUT_1           &_HAL_7H_pin[0]
+#define OUT_2           &_HAL_7H_pin[1]
+#define OUT_3           &_HAL_7H_pin[2]
+#define OUT_4           &_HAL_7H_pin[3]
+#define OUT_5           &_HAL_7H_pin[4]
+#define OUT_6           &_HAL_7H_pin[5]
+#define OUT_7           &_HAL_7H_pin[6]
+#define KL15            &_HAL_7H_pin[7]
 
-// ADC channel assignments
-#define AI_CS_1             10
-#define AI_CS_2             2
-#define AI_CS_3             11
-#define AI_CS_4             12
-#define AI_CS_5             0
-#define AI_CS_6             1
-#define AI_CS_7             8
-#define AI_KL15             14
-#define AI_TEMP             26
-
-//
-// ADC scale factors
-//
-// Measurements in 10-bit mode.
-//
-// Scaling is performed by taking the accumulated ADC counts
-// (sum of ADC_AVG_SAMPLES), multiplying by the scale factor
-// and then right-shifting by 12, i.e. the scale factor is a
-// 4.12 fixed-point quantity.
-//
-// To calculate the scaling factor, take mV-per-count and
-// multiply by 512.
-//
-// Current sense outputs are the same but for mA.
-//
-// AI_CS_1/2/3/4:
-// -------------
-//
-#define ADC_SCALE_FACTOR_DO_I   4531    // VALIDATED @ 1.000A
-
-// AI_KL15:
-// -------
-// Clamped at 11V; mostly useful to help detect input sag and
-// avoid faulting outputs when T30 is low.
-//
-
-#define ADC_SCALE_FACTOR_KL15   5507    // VALIDATED @ 8.368V
-
-// AI_TEMP
-// -------
-// Calculated for nominal Vdd (5V)
-
-#define ADC_SCALE_FACTOR_TEMP   610     // XXX VALIDATE
-
-// Initialize pins to suit the module.
-//
-// Note: analog inputs are configured as digital inputs
-//       by default; HAL_adc_configure will claim them later.
-
-static void
-HAL_init(void)
-{
-    _PTAD.Byte = 0x00;
-    _PTADD.Byte = 0x28;
-    _PTASE.Byte = 0xff;
-    _PTAPE.Byte = 0x00;
-    _PTADS.Byte = 0x00;
-
-    _PTBD.Byte = 0x00;
-    _PTBDD.Byte = 0x00;
-    _PTBSE.Byte = 0xff;
-    _PTBPE.Byte = 0x00;
-    _PTBDS.Byte = 0x00;
-
-    _PTCD.Byte = 0x00;
-    _PTCDD.Byte = 0x00;
-    _PTCSE.Byte = 0xff;
-    _PTCPE.Byte = 0x00;
-    _PTCDS.Byte = 0x00;
-
-    _PTDD.Byte = 0x00;
-    _PTDDD.Byte = 0xfe;
-    _PTDSE.Byte = 0xff;
-    _PTDPE.Byte = 0x00;
-    _PTDDS.Byte = 0x00;
-
-    _PTED.Byte = 0x00;
-    _PTEDD.Byte = 0x14;
-    _PTESE.Byte = 0xff;
-    _PTEPE.Byte = 0x00;
-    _PTEDS.Byte = 0x00;
-
-    _PTFD.Byte = 0x05;
-    _PTFDD.Byte = 0x05;
-    _PTFSE.Byte = 0xff;
-    _PTFPE.Byte = 0x00;
-    _PTFDS.Byte = 0x00;
-
-    _HAL_timer_init();
-    _HAL_pwm_init();
-    _HAL_adc_init();
-    HAL_CAN_configure(0, HAL_CAN_FM_NONE, NULL);
-
-    __asm CLI;
-}
+#define HAL_init    _HAL_7H_init

@@ -74,47 +74,42 @@ HAL_pwm_set(uint8_t channel, uint8_t duty)
     // Configure the channel and load the new period.
     // Note that the hardware manages the period reload to avoid
     // glitches, so we don't have to.
+    //
+    // Always edge-aligned PWM, high for assigned duty cycle
+    //
     switch (channel) {
     case 0:
-        TPM1C0SC = 0;
-        TPM1C0SC_MS0B = 1;      // edge-aligned PWM
-        TPM1C0SC_ELS0B = 1;     // high for assigned duty cycle
+        TPM1C0SC = TPM1C0SC_MS0B_MASK | TPM1C0SC_ELS0B_MASK;
         TPM1C0V = channel_cycles;
         break;
 
     case 1:
-        TPM1C1SC = 1;
-        TPM1C1SC_MS1B = 1;      // edge-aligned PWM
-        TPM1C1SC_ELS1B = 1;     // high for assigned duty cycle
+        TPM1C1SC = TPM1C1SC_MS1B_MASK | TPM1C1SC_ELS1B_MASK;
         TPM1C1V = channel_cycles;
         break;
 
     case 2:
-        TPM1C2SC = 2;
-        TPM1C2SC_MS2B = 1;      // edge-aligned PWM
-        TPM1C2SC_ELS2B = 1;     // high for assigned duty cycle
+        TPM1C2SC = TPM1C2SC_MS2B_MASK | TPM1C2SC_ELS2B_MASK;
         TPM1C2V = channel_cycles;
         break;
 
     case 3:
-        TPM1C3SC = 3;
-        TPM1C3SC_MS3B = 1;      // edge-aligned PWM
-        TPM1C3SC_ELS3B = 1;     // high for assigned duty cycle
+        TPM1C3SC = TPM1C3SC_MS3B_MASK | TPM1C3SC_ELS3B_MASK;
         TPM1C3V = channel_cycles;
         break;
 
     case 4:
-        TPM1C4SC = 4;
-        TPM1C4SC_MS4B = 1;      // edge-aligned PWM
-        TPM1C4SC_ELS4B = 1;     // high for assigned duty cycle
+        TPM1C4SC = TPM1C4SC_MS4B_MASK | TPM1C4SC_ELS4B_MASK;
         TPM1C4V = channel_cycles;
         break;
 
     case 5:
-        TPM1C5SC = 5;
-        TPM1C5SC_MS5B = 1;      // edge-aligned PWM
-        TPM1C5SC_ELS5B = 1;     // high for assigned duty cycle
+        TPM1C5SC = TPM1C5SC_MS5B_MASK | TPM1C5SC_ELS5B_MASK;
         TPM1C5V = channel_cycles;
+        break;
+
+    default:
+        // ignore
         break;
     }
 }
