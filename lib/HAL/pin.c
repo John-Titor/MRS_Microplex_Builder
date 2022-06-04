@@ -56,7 +56,7 @@ const HAL_pin_t _HAL_7X_pin[] = {
     /* KL15  */ { 11,     AI_NONE,  PWM_NONE, {PORT_NONE}, {PORT_NONE} }
 };
 
-static uint8_t * const _gpio_data_reg[] = {
+static uint8_t *const _gpio_data_reg[] = {
     NULL,
     &PTAD,
     &PTBD,
@@ -75,7 +75,7 @@ _gpio_set(const HAL_GPIO_t gpio, bool value)
         if (value) {
             *_gpio_data_reg[gpio.port] |= mask;
         } else {
-            *_gpio_data_reg[gpio.port] &= ~mask;        
+            *_gpio_data_reg[gpio.port] &= ~mask;
         }
     }
 }
@@ -96,6 +96,7 @@ void
 HAL_pin_set_range(const HAL_pin_t *pin, bool high_range)
 {
     _gpio_set(pin->range, high_range);
+
     if (pin->adc_v != AI_NONE) {
         _HAL_adc_set_scale(pin->adc_v, high_range ? HAL_ADC_SCALE_30V : HAL_ADC_SCALE_10V);
     }

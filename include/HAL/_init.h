@@ -1,5 +1,5 @@
 /** @file
- * 
+ *
  * Initialisation-related definitions
  */
 

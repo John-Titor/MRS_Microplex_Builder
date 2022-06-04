@@ -148,7 +148,7 @@ struct pt {
  * where they will be run each time around the main loop.
  */
 typedef struct _pt_list_entry {
-    const void              (*func)(struct pt *pt);
+    const void (*func)(struct pt *pt);
     struct _pt_list_entry   *next;
     struct pt               pt;
 } pt_list_entry_t;

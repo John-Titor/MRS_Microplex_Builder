@@ -13,7 +13,7 @@ HAL_eeprom_write(uint16_t offset, uint8_t len, const uint8_t *data)
 }
 
 void
-HAL_eeprom_write8(uint16_t offset, uint8_t data) 
+HAL_eeprom_write8(uint16_t offset, uint8_t data)
 {
     HAL_eeprom_write(offset, 1, &data);
 }

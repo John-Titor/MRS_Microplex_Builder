@@ -161,6 +161,7 @@ _CAN_send(uint32_t id,
         CANTIDR1 = (id & 0x07) << 5;
         CANTIDR3 = 0;
     }
+
     CANTDSR0 = data[0];
     CANTDSR1 = data[1];
     CANTDSR2 = data[2];
@@ -199,11 +200,12 @@ HAL_CAN_recv(HAL_CAN_message_t *msg)
                    ((uint32_t)CANRIDR1_ID_15 << 15) |
                    ((uint32_t)CANRIDR2 << 7) |
                    (uint32_t)CANRIDR3_ID) |
-                   HAL_CAN_ID_EXT;
+                  HAL_CAN_ID_EXT;
     } else {
         msg->id = (((uint32_t)CANRIDR0 << 3) |
                    (uint32_t)CANRIDR1_ID_18);
     }
+
     msg->data[0] = CANRDSR0;
     msg->data[1] = CANRDSR1;
     msg->data[2] = CANRDSR2;

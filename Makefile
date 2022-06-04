@@ -39,6 +39,8 @@ LIB_SRCS	:= $(wildcard lib/*.c) \
 MCU_SRCS	 = $(MCU)/lib/hc08c/src/start08.c \
 		   $(MCU)/lib/hc08c/device/src/mc9s08dz60.c
 
+FORMAT_SRCS	 = $(shell find $(_CWD)lib $(_CWD)src $(_CWD)include -name "*.[ch]")
+
 # export these so the linker can pick it up from its config
 export OBJS	:= $(patsubst %.c,$(BUILDDIR)/%.obj,$(APP_SRCS) $(LIB_SRCS)) \
 		   $(patsubst $(MCU)/lib/%.c,$(BUILDDIR)/mcu_lib/%.obj,$(MCU_SRCS))
@@ -51,13 +53,31 @@ export ERRORFILE = $(BUILDDIR)/%n_link_errors.txt
 # make Wine quieter - turn this off when debugging Wine problems
 export WINEDEBUG = -all
 
-.PHONY: all clean
+.PHONY: all clean reformat
 .SECONDARY:
 
 all:	$(BUILDDIR)/microplex.elf
 
 clean:
 	rm -rf $(BUILDDIR)
+
+reformat:
+	astyle \
+	--style=kr \
+	--indent=spaces=4 \
+	--indent-cases \
+	--indent-preprocessor \
+	--break-blocks \
+	--pad-oper \
+	--pad-header \
+	--unpad-paren \
+	--add-brackets \
+	--convert-tabs \
+	--align-pointer=name \
+	--keep-one-line-blocks \
+	--formatted \
+	--suffix=none \
+	$(FORMAT_SRCS)
 
 # build an application / generate s-records
 $(BUILDDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)

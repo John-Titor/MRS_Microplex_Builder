@@ -107,6 +107,7 @@ _adc_complete(void)
 
     // proceed to next channel
     _sequence++;
+
     if (_state[_sequence].scale != HAL_ADC_SCALE_END) {
         ADCSC1_ADCH = _state[_sequence].channel;
     } else {

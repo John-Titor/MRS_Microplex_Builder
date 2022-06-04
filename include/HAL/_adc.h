@@ -79,9 +79,9 @@ extern void     _HAL_adc_set_scale(uint8_t index, HAL_adc_scale_t scale);
 
 /**
  * Fetch a scaled ADC result.
- * 
+ *
  * Note that channel indices are not range-checked.
- * 
+ *
  * @param index         The ADC channel index to fetch.
  * @return              The scaled result for the channel.
  */

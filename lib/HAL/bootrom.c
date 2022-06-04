@@ -53,7 +53,7 @@ typedef struct {
     uint32_t    id;
     uint8_t     len;
     uint8_t     cmd[5];
-    void        (* func)(HAL_CAN_message_t *msg);
+    void (* func)(HAL_CAN_message_t *msg);
 } mrs_bootrom_handler_t;
 
 static void     _mrs_scan(HAL_CAN_message_t *msg);
@@ -98,10 +98,13 @@ mrs_can_bitrate(void)
 
     /* try each of the configured CAN bitrate sets */
     rate = _mrs_can_try_bitrate(mrs_parameters.BaudrateBootloader1);
+
     if (rate != 0) {
         return rate;
     }
+
     rate = _mrs_can_try_bitrate(mrs_parameters.BaudrateBootloader2);
+
     if (rate != 0) {
         return rate;
     }
@@ -121,6 +124,7 @@ _mrs_dispatch_handler(const mrs_bootrom_handler_t *handler, uint8_t table_len, H
             handler->func(msg);
             return true;
         }
+
         handler++;
     }
 
@@ -135,6 +139,7 @@ mrs_bootrom_rx(HAL_CAN_message_t *msg)
                               msg)) {
         return true;
     }
+
     if (_mrs_module_selected
             && _mrs_dispatch_handler(_selected_handlers,
                                      sizeof(_selected_handlers) / sizeof(mrs_bootrom_handler_t),

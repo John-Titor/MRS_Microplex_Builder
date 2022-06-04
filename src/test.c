@@ -11,6 +11,7 @@ main(void)
 
     print("testing");
     HAL_pin_set(OUT_1, true);
+
     for (;;) {
         __RESET_WATCHDOG();
     }

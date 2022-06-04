@@ -25,7 +25,7 @@ typedef struct _timer_call {
     struct _timer_call *_next;
     uint16_t        delay_ms;
     uint16_t        period_ms;          // tick interval between calls, 0 for one-shot
-    void            (*callback)(void);  // function to call - must be interrupt-safe
+    void (*callback)(void);             // function to call - must be interrupt-safe
 } HAL_timer_call_t;
 
 /**
