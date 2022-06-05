@@ -40,6 +40,7 @@ _HAL_adc_init(HAL_adc_channel_state_t *state)
 
     // total conversion time: 43 ADCK cycles + 5 bus clock cycles
     // (43 * 0.8) + (5 * 0.05) = 34.65µs
+    // 34µs @ 40MHz = ~1300 CPU cycles, _adc_complete() ~ 250 cycles.
 
     // configure for manual conversion trigger
     ADCSC2 = 0;

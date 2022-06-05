@@ -89,10 +89,23 @@ The stock linker files don't work with the MRS ROM; use
  - Branch directly to `_Startup` as there's no need to do any clock init.
  - More stack is nice.
 
-TODO
-====
- - scrub compiler `-WmsgSd` args to see if any can be pragma'ed instead, since 
-   making them the default may not be desirable
- - scrub linker `-WmsgSd` args to see if segment / object overlap is still a
-   problem.
- - verify whether `mc9s08dz60.c` is required.
+code style
+==========
+See the `reformat` target in `Makefile`.
+
+Comments and comment blocks should use C-style delimiters. Block comments 
+should be whole sentences; use capital letters and periods. One-liners
+may be terse and un-capitalised.
+
+Use `#pragma ONCE` instead of `#define` include guards.
+
+Identifiers local to a file should be prefixed with `_`.
+
+namespaces
+----------
+ - `HAL_`      Public HAL identifiers.
+ - `_HAL_`     Private HAL identifiers (not to be referenced from app code).
+ - `MRS_`      Public MRS bootrom identifiers.
+ - `_MRS_`     Private MRS bootrom identifiers (not to be referenced from app code).
+ - `app_`      Public app identifiers, to be supplied by the application.
+

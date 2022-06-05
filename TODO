@@ -3,21 +3,26 @@ MRS Microplex Firmware Builder:
   features:
     ☐ app framework
       ✔ init + list of protothreads @done (22-06-04 17:43)
-      ☐ some flavor of callout / callbacks to arbitrary CAN message handlers
-      ☐ app CAN handler needs to be a callback, not polling for messages
+      ✔ some flavor of callout / callbacks to arbitrary CAN message handlers @done (22-06-04 19:28)
+      ✔ app CAN handler needs to be a callback, not polling for messages @done (22-06-04 19:28)
     ☐ HAL
       ✔ more functional ADC abstraction @done (22-06-03 21:44)
       ✔ more functional PWM / output abstraction @done (22-06-03 21:44)
+      ☐ eeprom writing
+      ☐ bootrom parameter (CAN speed) updating from app
+      ☐ reset reason API
     ☐ CAN
       ✔ transmit, console @done (22-06-03 21:44)
       ☐ receive interrupt
       ☐ filtering
       ✔ fix 800kHz BTR values @done (22-06-03 21:48)
       ☐ device support
-        ☐ blink keypad(s)
+        ☐ Blink keypad(s)
     ☐ PWM output
       ✔ 7H PWM assignments for ch5/6 @done (22-06-01 12:17)
     ☐ ADC
+      ✔ module temperature @done (22-06-04 21:03)
+      ✔ interrupt-driven sampling @done (22-06-04 21:04)
     ✔ timer @done (22-06-04 17:35)
     ✔ protothreads @done (22-06-04 17:35)
     ☐ 7H/7L support
@@ -30,3 +35,4 @@ MRS Microplex Firmware Builder:
    ✔ verify whether `mc9s08dz60.c` is required - yes @done (22-06-01 09:38)
    ☐ __SHORT_SEG for zeropage I/O registers?
      would mean moving mc9s08dz60.[ch] into project in order to add segment directives
+   ☐ sleep (Stop2) mode?

@@ -30,6 +30,7 @@ static HAL_adc_channel_state_t _HAL_7H_adc_state[] = {
     /* AI_CS_6 */ { 1,  0, HAL_ADC_SCALE_DO_I, {0} },
     /* AI_CS_7 */ { 8,  0, HAL_ADC_SCALE_DO_I, {0} },
     /* AI_KL15 */ { 14, 0, HAL_ADC_SCALE_KL15, {0} },
+    /* AI_TEMP */ { 26, 0, HAL_ADC_SCALE_TEMP, {0} },
     /* END     */ { 0,  0, HAL_ADC_SCALE_END,  {0} },
 };
 
@@ -75,13 +76,14 @@ _HAL_7H_init(void)
     _HAL_adc_init(_HAL_7H_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(mrs_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
+    HAL_CAN_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }
 
 static HAL_adc_channel_state_t _HAL_7L_adc_state[] = {
     /* AI_KL15 */ { 14, 0, HAL_ADC_SCALE_KL15, {0} },
+    /* AI_TEMP */ { 26, 0, HAL_ADC_SCALE_TEMP, {0} },
     /* END     */ { 0,  0, HAL_ADC_SCALE_END,  {0} },
 };
 
@@ -127,7 +129,7 @@ _HAL_7L_init(void)
     _HAL_adc_init(_HAL_7L_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(mrs_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
+    HAL_CAN_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }
@@ -145,6 +147,7 @@ static HAL_adc_channel_state_t _HAL_7X_adc_state[] = {
     /* AI_2    */ { 6,  0, HAL_ADC_SCALE_30V,  {0} },
     /* AI_3    */ { 7,  0, HAL_ADC_SCALE_30V,  {0} },
     /* AI_KL15 */ { 14, 0, HAL_ADC_SCALE_KL15, {0} },
+    /* AI_TEMP */ { 26, 0, HAL_ADC_SCALE_TEMP, {0} },
     /* END     */ { 0,  0, HAL_ADC_SCALE_END,  {0} },
 };
 void
@@ -189,7 +192,7 @@ _HAL_7X_init(void)
     _HAL_adc_init(_HAL_7X_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(mrs_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
+    HAL_CAN_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }

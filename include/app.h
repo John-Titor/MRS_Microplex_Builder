@@ -65,7 +65,7 @@ extern bool app_can_filter(uint32_t id);
  *
  * @param buf       CAN message.
  */
-extern void app_can_receive(HAL_CAN_message_t *buf);
+extern void app_can_receive(const HAL_CAN_message_t *buf);
 
 /**
  * Application CAN timeout.

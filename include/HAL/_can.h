@@ -40,8 +40,6 @@ typedef struct {
     uint8_t         dlc;
 } HAL_CAN_message_t;
 
-typedef bool (*HAL_CAN_callback_t)(HAL_CAN_message_t *msg);
-
 extern void _HAL_CAN_listen(struct pt *pt);
 
 /**

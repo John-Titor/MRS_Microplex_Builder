@@ -29,17 +29,17 @@ bool
 app_can_filter(uint32_t id)
 {
     // check whether the bootrom code wants this message
-    if (mrs_bootrom_filter(id)) {
+    if (MRS_bootrom_filter(id)) {
         return true;
     }
     return false;
 }
 
 void
-app_can_receive(HAL_CAN_message_t *msg)
+app_can_receive(const HAL_CAN_message_t *msg)
 {
     // let the bootrom code look at this message
-    if (mrs_bootrom_rx(msg)) {
+    if (MRS_bootrom_rx(msg)) {
         return;
     }
 }
