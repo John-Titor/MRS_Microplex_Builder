@@ -28,8 +28,9 @@ GLOBAL_DEPS	:= $(MAKEFILE_LIST) \
 		   $(wildcard $(RSRCDIR)/*) \
 		   $(MCU)
 
-# application sources
-APP_SRCS	:= $(wildcard src/*.c)
+# look for application sources, fall back to the test app
+-include $(_CWD)/app/app.mk
+APP_SRCS	?= $(wildcard test/*.c)
 
 # library sources
 LIB_SRCS	:= $(wildcard lib/*.c) \

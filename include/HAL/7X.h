@@ -122,6 +122,7 @@
 #include <mc9s08dz60.h>
 
 #include <HAL/_adc.h>
+#include <HAL/_bootrom.h>
 #include <HAL/_can.h>
 #include <HAL/_eeprom.h>
 #include <HAL/_init.h>

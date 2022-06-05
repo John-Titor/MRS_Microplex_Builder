@@ -30,9 +30,9 @@ void
 _HAL_pwm_init(void)
 {
     TPM1SC = 0;
-    TPM1SC_CLKSx = 2;           // select fixed clock
+    TPM1SC_CLKSx = 2;           // select 1MHz fixed clock
     TPM1SC_PS = 2;              // /4 prescaler
-    HAL_pwm_set_period(8);      // sensible default
+    HAL_pwm_set_period(8);      // 8ms - sensible default
 }
 
 void
@@ -40,7 +40,7 @@ HAL_pwm_set_period(uint8_t period_ms)
 {
     pwm_period_cycles = (uint16_t)period_ms * (1000 / 4);
 
-    TPM1MOD = pwm_period_cycles;    // set PWM period
+    TPM1MOD = pwm_period_cycles;// set PWM period
     TPM1CNT = 0;                // reset the period
 }
 

@@ -6,3 +6,4 @@ $(RSRCDIR)/Microplex_7.prm
 -WmsgNu=abcd
 -W1
 -Add( $(OBJS) $(LIBS) )
+-StackConsumption

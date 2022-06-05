@@ -7,10 +7,19 @@
 #include <mc9s08dz60.h>
 
 #include <HAL/_adc.h>
+#include <HAL/_bootrom.h>
 #include <HAL/_can.h>
 #include <HAL/_init.h>
 #include <HAL/_pwm.h>
 #include <HAL/_timer.h>
+
+// default CAN filter accepts everything
+static const HAL_CAN_filters_t _HAL_default_filters = {
+    {
+        { 0, 0 },
+        { 0xffffffff, 0},
+    }
+};
 
 static HAL_adc_channel_state_t _HAL_7H_adc_state[] = {
     /* AI_CS_1 */ { 10, 0, HAL_ADC_SCALE_DO_I, {0} },
@@ -66,7 +75,7 @@ _HAL_7H_init(void)
     _HAL_adc_init(_HAL_7H_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(0, HAL_CAN_FM_NONE, NULL);
+    HAL_CAN_configure(mrs_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }
@@ -118,7 +127,7 @@ _HAL_7L_init(void)
     _HAL_adc_init(_HAL_7L_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(0, HAL_CAN_FM_NONE, NULL);
+    HAL_CAN_configure(mrs_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }
@@ -180,7 +189,7 @@ _HAL_7X_init(void)
     _HAL_adc_init(_HAL_7X_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(0, HAL_CAN_FM_NONE, NULL);
+    HAL_CAN_configure(mrs_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }

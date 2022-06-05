@@ -4,18 +4,21 @@ SECTIONS
     Z_RAM                    =  READ_WRITE   0x0080 TO 0x009F;
     RAM                      =  READ_WRITE   0x00A0 TO 0x107F;
     ROM                      =  READ_ONLY    0x2200 TO 0xAF7F;
+    ROM2                     =  READ_ONLY    0xB000 TO 0xBDFF;
     EEPROM                   =  READ_ONLY    0x1400 TO 0x17FF;
 END
 
 PLACEMENT
-    DEFAULT_RAM,                        /* non-zero page variables */
-                                        INTO  RAM;
+    DEFAULT_ROM             INTO  ROM, ROM2;
+    DATA_ZEROPAGE           INTO  Z_RAM;
+    DEFAULT_RAM             INTO  RAM;
 
-    DEFAULT_ROM, ROM_VAR, STRINGS       INTO  ROM;
-    _DATA_ZEROPAGE,                     /* zero page variables */
-    MY_ZEROPAGE                         INTO  Z_RAM;
 END
 
 INIT __start
 STACKSIZE 0x0200                        /* Size of the system stack. */
 
+STACK_CONSUMPTION
+    ROOT __start
+    END
+END

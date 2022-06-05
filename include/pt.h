@@ -139,19 +139,3 @@ struct pt {
         HAL_timer_reset(timer, ms);             \
         pt_wait(pt, HAL_timer_expired(timer));  \
     } while(0)
-
-
-/**
- * Thread list.
- *
- * This provides a mechanism where optional threads can be registered
- * where they will be run each time around the main loop.
- */
-typedef struct _pt_list_entry {
-    const void (*func)(struct pt *pt);
-    struct _pt_list_entry   *next;
-    struct pt               pt;
-} pt_list_entry_t;
-
-extern void     pt_list_register(pt_list_entry_t *entry);
-extern void     pt_list_run(void);

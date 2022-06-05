@@ -22,6 +22,11 @@
 extern uint8_t          mrs_can_bitrate(void);
 
 /**
+ * MRS CAN flash protocl filter.
+ */
+extern bool             mrs_bootrom_filter(uint32_t id);
+
+/**
  * MRS CAN flash protocol handler.
  */
 extern bool             mrs_bootrom_rx(HAL_CAN_message_t *msg);

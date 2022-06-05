@@ -34,12 +34,37 @@ bundles.
 Download the HCS08 updatesite bundle
 `com.freescale.mcu11_1.hcs08_rs08.updatesite.zip` and unzip.
 
-From the `binary` directory, unzip `com.freescale.hcs.buildtools_root_1.0.1` and
-`com.freescale.hcs.architecture_root_1.0.9`.
+From the `binary` directory, unzip `com.freescale.hcs.buildtools_root_1.0.1` 
+and `com.freescale.hcs.architecture_root_1.0.9`.
 
 Place the resulting MCU directory somewhere and point `CW_INSTALL_DIR` at it.
 
 Note that `MCU_Build_Tools_Utilities.pdf` is not installed with this method.
+
+
+how to use
+==========
+
+Create a branch. Make a directory `app` and put your sources in it. In
+`app/app.mk` set `APP_SRCS` to the list of source files (relative to the top
+level) to build.
+
+Make changes to the framework on the mainline and rebase the app branch(es) as
+appropriate.
+
+app framework
+-------------
+
+Apps must implement the following functions, prototyped and documented in
+`<app.h>`:
+
+    void app_init(void)
+    bool app_can_filter(HAL_CAN_message_t *msg)
+    void app_can_receive(HAL_CAN_message_t *msg)
+    void app_can_idle(bool did_idle)
+
+Additionally, app threads (and any required library threads) must be registered 
+in `app_thread_table`.
 
 notes
 =====

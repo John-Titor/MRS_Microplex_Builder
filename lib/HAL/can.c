@@ -8,15 +8,32 @@
 
 #include <mc9s08dz60.h>
 
+#include <app.h>
 #include <lib.h>
-#include <HAL/_can.h>
+#include <pt.h>
 #include <HAL/_bootrom.h>
+#include <HAL/_can.h>
+#include <HAL/_timer.h>
+
+
+#define CAN_IDLE_TIMEOUT    1000
+#define CAN_RX_FIFO_SIZE    8
+static HAL_CAN_message_t    _can_rx_fifo[CAN_RX_FIFO_SIZE];
+static volatile uint8_t     _can_buf_head;
+static uint8_t              _can_buf_tail;
+#define _CAN_BUF_INDEX(_x)  ((_x) & (uint8_t)(CAN_RX_FIFO_SIZE - 1))
+#define CAN_BUF_PTR(_x)     &_can_rx_fifo[_CAN_BUF_INDEX(_x)]
+#define CAN_BUF_EMPTY       (_can_buf_head == _can_buf_tail)
+#define CAN_BUF_FULL        ((_can_buf_head - _can_buf_tail) >= CAN_RX_FIFO_SIZE)
+
+#define MRS_ID_MASK         0x1ffffff0      // XXX TODO fetch from EEPROM
+
 
 /* entries here match the MRS_CAN_*BPS constants in <HAL/_bootrom.h> */
 static const uint8_t _CAN_btr_table[][2] = {
     { 0x00, 0x00 }, // -
-    { 0x00, 0x05 }, // 1MHz
-    { 0x00, 0x05 }, // 800kHz XXX
+    { 0x40, 0x14 }, // 1MHz
+    { 0x00, 0x07 }, // 800kHz
     { 0x00, 0x1c }, // 500kHz
     { 0x01, 0x1c }, // 250kHz
     { 0x03, 0x1c }, // 125kHz
@@ -37,15 +54,10 @@ static bool _CAN_send(uint32_t id,
 void
 HAL_CAN_configure(uint8_t bitrate,
                   HAL_CAN_filter_mode filter_mode,
-                  const HAL_CAN_filters *filters)
+                  const HAL_CAN_filters_t *filters)
 {
     REQUIRE(bitrate <= (sizeof(_CAN_btr_table) / sizeof(_CAN_btr_table[0])));
     REQUIRE(filter_mode <= HAL_CAN_FM_NONE);
-
-    // if rate not set, get default from ROM
-    if (bitrate == 0) {
-        bitrate = mrs_can_bitrate();
-    }
 
     // set INITRQ and wait for it to be acknowledged
     CANCTL0 = CANCTL0_INITRQ_MASK;
@@ -57,16 +69,13 @@ HAL_CAN_configure(uint8_t bitrate,
     CANCTL1 = CANCTL1_CANE_MASK;
 
     // configure for selected bitrate
-    CANBTR0 = _CAN_btr_table[bitrate][0];
-    CANBTR1 = _CAN_btr_table[bitrate][1];
+    if (bitrate != 0) {
+        CANBTR0 = _CAN_btr_table[bitrate][0];
+        CANBTR1 = _CAN_btr_table[bitrate][1];
+    }
 
     // configure filters
-    if (filter_mode == HAL_CAN_FM_NONE) {
-        CANIDAC = CANIDAC_IDAM1_MASK; // 8-bit filters
-        CANIDAR0 = 0;                 // mask result 0
-        CANIDMR0 = 0;                 // look at no bits
-
-    } else {
+    if (filter_mode != HAL_CAN_FM_NONE) {
         CANIDAC = filter_mode << 4;
         CANIDAR0 = filters->filter_8.accept[0];
         CANIDAR1 = filters->filter_8.accept[1];
@@ -93,6 +102,9 @@ HAL_CAN_configure(uint8_t bitrate,
 
     while (CANCTL1 & CANCTL1_INITAK_MASK) {
     }
+
+    // enable receive interrupts
+    CANRIER_RXFIE = 1;
 }
 
 bool
@@ -125,8 +137,6 @@ _CAN_send(uint32_t id,
           _CAN_wait_mode wait_mode)
 {
     uint8_t txe;
-
-    REQUIRE(wait_mode <= WM_SENT);
 
     // wait for a buffer to be free
     for (;;) {
@@ -183,44 +193,6 @@ _CAN_send(uint32_t id,
     return true;
 }
 
-bool
-HAL_CAN_recv(HAL_CAN_message_t *msg)
-{
-    REQUIRE(msg != NULL);
-
-    // check for message in FIFO
-    if (!CANRFLG_RXF) {
-        return false;
-    }
-
-    // copy message from registers
-    if (CANRIDR1_IDE) {
-        msg->id = (((uint32_t)CANRIDR0 << 21) |
-                   ((uint32_t)CANRIDR1_ID_18 << 18) |
-                   ((uint32_t)CANRIDR1_ID_15 << 15) |
-                   ((uint32_t)CANRIDR2 << 7) |
-                   (uint32_t)CANRIDR3_ID) |
-                  HAL_CAN_ID_EXT;
-    } else {
-        msg->id = (((uint32_t)CANRIDR0 << 3) |
-                   (uint32_t)CANRIDR1_ID_18);
-    }
-
-    msg->data[0] = CANRDSR0;
-    msg->data[1] = CANRDSR1;
-    msg->data[2] = CANRDSR2;
-    msg->data[3] = CANRDSR3;
-    msg->data[4] = CANRDSR4;
-    msg->data[5] = CANRDSR5;
-    msg->data[6] = CANRDSR6;
-    msg->data[7] = CANRDSR7;
-    msg->dlc = CANRDLR;
-
-    // mark message as consumed
-    CANRFLG_RXF = 1;
-    return true;
-}
-
 void
 HAL_CAN_putchar(char c)
 {
@@ -234,4 +206,100 @@ HAL_CAN_putchar(char c)
         HAL_CAN_send_debug(HAL_CAN_ID_EXT | 0x1ffffffeUL, dlc, &data[0]);
         dlc = 0;
     }
+}
+
+static void
+__interrupt VectorNumber_Vcanrx
+_can_rx_interrupt(void)
+{
+    HAL_CAN_message_t *msg;
+
+    // check for message in FIFO
+    if (CANRFLG_RXF) {
+        if (!CAN_BUF_FULL) {
+            msg = CAN_BUF_PTR(_can_buf_head);
+
+            // copy message from registers
+            if (CANRIDR1_IDE) {
+                msg->id = (((uint32_t)CANRIDR0 << 21) |
+                           ((uint32_t)CANRIDR1_ID_18 << 18) |
+                           ((uint32_t)CANRIDR1_ID_15 << 15) |
+                           ((uint32_t)CANRIDR2 << 7) |
+                           (uint32_t)CANRIDR3_ID) |
+                          HAL_CAN_ID_EXT;
+            } else {
+                msg->id = (((uint32_t)CANRIDR0 << 3) |
+                           (uint32_t)CANRIDR1_ID_18);
+            }
+
+            // Let the app decide whether to keep or drop the message
+            if (app_can_filter(msg->id)) {
+
+                // XXX check RTR, etc.
+
+                msg->data[0] = CANRDSR0;
+                msg->data[1] = CANRDSR1;
+                msg->data[2] = CANRDSR2;
+                msg->data[3] = CANRDSR3;
+                msg->data[4] = CANRDSR4;
+                msg->data[5] = CANRDSR5;
+                msg->data[6] = CANRDSR6;
+                msg->data[7] = CANRDSR7;
+                msg->dlc = CANRDLR;
+
+                _can_buf_head++;
+            }
+        }
+
+        // mark message as consumed (even if we dropped it)
+        CANRFLG_RXF = 1;
+    }
+}
+
+void
+_HAL_CAN_listen(struct pt *pt)
+{
+    static HAL_timer_t  _idle_timer;
+    static bool         _idle_flag = false;
+    uint8_t             limit;
+
+    pt_begin(pt);
+
+    // set up the CAN idle timer
+    HAL_timer_register(_idle_timer);
+    HAL_timer_reset(_idle_timer, CAN_IDLE_TIMEOUT);
+
+    for (;;) {
+        // Limit the number of messages that will be processed to avoid watchdogging
+        // during a message storm.
+        limit = CAN_RX_FIFO_SIZE;
+
+        while (!CAN_BUF_EMPTY && limit--) {
+            HAL_CAN_message_t *msg = CAN_BUF_PTR(_can_buf_tail);
+
+            // We're hearing CAN, so reset the idle timer and let the app know.
+            HAL_timer_reset(_idle_timer, CAN_IDLE_TIMEOUT);
+
+            if (_idle_flag) {
+                _idle_flag = false;
+                app_can_idle(false);
+            }
+
+            // pass the message to the application
+            app_can_receive(msg);
+
+            // mark the slot as free
+            _can_buf_tail++;
+        }
+
+        // if we haven't heard a useful CAN message for a while...
+        if (!_idle_flag && HAL_timer_expired(_idle_timer)) {
+            _idle_flag = true;
+            app_can_idle(true);
+        }
+
+        pt_yield(pt);
+    }
+
+    pt_end(pt);
 }

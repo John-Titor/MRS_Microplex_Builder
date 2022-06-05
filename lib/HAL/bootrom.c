@@ -132,6 +132,12 @@ _mrs_dispatch_handler(const mrs_bootrom_handler_t *handler, uint8_t table_len, H
 }
 
 bool
+mrs_bootrom_filter(uint32_t id)
+{
+    return ((id & MRS_ID_MASK) == MRS_ID_MASK);
+}
+
+bool
 mrs_bootrom_rx(HAL_CAN_message_t *msg)
 {
     if (_mrs_dispatch_handler(_unselected_handlers,
