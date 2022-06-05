@@ -13,8 +13,8 @@
 #include <HAL/_pwm.h>
 #include <HAL/_timer.h>
 
-// default CAN filter accepts everything
-static const HAL_CAN_filters_t _HAL_default_filters = {
+/* default CAN filter accepts everything */
+static const HAL_can_filters_t _HAL_default_filters = {
     {
         { 0, 0 },
         { 0xffffffff, 0},
@@ -76,7 +76,7 @@ _HAL_7H_init(void)
     _HAL_adc_init(_HAL_7H_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
+    HAL_can_configure(MRS_can_bitrate(), HAL_can_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }
@@ -129,7 +129,7 @@ _HAL_7L_init(void)
     _HAL_adc_init(_HAL_7L_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
+    HAL_can_configure(MRS_can_bitrate(), HAL_can_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }
@@ -192,7 +192,7 @@ _HAL_7X_init(void)
     _HAL_adc_init(_HAL_7X_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_CAN_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
+    HAL_can_configure(MRS_can_bitrate(), HAL_can_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }

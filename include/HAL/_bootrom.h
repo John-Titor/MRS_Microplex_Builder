@@ -23,4 +23,4 @@ extern bool             MRS_bootrom_filter(uint32_t id);
 /**
  * MRS CAN flash protocol handler.
  */
-extern bool             MRS_bootrom_rx(const HAL_CAN_message_t *msg);
+extern bool             MRS_bootrom_rx(const HAL_can_message_t *msg);

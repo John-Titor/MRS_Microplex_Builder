@@ -13,8 +13,9 @@
 #include <pt.h>
 #include <HAL/_can.h>
 
-// Startup trampoline.
-//
+/*
+ * Startup trampoline.
+ */
 extern void _Startup(void);     // from start08.c in MCU library code
 
 #pragma CODE_SEG .init
@@ -27,28 +28,29 @@ __start(void)
     __asm   jmp _Startup;
 }
 
-
-// Supply a 'default' vector for the s-record patcher.
-// It will patch this value into any jump table slot that doesn't have
-// a vector explicitly set.
-//
+/*
+ * Supply a 'default' vector for the s-record patcher.
+ * It will patch this value into any jump table slot that doesn't have
+ * a vector explicitly set.
+ */
 #pragma CODE_SEG DEFAULT
 static void
 __interrupt 32
 __default_vector(void)
 {
-    // spin and wait for the watchdog
+    /* spin and wait for the watchdog */
     for (;;);
 }
 
-// Main application loop.
-//
+/*
+ * Main application loop.
+ */
 void
 main(void)
 {
     static struct pt _can_listener;
 
-    // do app and HAL init
+    /* do app and HAL init */
     app_init();
 
     for (;;) {
@@ -56,10 +58,10 @@ main(void)
 
         __RESET_WATCHDOG();
 
-        // run the CAN listener thread
-        _HAL_CAN_listen(&_can_listener);
+        /* run the CAN listener thread */
+        _HAL_can_listen(&_can_listener);
 
-        // run app threads
+        /* run app threads */
         for (i = 0; app_thread_table[i].func != NULL; i++) {
             app_thread_table[i].func(&app_thread_table[i].pt);
         }

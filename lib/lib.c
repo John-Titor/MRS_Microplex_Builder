@@ -14,11 +14,11 @@ print(const char *format, ...)
 {
     va_list args;
 
-    set_printf(HAL_CAN_putchar);
+    set_printf(HAL_can_putchar);
     va_start(args, format);
     (void)vprintf(format, args);
     va_end(args);
-    HAL_CAN_putchar('\n');
+    HAL_can_putchar('\n');
 }
 
 void
@@ -26,7 +26,7 @@ printn(const char *format, ...)
 {
     va_list args;
 
-    set_printf(HAL_CAN_putchar);
+    set_printf(HAL_can_putchar);
     va_start(args, format);
     (void)vprintf(format, args);
 }

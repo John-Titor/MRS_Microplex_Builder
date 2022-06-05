@@ -69,11 +69,11 @@ typedef struct {
     uint8_t     _reserved2[7];
 } MRS_parameters_t;
 
-extern const MRS_parameters_t   mrs_parameters @ 0x1402;
+extern const MRS_parameters_t   MRS_parameters @ 0x1402;
 
 /** EEPROM offset for the named MRS EEPROM parameter */
 #define MRS_PARAM_OFFSET(_p)    offsetof(MRS_parameters_t, _p)
-#define MRS_PARAM_SIZE(_p)      sizeof(mrs_parameters. ## _p)
+#define MRS_PARAM_SIZE(_p)      sizeof(MRS_parameters. ## _p)
 
 #define MRS_PARAM_READ(_p, _b)  \
     HAL_eeprom_read(MRS_PARAM_OFFSET(_p), \

@@ -27,12 +27,12 @@
 #include <HAL/_bootrom.h>
 #include <HAL/_eeprom.h>
 
-#define _ID_MASK            (HAL_CAN_ID_EXT | 0x1ffffff0)  // XXX TODO fetch from EEPROM
-#define _SCAN_RSP_ID        (HAL_CAN_ID_EXT | 0x1ffffff0)
-#define _COMMAND_ID         (HAL_CAN_ID_EXT | 0x1ffffff1)
-#define _RESPONSE_ID        (HAL_CAN_ID_EXT | 0x1ffffff2)
-#define _EEPROM_READ_ID     (HAL_CAN_ID_EXT | 0x1ffffff4)
-#define _EEPROM_WRITE_ID    (HAL_CAN_ID_EXT | 0x1ffffff5)
+#define _ID_MASK            (HAL_can_ID_EXT | 0x1ffffff0)  /* XXX TODO fetch from EEPROM */
+#define _SCAN_RSP_ID        (HAL_can_ID_EXT | 0x1ffffff0)
+#define _COMMAND_ID         (HAL_can_ID_EXT | 0x1ffffff1)
+#define _RESPONSE_ID        (HAL_can_ID_EXT | 0x1ffffff2)
+#define _EEPROM_READ_ID     (HAL_can_ID_EXT | 0x1ffffff4)
+#define _EEPROM_WRITE_ID    (HAL_can_ID_EXT | 0x1ffffff5)
 
 static bool     _module_selected = false;
 static bool     _eeprom_write_enable = false;
@@ -45,22 +45,22 @@ typedef struct {
     uint32_t    id;
     uint8_t     len;
     uint8_t     cmd[5];
-    void (* func)(const HAL_CAN_message_t *msg);
+    void (* func)(const HAL_can_message_t *msg);
 } _handler_t;
 
-static void     _scan(const HAL_CAN_message_t *msg);
-static void     _select(const HAL_CAN_message_t *msg);
+static void     _scan(const HAL_can_message_t *msg);
+static void     _select(const HAL_can_message_t *msg);
 
 static const _handler_t  _unselected_handlers[] = {
     { _COMMAND_ID,       2, { 0x00, 0x00},                   _scan },
     { _COMMAND_ID,       2, { 0x20, 0x10},                   _select }
 };
 
-static void     _enter_program(const HAL_CAN_message_t *msg);
-static void     _read_eeprom(const HAL_CAN_message_t *msg);
-static void     _write_eeprom_enable(const HAL_CAN_message_t *msg);
-static void     _write_eeprom_disable(const HAL_CAN_message_t *msg);
-static void     _write_eeprom(const HAL_CAN_message_t *msg);
+static void     _enter_program(const HAL_can_message_t *msg);
+static void     _read_eeprom(const HAL_can_message_t *msg);
+static void     _write_eeprom_enable(const HAL_can_message_t *msg);
+static void     _write_eeprom_disable(const HAL_can_message_t *msg);
+static void     _write_eeprom(const HAL_can_message_t *msg);
 
 static const _handler_t  _selected_handlers[] = {
     { _COMMAND_ID,       2, { 0x20, 0x00},                   _enter_program },
@@ -89,13 +89,13 @@ MRS_can_bitrate(void)
     uint8_t rate;
 
     /* try each of the configured CAN bitrate sets */
-    rate = _can_try_bitrate(mrs_parameters.BaudrateBootloader1);
+    rate = _can_try_bitrate(MRS_parameters.BaudrateBootloader1);
 
     if (rate != 0) {
         return rate;
     }
 
-    rate = _can_try_bitrate(mrs_parameters.BaudrateBootloader2);
+    rate = _can_try_bitrate(MRS_parameters.BaudrateBootloader2);
 
     if (rate != 0) {
         return rate;
@@ -106,7 +106,7 @@ MRS_can_bitrate(void)
 }
 
 static bool
-_dispatch_handler(const _handler_t *handler, uint8_t table_len, const HAL_CAN_message_t *msg)
+_dispatch_handler(const _handler_t *handler, uint8_t table_len, const HAL_can_message_t *msg)
 {
     while (table_len--) {
         if ((handler->id == msg->id) &&                             /* command match */
@@ -130,7 +130,7 @@ MRS_bootrom_filter(uint32_t id)
 }
 
 bool
-MRS_bootrom_rx(const HAL_CAN_message_t *msg)
+MRS_bootrom_rx(const HAL_can_message_t *msg)
 {
     if (_dispatch_handler(_unselected_handlers,
                           sizeof(_unselected_handlers) / sizeof(_handler_t),
@@ -149,7 +149,7 @@ MRS_bootrom_rx(const HAL_CAN_message_t *msg)
 }
 
 static void
-_scan(const HAL_CAN_message_t *msg)
+_scan(const HAL_can_message_t *msg)
 {
     uint8_t data[8] = {0};
     uint16_t bl_vers;
@@ -159,21 +159,21 @@ _scan(const HAL_CAN_message_t *msg)
     MRS_PARAM_READ(SerialNumber, &data[1]);
     MRS_PARAM_READ(BootloaderVersion, &bl_vers);
     data[7] = bl_vers & 0xff;                   /* only the low byte */
-    HAL_CAN_send_blocking(_SCAN_RSP_ID, sizeof(data), &data[0]);
+    HAL_can_send_blocking(_SCAN_RSP_ID, sizeof(data), &data[0]);
 
     _module_selected = false;
     _eeprom_write_enable = false;
 }
 
 static void
-_enter_program(const HAL_CAN_message_t *msg)
+_enter_program(const HAL_can_message_t *msg)
 {
     uint8_t data[8] = {0x2f, 0xff};
     (void)msg;
 
     /* send the 'will reset' message */
     MRS_PARAM_READ(SerialNumber, &data[2]);
-    HAL_CAN_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
+    HAL_can_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
 
     /* XXX set EEPROM to "boot to bootloader" mode? */
 
@@ -182,13 +182,13 @@ _enter_program(const HAL_CAN_message_t *msg)
 }
 
 static void
-_select(const HAL_CAN_message_t *msg)
+_select(const HAL_can_message_t *msg)
 {
     const uint32_t msg_serial = *(const uint32_t *)(&msg->data[2]);
     uint8_t data[8] = {0x21, 0x10};
 
     /* verify that this message is selecting this module */
-    if (msg_serial != mrs_parameters.SerialNumber) {
+    if (msg_serial != MRS_parameters.SerialNumber) {
 
         /* someone else got selected, we should be quiet now */
         _module_selected = false;
@@ -197,46 +197,46 @@ _select(const HAL_CAN_message_t *msg)
 
     /* send the 'selected' response */
     MRS_PARAM_READ(SerialNumber, &data[2]);
-    HAL_CAN_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
+    HAL_can_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
 
     _module_selected = true;
 }
 
 static void
-_read_eeprom(const HAL_CAN_message_t *msg)
+_read_eeprom(const HAL_can_message_t *msg)
 {
     const uint16_t param_offset = *(const uint16_t *)(&msg->data[2]);
     const uint8_t param_len = msg->data[4];
     uint8_t data[8];
 
     HAL_eeprom_read(param_offset, param_len, &data[0]);
-    HAL_CAN_send_blocking(_EEPROM_READ_ID, param_len, &data[0]);
+    HAL_can_send_blocking(_EEPROM_READ_ID, param_len, &data[0]);
 }
 
 static void
-_write_eeprom_enable(const HAL_CAN_message_t *msg)
+_write_eeprom_enable(const HAL_can_message_t *msg)
 {
     static const uint8_t data[5] = {0x21, 0x11, 0x01, 0x00, 0x00};
 
     (void)msg;
 
     _eeprom_write_enable = true;
-    HAL_CAN_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
+    HAL_can_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
 }
 
 static void
-_write_eeprom_disable(const HAL_CAN_message_t *msg)
+_write_eeprom_disable(const HAL_can_message_t *msg)
 {
     static const uint8_t data[5] = {0x20, 0xF0, 0x02, 0x00, 0x00};
 
     (void)msg;
 
     _eeprom_write_enable = false;
-    HAL_CAN_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
+    HAL_can_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
 }
 
 static void
-_write_eeprom(const HAL_CAN_message_t *msg)
+_write_eeprom(const HAL_can_message_t *msg)
 {
     const uint16_t address = *(uint16_t *)(&msg->data[0]);
     const uint8_t len = msg->dlc - 2;
@@ -272,5 +272,5 @@ _write_eeprom(const HAL_CAN_message_t *msg)
         }
     }
 
-    HAL_CAN_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
+    HAL_can_send_blocking(_RESPONSE_ID, sizeof(data), &data[0]);
 }

@@ -36,7 +36,7 @@ app_can_filter(uint32_t id)
 }
 
 void
-app_can_receive(const HAL_CAN_message_t *msg)
+app_can_receive(const HAL_can_message_t *msg)
 {
     // let the bootrom code look at this message
     if (MRS_bootrom_rx(msg)) {

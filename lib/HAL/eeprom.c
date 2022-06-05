@@ -19,6 +19,8 @@
 #define _CMD_BYTE_PROG      0x20
 #define _CMD_SECTOR_ERASE   0x40
 
+const MRS_parameters_t MRS_parameters;
+
 static uint16_t
 _eeprom_pagesel(uint16_t offset)
 {
@@ -47,25 +49,19 @@ _eeprom_write_sector(uint16_t offset, uint8_t len, const uint8_t *data)
 
     REQUIRE(data_offset <= offset);
     REQUIRE(data_len <= len);
-    REQUIRE(FSTAT_FCBEF == 0);
-    REQUIRE(FSTAT_FACCERR == 0);
     REQUIRE(sector_offset < _EEPROM_SECTOR_SIZE);
 
-    /* fill buffer with target data pattern */
-    for (i = 0; i < data_offset; i++) {
+    /* fill buffer from EEPROM */
+    for (i = 0; i < _EEPROM_SECTOR_SIZE; i++) {
         buf[i] = *(uint8_t *)(_EEPROM_BASE + sector_offset + i);
     }
 
+    /* compare & overwrite buffer with new data */
     for (; i < (data_offset + data_len); i++) {
-        buf[i] = data[i - data_offset];
-
-        if (buf[i] != *(uint8_t *)(_EEPROM_BASE + sector_offset + i)) {
+        if (buf[i] != data[i - data_offset]) {
+            buf[i] = data[i - data_offset];
             need_write = true;
         }
-    }
-
-    for (; i < _EEPROM_SECTOR_SIZE; i++) {
-        buf[i] = *(uint8_t *)(_EEPROM_BASE + sector_offset + i);
     }
 
     /* don't erase / write unless necessary */
@@ -74,6 +70,9 @@ _eeprom_write_sector(uint16_t offset, uint8_t len, const uint8_t *data)
         /* erase operation will take ~20ms, ensure watchdog doesn't get upset */
         __RESET_WATCHDOG();
 
+        REQUIRE(FSTAT_FCBEF != 0);
+        REQUIRE(FSTAT_FACCERR == 0);
+
         /* erase sector */
         ENTER_CRITICAL_SECTION;
         *(uint8_t *)(_EEPROM_BASE + sector_offset) = 0;
@@ -81,21 +80,24 @@ _eeprom_write_sector(uint16_t offset, uint8_t len, const uint8_t *data)
         FSTAT_FCBEF = 1;
         EXIT_CRITICAL_SECTION;
 
+        /* wait for operation to complete */
         while (FSTAT_FCCF == 0) {
-            /* wait for operation to complete */
             REQUIRE(FSTAT_FACCERR == 0);
         }
 
         /* rewrite sector contents */
         for (i = 0; i < _EEPROM_SECTOR_SIZE; i++) {
+            REQUIRE(FSTAT_FCBEF != 0);
+            REQUIRE(FSTAT_FACCERR == 0);
+
             ENTER_CRITICAL_SECTION;
             *(uint8_t *)(_EEPROM_BASE + sector_offset + i) = buf[i];
             FCMD = _CMD_BYTE_PROG;
             FSTAT_FCBEF = 1;
             EXIT_CRITICAL_SECTION;
 
+            /* wait for operation to complete */
             while (FSTAT_FCCF == 0) {
-                /* wait for operation to complete */
                 REQUIRE(FSTAT_FACCERR == 0);
             }
         }

@@ -59,8 +59,8 @@ Apps must implement the following functions, prototyped and documented in
 `<app.h>`:
 
     void app_init(void)
-    bool app_can_filter(HAL_CAN_message_t *msg)
-    void app_can_receive(HAL_CAN_message_t *msg)
+    bool app_can_filter(HAL_can_message_t *msg)
+    void app_can_receive(HAL_can_message_t *msg)
     void app_can_idle(bool did_idle)
 
 Additionally, app threads (and any required library threads) must be registered 
