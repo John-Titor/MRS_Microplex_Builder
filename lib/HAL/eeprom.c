@@ -7,7 +7,7 @@
 #define _EEPROM_BASE        0x1400U
 #define _EEPROM_SIZE        0x800U
 #define _EEPROM_SECTOR_SIZE 8
-#define _EEPROM_PAGE_SIZE   (_EEPROM_SIZE / 2)
+#define _EEPROM_BANK_SIZE   (_EEPROM_SIZE / 2)
 #define _EEPROM_KEEPOUT     0x200U
 
 #define _CMD_BYTE_PROG      0x20
@@ -21,12 +21,12 @@ _eeprom_pagesel(uint16_t offset)
     REQUIRE(offset < _EEPROM_SIZE);
 
     /* select the appropriate page for the desired byte */
-    if (offset < _EEPROM_PAGE_SIZE) {
+    if (offset < _EEPROM_BANK_SIZE) {
         FCNFG_EPGSEL = 0;
         return offset;
     } else {
         FCNFG_EPGSEL = 1;
-        return offset - _EEPROM_PAGE_SIZE;
+        return offset - _EEPROM_BANK_SIZE;
     }
 }
 
@@ -43,7 +43,7 @@ _eeprom_write_sector(uint16_t offset, uint8_t len, const uint8_t *data)
 
     REQUIRE(data_offset <= offset);
     REQUIRE(data_len <= len);
-    REQUIRE(sector_offset < _EEPROM_SECTOR_SIZE);
+    REQUIRE(data_len > 0);
 
     /* fill buffer from EEPROM */
     for (i = 0; i < _EEPROM_SECTOR_SIZE; i++) {
@@ -51,9 +51,9 @@ _eeprom_write_sector(uint16_t offset, uint8_t len, const uint8_t *data)
     }
 
     /* compare & overwrite buffer with new data */
-    for (; i < (data_offset + data_len); i++) {
-        if (buf[i] != data[i - data_offset]) {
-            buf[i] = data[i - data_offset];
+    for (i = 0; i < data_len; i++) {
+        if (buf[data_offset + i] != data[i]) {
+            buf[data_offset + i] = data[i];
             need_write = true;
         }
     }
@@ -83,7 +83,6 @@ _eeprom_write_sector(uint16_t offset, uint8_t len, const uint8_t *data)
         for (i = 0; i < _EEPROM_SECTOR_SIZE; i++) {
             REQUIRE(FSTAT_FCBEF != 0);
             REQUIRE(FSTAT_FACCERR == 0);
-
             ENTER_CRITICAL_SECTION;
             *(uint8_t *)(_EEPROM_BASE + sector_offset + i) = buf[i];
             FCMD = _CMD_BYTE_PROG;
@@ -115,9 +114,8 @@ _HAL_eeprom_write(uint16_t offset, uint8_t len, const uint8_t *data)
 void
 HAL_eeprom_write(uint16_t offset, uint8_t len, const uint8_t *data)
 {
-    if (offset > _EEPROM_KEEPOUT) {
-        _HAL_eeprom_write(offset, len, data);
-    }
+    REQUIRE(offset > _EEPROM_KEEPOUT);
+    _HAL_eeprom_write(offset, len, data);
 }
 
 void

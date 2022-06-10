@@ -53,6 +53,7 @@ static void
 _main_thread(struct pt *pt)
 {
     static HAL_timer_t t;
+    uint16_t v;
 
     pt_begin(pt);
     HAL_timer_register(t);
@@ -62,6 +63,12 @@ _main_thread(struct pt *pt)
           MRS_parameters.Name,
           MRS_parameters.HardwareVersion,
           MRS_parameters.SerialNumber);
+    v = HAL_eeprom_read16(0x3f0);
+    print("0x3f0: %x", v);
+    HAL_eeprom_write16(0x3f0, v + 1);
+    v = HAL_eeprom_read16(0x3f0);
+    print("0x3f0: %x", v);
+
     for (;;) {
         if (HAL_timer_expired(t)) {
             HAL_timer_reset(t, 1000);
