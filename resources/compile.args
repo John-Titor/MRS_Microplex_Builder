@@ -13,8 +13,9 @@
 -Cc
 -F2
 -ViewHidden
--WmsgFob"%f%e:%l:%k:%d %m\n"
 -WmsgSd4001
 -WmsgNu=abcde
+-WmsgFob"%f%e:%l:%c:%m\n"
+-Wpd
 -Cs08
 -Cni

@@ -11,19 +11,8 @@ Wine setup
 ----------
 A Wine install with the `wine` and `winetricks` commandline tools are required.
 Homebrew users can `brew install wine winetricks`.
+
 Configure wine with `winetricks mfc42`.
-
-CW full install
----------------
-Download the CodeWarrior for MCU Offline installer, e.g.
-`CW_MCU_v11.1_b181224_PE_Offline.exe` and run 
-`wine CW_MCU_v11.1_b181224_PE_Offline.exe` to install.
-
-No need to install updates 1-4, as they have no relevant content. No need to
-actually run CodeWarrior.
-
-The default CW_INSTALL_DIR value is set assuming this install method on a
-default Wine prefix.
 
 CW minimal install
 ------------------
@@ -41,6 +30,18 @@ Place the resulting MCU directory somewhere and point `CW_INSTALL_DIR` at it.
 
 Note that `MCU_Build_Tools_Utilities.pdf` is not installed with this method.
 
+CW full install
+---------------
+To install the full CW MCU application, download the CodeWarrior for MCU 
+Offline installer, e.g. `CW_MCU_v11.1_b181224_PE_Offline.exe` and run 
+`wine CW_MCU_v11.1_b181224_PE_Offline.exe` to install.
+
+No need to install updates 1-4, as they have no relevant content for the MRS
+CPU. There is no need to actually run CodeWarrior MCU; the HCS08 tools default
+license is sufficient, and no setup is required.
+
+The default CW_INSTALL_DIR value is set assuming this install method on a
+default Wine prefix.
 
 how to use
 ==========
@@ -54,7 +55,6 @@ appropriate.
 
 app framework
 -------------
-
 Apps must implement the following functions, prototyped and documented in
 `<app.h>`:
 
@@ -91,6 +91,7 @@ The stock linker files don't work with the MRS ROM; use
 
 code style
 ==========
+
 See the `reformat` target in `Makefile`.
 
 Comments and comment blocks should use C-style delimiters. Block comments 

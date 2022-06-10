@@ -1,4 +1,3 @@
-
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -59,7 +58,10 @@ _main_thread(struct pt *pt)
     HAL_timer_register(t);
     HAL_timer_reset(t, 1000);
 
-    print("main");
+    print("%s v%u #%lx", 
+          MRS_parameters.Name,
+          MRS_parameters.HardwareVersion,
+          MRS_parameters.SerialNumber);
     for (;;) {
         if (HAL_timer_expired(t)) {
             HAL_timer_reset(t, 1000);

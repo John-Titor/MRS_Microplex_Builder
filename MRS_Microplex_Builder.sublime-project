@@ -10,4 +10,13 @@
         "tab_size": 4,
         "translate_tabs_to_spaces": true
     },
+    "build_systems":
+    [
+        {
+            "name": "CW MCU make",
+            "cmd" : ["make"],
+            "file_regex": "^([\\w/.]+):(\\d+):(\\d+):(.+)$",
+            "working_dir": "$project_path"
+        }
+    ]
 }

@@ -1,5 +1,6 @@
 #
-# Build an app for an MRS Microplex 7 module using the CodeWarrior MCU binaries.
+# Build an app for an MRS Microplex 7 module using the CodeWarrior 
+# MCU binaries.
 #
 
 #
@@ -51,7 +52,10 @@ export LIBS	 = $(MCU)/lib/hc08c/lib/ansiis.lib
 export TEXTPATH	 = $(BUILDDIR)
 export ERRORFILE = $(BUILDDIR)/%n_link_errors.txt
 
-# make Wine quieter - turn this off when debugging Wine problems
+# convert \ to / to enable parsing filenames out of error messages 
+CONVERT_SLASHES	 = | tr \\ /
+
+# make Wine wineserver quieter - turn this off when debugging Wine problems
 export WINEDEBUG = -all
 
 .PHONY: all clean reformat
@@ -90,13 +94,15 @@ $(BUILDDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)
 $(BUILDDIR)/%.obj: %.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== COMPILE $<
-	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args -ObjN=$@ $< -Lm=$(@:%.obj=%.d)
+	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args \
+		-ObjN=$@ $< -Lm=$(@:%.obj=%.d) $(CONVERT_SLASHES)
 
 # build an object file from a source file supplied by CW MCU
 $(BUILDDIR)/mcu_lib/%.obj: $(MCU)/lib/%.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== COMPILE $<
-	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args -ObjN=$@ $< -Lm=$(@:%.obj=%.d)
+	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args \
+		-ObjN=$@ $< -Lm=$(@:%.obj=%.d) $(CONVERT_SLASHES)
 
 $(MCU_SRCS): $(MCU)
 
@@ -104,6 +110,6 @@ $(MCU_SRCS): $(MCU)
 $(MCU):
 	@mkdir -p $(@D)
 	@test -d $(CW_INSTALL_DIR) || (echo Must set CW_INSTALL_DIR; exit 1)
-	$(V)ln -sf $(CW_INSTALL_DIR) $@
+	$(V)ln -sf $(abspath $(CW_INSTALL_DIR)) $@
 
 -include $(OBJS:.obj=.d)
