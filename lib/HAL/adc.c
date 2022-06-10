@@ -1,9 +1,4 @@
-/*
- * ADC
- */
-
 #include <mc9s08dz60.h>
-
 #include <lib.h>
 #include <HAL/_adc.h>
 #include <HAL/_timer.h>

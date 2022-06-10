@@ -97,9 +97,19 @@ Comments and comment blocks should use C-style delimiters. Block comments
 should be whole sentences; use capital letters and periods. One-liners
 may be terse and un-capitalised.
 
+Documentation goes in header files; only inline comments about the
+implementation should be in the source.
+
 Use `#pragma ONCE` instead of `#define` include guards.
 
 Identifiers local to a file should be prefixed with `_`.
+
+Header include order:
+ - Standard library headers
+ - MCU headers
+ - Local headers
+ - HAL headers
+ - Application headers
 
 namespaces
 ----------

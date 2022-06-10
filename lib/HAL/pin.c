@@ -1,11 +1,5 @@
-/*
- * Module pin abstraction.
- */
-
 #include <stddef.h>
-
 #include <mc9s08dz60.h>
-
 #include <HAL/_adc.h>
 #include <HAL/_pin.h>
 #include <HAL/_pwm.h>

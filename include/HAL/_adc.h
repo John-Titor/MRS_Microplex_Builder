@@ -1,13 +1,13 @@
 /** @file
  * Analog to digital conversion.
  *
- * A simple moving-average filter is used, results are averaged over the last
- * ADC_AVG_SAMPLES.
- *
+ * The configured set of channels are sampled every 2ms,
+ * and samples are averaged over the last ADC_AVG_SAMPLES.
  *
  * ADC scale factors
+ * -----------------
  *
- * Measurements in 10-bit mode.
+ * All measurements in 10-bit mode.
  *
  * Scaling is performed by taking the accumulated ADC counts
  * (sum of ADC_AVG_SAMPLES), multiplying by the scale factor
@@ -24,6 +24,10 @@
  * 1K pullup mode: TBD
  * 20mA mode: TBD (claimed 25mA)
  */
+
+#pragma ONCE
+
+#include <stdint.h>
 
 #define ADC_SCALE_FACTOR_30V    17900   // VALIDATED @ 4.860V
 #define ADC_SCALE_FACTOR_10V    6065    // VALIDATED @ 4.860V
@@ -55,10 +59,7 @@
  */
 #define ADC_SCALE_FACTOR_TEMP   610     // XXX VALIDATE
 
-#pragma ONCE
-
-#include <stdint.h>
-
+// don't change this without adjusting the scaling factors above
 #define HAL_ADC_AVG_SAMPLES 8
 
 typedef enum {

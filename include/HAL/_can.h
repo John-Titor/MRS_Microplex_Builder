@@ -1,13 +1,12 @@
 /** @file
  *
- * CAN hardware abstraction.
+ * MSCAN hardware abstraction.
  */
 
 #pragma ONCE
 
 #include <stdint.h>
 #include <stdbool.h>
-
 #include <pt.h>
 
 typedef enum {

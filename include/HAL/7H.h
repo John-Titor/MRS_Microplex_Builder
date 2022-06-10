@@ -3,7 +3,7 @@
  * digging through the sources supplied with the awful
  * Microplex Studio app, with some reference to the (brief)
  * datasheet PDF.
- * 
+ *
  * SoC:                 MC9S08DZ60
  * CAN:                 TJA1043
  * High-side drivers:   VNQ5050

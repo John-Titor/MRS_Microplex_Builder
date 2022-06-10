@@ -1,12 +1,6 @@
-/*
- * EEPROM hardware abstraction.
- */
-
 #include <stdbool.h>
 #include <stdint.h>
-
 #include <mc9s08dz60.h>
-
 #include <lib.h>
 #include <HAL/_eeprom.h>
 

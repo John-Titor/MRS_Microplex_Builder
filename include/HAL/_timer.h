@@ -1,13 +1,25 @@
 /** @file
  *
  * Timers and timebase.
+ *
+ * Using TPM2C2
+ *
+ * FFCLK is 1MHz, so we run with a /1 prescaler to count microseconds.
+ *
+ * We maintain a 32-bit timebase which will wrap after ~71 minutes,
+ * so code must be careful about absolute time values.
+ *
+ * A note on time_wait_us: the maximum delay is limited to uint16_t both
+ * for efficiency (waiting longer than 64ms is not friendly to other parts
+ * of the system) and also to make it safe to use in a critical region;
+ * time_us can only handle one wrap before it needs the overflow handler to
+ * run and adjust the timebase high word.
  */
 
 #pragma ONCE
 
 #include <stdint.h>
 #include <stdbool.h>
-
 #include <mc9s08dz60.h>
 
 /**

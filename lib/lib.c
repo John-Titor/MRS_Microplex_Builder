@@ -1,11 +1,5 @@
-/*
- * Generic library-ish things.
- */
-
 #include <stdio.h>
-
 #include <mc9s08dz60.h>
-
 #include <lib.h>
 #include <HAL/_can.h>
 

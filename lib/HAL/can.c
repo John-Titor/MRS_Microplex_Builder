@@ -1,13 +1,7 @@
-/*
- * MSCAN driver.
- */
-
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-
 #include <mc9s08dz60.h>
-
 #include <app.h>
 #include <lib.h>
 #include <pt.h>
@@ -46,7 +40,7 @@ typedef enum {
     WM_SENT
 } _wait_mode_t;
 
-static bool _send(uint32_t id, 
+static bool _send(uint32_t id,
                   uint8_t dlc,
                   const uint8_t *data,
                   _wait_mode_t wait);

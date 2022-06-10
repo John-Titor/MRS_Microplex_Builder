@@ -6,9 +6,7 @@
  */
 
 #include <stddef.h>
-
 #include <mc9s08dz60.h>
-
 #include <app.h>
 #include <pt.h>
 #include <HAL/_can.h>
