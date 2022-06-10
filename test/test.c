@@ -8,13 +8,6 @@
 #include <pt.h>
 #include <HAL/7X.h>
 
-static void _main_thread(struct pt *pt);
-
-app_thread_t    app_thread_table[] = {
-    { _main_thread },
-    { NULL }
-};
-
 void
 app_init(void)
 {
@@ -49,11 +42,9 @@ app_can_idle(bool is_idle)
     (void)is_idle;
 }
 
-static void
-_main_thread(struct pt *pt)
+PT_DEFINE(main)
 {
     static HAL_timer_t t;
-    uint16_t v;
 
     pt_begin(pt);
     HAL_timer_register(t);
@@ -63,18 +54,19 @@ _main_thread(struct pt *pt)
           MRS_parameters.Name,
           MRS_parameters.HardwareVersion,
           MRS_parameters.SerialNumber);
-    v = HAL_eeprom_read16(0x3f0);
-    print("0x3f0: %x", v);
-    HAL_eeprom_write16(0x3f0, v + 1);
-    v = HAL_eeprom_read16(0x3f0);
-    print("0x3f0: %x", v);
+    {
+        uint16_t v;
+        v = HAL_eeprom_read16(0x3f0);
+        print("0x3f0: %x", v);
+        HAL_eeprom_write16(0x3f0, v + 1);
+        v = HAL_eeprom_read16(0x3f0);
+        print("0x3f0: %x", v);
+    }
 
     for (;;) {
         if (HAL_timer_expired(t)) {
             HAL_timer_reset(t, 1000);
             print("tick");
-        } else {
-//            print("tock %lu", HAL_timer_us());
         }
         pt_yield(pt);
     }

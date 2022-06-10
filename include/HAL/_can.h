@@ -39,7 +39,7 @@ typedef struct {
     uint8_t         dlc;
 } HAL_can_message_t;
 
-extern void _HAL_can_listen(struct pt *pt);
+PT_DECLARE(_HAL_can_listen);
 
 /**
  * Configure CAN for the given bitrate.

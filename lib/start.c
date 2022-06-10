@@ -46,22 +46,16 @@ __default_vector(void)
 void
 main(void)
 {
-    static struct pt _can_listener;
-
     /* do app and HAL init */
     app_init();
 
     for (;;) {
-        uint8_t i;
-
         __RESET_WATCHDOG();
 
         /* run the CAN listener thread */
-        _HAL_can_listen(&_can_listener);
+        PT_RUN(_HAL_can_listen);
 
-        /* run app threads */
-        for (i = 0; app_thread_table[i].func != NULL; i++) {
-            app_thread_table[i].func(&app_thread_table[i].pt);
-        }
+        /* run app thread(s) */
+        PT_RUN(main);
     }
 }

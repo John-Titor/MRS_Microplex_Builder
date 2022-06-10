@@ -14,8 +14,7 @@
 #define PT_STATUS_FINISHED  1
 #define PT_STATUS_YIELDED   2
 
-
-// disable "removed dead code"
+/* disable "removed dead code" */
 #pragma MESSAGE DISABLE C5660
 
 /**
@@ -139,3 +138,44 @@ struct pt {
         HAL_timer_reset(timer, ms);             \
         pt_wait(pt, HAL_timer_expired(timer));  \
     } while(0)
+
+/**
+ * Declare a protothread by name.
+ * 
+ * Declares both the protothread function and the thread structure.
+ * 
+ * @param _name         Protothread name.
+ */
+#define PT_DECLARE(_name)                       \
+    extern struct pt __pt_ ## _name;            \
+    extern void pt_ ## _name (struct pt *pt)
+
+/**
+ * Heads the definition of a protothread function.
+ * 
+ * Should be followed by the body of the function. Also defines the
+ * thread structure.
+ * 
+ * @param _name         Protothread name.
+ */
+#define PT_DEFINE(_name)                        \
+    struct pt __pt_ ## _name;                   \
+    void pt_ ## _name (struct pt *pt)
+
+/**
+ * Run a protothread by name.
+ *
+ * Calls the thread function and passes the thread structure.
+ * 
+ * @param _name         Protothread name.
+ */
+#define PT_RUN(_name)       pt_ ## _name(&__pt_ ## _name)
+
+/**
+ * Reset a protothread by name.
+ * 
+ * Causes the named protothread to restart the next time it is run.
+ *
+ * @param _name         Protothread name.
+ */
+#define PT_RESET(_name)     pt_reset(&__pt_ ## _name)

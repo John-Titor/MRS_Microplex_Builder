@@ -252,8 +252,7 @@ _can_rx_interrupt(void)
     }
 }
 
-void
-_HAL_can_listen(struct pt *pt)
+PT_DEFINE(_HAL_can_listen)
 {
     static HAL_timer_t  _idle_timer;
     static bool         _idle_flag = false;

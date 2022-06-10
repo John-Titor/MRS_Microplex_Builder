@@ -10,21 +10,10 @@
 #include <pt.h>
 #include <HAL/_can.h>
 
-typedef struct {
-    void (*func)(struct pt *pt);
-    struct pt pt;
-} app_thread_t;
-
-/**
- * Application thread list.
- *
- * Threads are called each time around the main loop; threads should
- * yield rather than busy-waiting in order to avoid blocking CAN
- * message handling.
- *
- * List must be terminated by an entry with a NULL @p func field.
+/*
+ * App main protothread; must be supplied by the app.
  */
-extern app_thread_t app_thread_table[];
+PT_DECLARE(main);
 
 /**
  * Application initialisation hook.
