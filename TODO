@@ -43,4 +43,6 @@ not features:
    ✔ verify whether `mc9s08dz60.c` is required - yes @done (22-06-01 09:38)
    ☐ __SHORT_SEG for zeropage I/O registers?
      would mean moving mc9s08dz60.[ch] into project in order to add segment directives
+   ☐ __SHORT_SEG for "hot" variables? 
+     are there any?
    ☐ sleep (Stop2) mode?

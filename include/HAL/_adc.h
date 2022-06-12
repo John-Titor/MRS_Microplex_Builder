@@ -73,10 +73,10 @@ typedef enum {
 } HAL_adc_scale_t;
 
 typedef struct {
-    uint8_t     channel: 5;
-    uint8_t     index: 3;
-    uint8_t     scale;
-    uint16_t    samples[HAL_ADC_AVG_SAMPLES];
+    const uint8_t   channel:5;
+    uint8_t         scale:3;
+    uint8_t         index;
+    uint16_t        samples[HAL_ADC_AVG_SAMPLES];
 } HAL_adc_channel_state_t;
 
 extern void     _HAL_adc_init(HAL_adc_channel_state_t *state);
