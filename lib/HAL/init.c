@@ -70,7 +70,7 @@ _HAL_7H_init(void)
     _HAL_adc_init(_HAL_7H_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_can_configure(MRS_can_bitrate(), HAL_can_FM_2x32, &_HAL_default_filters);
+    HAL_can_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }
@@ -123,7 +123,7 @@ _HAL_7L_init(void)
     _HAL_adc_init(_HAL_7L_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_can_configure(MRS_can_bitrate(), HAL_can_FM_2x32, &_HAL_default_filters);
+    HAL_can_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }
@@ -186,7 +186,7 @@ _HAL_7X_init(void)
     _HAL_adc_init(_HAL_7X_adc_state);
     _HAL_pwm_init();
     _HAL_timer_init();
-    HAL_can_configure(MRS_can_bitrate(), HAL_can_FM_2x32, &_HAL_default_filters);
+    HAL_can_configure(MRS_can_bitrate(), HAL_CAN_FM_2x32, &_HAL_default_filters);
 
     __asm CLI;
 }

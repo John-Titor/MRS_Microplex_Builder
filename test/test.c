@@ -13,7 +13,7 @@ void
 app_init(void)
 {
     HAL_init();
-    //MRS_set_software_version(GIT_VERSION);
+    /*MRS_set_software_version(GIT_VERSION); */
 
     print("start %s", GIT_VERSION);
 

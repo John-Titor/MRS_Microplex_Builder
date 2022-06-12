@@ -20,9 +20,6 @@ static uint8_t              _can_buf_tail;
 #define CAN_BUF_EMPTY       (_can_buf_head == _can_buf_tail)
 #define CAN_BUF_FULL        ((_can_buf_head - _can_buf_tail) >= CAN_RX_FIFO_SIZE)
 
-#define MRS_ID_MASK         0x1ffffff0      // XXX TODO fetch from EEPROM
-
-
 /* entries here match the MRS_CAN_*BPS constants in <HAL/_bootrom.h> */
 static const uint8_t _CAN_btr_table[][2] = {
     { 0x00, 0x00 }, /* -      */
@@ -51,7 +48,7 @@ HAL_can_configure(uint8_t bitrate,
                   const HAL_can_filters_t *filters)
 {
     REQUIRE(bitrate <= (sizeof(_CAN_btr_table) / sizeof(_CAN_btr_table[0])));
-    REQUIRE(filter_mode <= HAL_can_FM_NONE);
+    REQUIRE(filter_mode <= HAL_CAN_FM_NONE);
 
     /* set INITRQ and wait for it to be acknowledged */
     CANCTL0 = CANCTL0_INITRQ_MASK;
@@ -69,7 +66,7 @@ HAL_can_configure(uint8_t bitrate,
     }
 
     /* configure filters */
-    if (filter_mode != HAL_can_FM_NONE) {
+    if (filter_mode != HAL_CAN_FM_NONE) {
         CANIDAC = filter_mode << 4;
         CANIDAR0 = filters->filter_8.accept[0];
         CANIDAR1 = filters->filter_8.accept[1];

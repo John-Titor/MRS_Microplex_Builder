@@ -216,7 +216,7 @@ _write_eeprom(const HAL_can_message_t *msg)
     const uint16_t address = *(uint16_t *)(&msg->data[0]);
     const uint8_t len = msg->dlc - 2;
     const uint8_t *const src = &msg->data[2];
-    uint8_t data[5] = {0x20, 0xe8, 0x0f};   // default to error
+    uint8_t data[5] = {0x20, 0xe8, 0x0f};   /* default to error */
 
     if (_eeprom_write_enable) {
 

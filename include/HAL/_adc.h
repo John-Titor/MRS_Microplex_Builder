@@ -29,20 +29,20 @@
 
 #include <stdint.h>
 
-#define ADC_SCALE_FACTOR_30V    17900   // VALIDATED @ 4.860V
-#define ADC_SCALE_FACTOR_10V    6065    // VALIDATED @ 4.860V
+#define ADC_SCALE_FACTOR_30V    17900   /* VALIDATED @ 4.860V */
+#define ADC_SCALE_FACTOR_10V    6065    /* VALIDATED @ 4.860V */
 
 /*
  * AI_OP_1/2/3/4:
  * -------------
  */
-#define ADC_SCALE_FACTOR_DO_V   16494   // VALIDATED @ 11.46V
+#define ADC_SCALE_FACTOR_DO_V   16494   /* VALIDATED @ 11.46V */
 
 /*
  * AI_CS_1/2/3/4:
  * -------------
  */
-#define ADC_SCALE_FACTOR_DO_I   4531    // VALIDATED @ 1.000A
+#define ADC_SCALE_FACTOR_DO_I   4531    /* VALIDATED @ 1.000A */
 
 /*
  * AI_KL15:
@@ -50,16 +50,16 @@
  * Clamped at 11V; mostly useful to help detect input sag and
  * avoid faulting outputs when T30 is low.
  */
-#define ADC_SCALE_FACTOR_KL15   5507    // VALIDATED @ 8.368V
+#define ADC_SCALE_FACTOR_KL15   5507    /* VALIDATED @ 8.368V */
 
 /*
  * AI_TEMP
  * -------
  * Calculated for nominal Vdd (5V)
  */
-#define ADC_SCALE_FACTOR_TEMP   610     // XXX VALIDATE
+#define ADC_SCALE_FACTOR_TEMP   610     /* XXX VALIDATE */
 
-// don't change this without adjusting the scaling factors above
+/* don't change this without adjusting the scaling factors above */
 #define HAL_ADC_AVG_SAMPLES 8
 
 typedef enum {

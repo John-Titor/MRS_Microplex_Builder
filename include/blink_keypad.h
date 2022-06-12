@@ -14,30 +14,31 @@
 #include <HAL/_can.h>
 
 /*
- * Blink Marine keypad configuration 
+ * Blink Marine keypad configuration
  */
-//#define BK_FIXED_KEYPAD_ID      0x15  // assume keypad ID
-#define BK_MAX_KEYS             12      // largest keypad supported
-#define BK_IDLE_TIMEOUT_MS      1000    // timeout before assuming keypad gone
-#define BK_UPDATE_PERIOD_MS     25      // expected keypad update interval
-#define BK_BLINK_PERIOD_MS      250     // time per pattern bit
-#define BK_TICK_PERIOD_MS       25      // interval between ticks
-#define BK_SHORT_PRESS_TICKS    2       // delay before registering a short press
-#define BK_LONG_PRESS_1_TICKS   20      // delay before registering first long press
-#define BK_LONG_PRESS_2_TICKS   60      // delay before registering a long press
-#define BK_LONG_PRESS_3_TICKS  120      // delay before registering a long press
+/*#define BK_FIXED_KEYPAD_ID      0x15*/  /* assume fixed keypad ID */
+#define BK_MAX_KEYS             12      /* largest keypad supported */
+#define BK_IDLE_TIMEOUT_MS      1000    /* timeout before assuming keypad gone */
+#define BK_UPDATE_PERIOD_MS     25      /* expected keypad update interval */
+#define BK_BLINK_PERIOD_MS      250     /* time per pattern bit */
+#define BK_TICK_PERIOD_MS       25      /* interval between ticks */
+#define BK_SHORT_PRESS_TICKS    2       /* delay before registering a short press */
+#define BK_LONG_PRESS_1_TICKS   20      /* delay before registering first long press */
+#define BK_LONG_PRESS_2_TICKS   60      /* delay before registering a long press */
+#define BK_LONG_PRESS_3_TICKS  120      /* delay before registering a long press */
 
 /**
  * Keypad event codes.
  */
-#define BK_EVENT_NONE           0xff
-#define BK_EVENT_RELEASE        0x00
-#define BK_EVENT_SHORT_PRESS    0x10
-#define BK_EVENT_LONG_PRESS_1   0x20
-#define BK_EVENT_LONG_PRESS_2   0x30
-#define BK_EVENT_LONG_PRESS_3   0x40
-#define BK_EVENT_MASK           0xf0
-#define BK_KEY_MASK             0x0f
+#define BK_EVENT_NONE           0xff    /* no new events */
+#define BK_EVENT_DISCONNECTED   0xfe    /* keypad not connected */
+#define BK_EVENT_RELEASE        0x00    /* key was released */
+#define BK_EVENT_SHORT_PRESS    0x10    /* key pressed for BK_SHORT_PRESS_TICKS */
+#define BK_EVENT_LONG_PRESS_1   0x20    /* key pressed for BK_LONG_PRESS_1_TICKS */
+#define BK_EVENT_LONG_PRESS_2   0x30    /* key pressed for BK_LONG_PRESS_2_TICKS */
+#define BK_EVENT_LONG_PRESS_3   0x40    /* key pressed for BK_LONG_PRESS_3_TICKS */
+#define BK_EVENT_MASK           0xf0    /* mask for event value */
+#define BK_KEY_MASK             0x0f    /* mask for key number */
 
 /**
  * Backlight color codes.
@@ -66,40 +67,46 @@
 #define BK_KEY_COLOR_WHITE      (BK_KEY_COLOR_RED | BK_KEY_COLOR_GREEN | BK_KEY_COLOR_BLUE)
 #define BK_COLOR_MASK           0xf
 
-#define BK_MAX_INTENSITY    0x3f
+#define BK_MAX_INTENSITY        0x3f
 
 /**
  * CAN bus speeds
  */
-#define BK_SPEED_1000       0
-#define BK_SPEED_500        1
-#define BK_SPEED_250        2
-#define BK_SPEED_125        3
+#define BK_SPEED_1000           0
+#define BK_SPEED_500            1
+#define BK_SPEED_250            2
+#define BK_SPEED_125            3
 
-/* Declare the keypad handler thread */
+/* Keypad handler thread, must be run by app for keypad to function. */
 PT_DECLARE(blink_keypad);
 
 /**
  * Get the number of keys on the keypad.
  *
  * @return              The number of keys on the keypad. Zero
- *                      if a keypad has not been detected.
+ *                      if a keypad has not been detected, or
+ *                      a previously-detected keypad has disappeared.
  */
 extern uint8_t bk_num_keys(void);
 
 /**
- * Sniff a CAN ID and decide whether we're interested in it.
+ * Sniff a CAN ID and decide whether it is interesting to the driver.
+ *
+ * Should be called from @p app_can_filter for any message that might
+ * be from a keypad.
+ *
+ * @param id            CAN message ID.
  */
 extern bool bk_can_filter(uint32_t id);
 
 /**
  * Feed a received CAN message to the keypad handler.
  *
- * Should be called from app_can_receive for any message that
+ * Should be called from @p app_can_receive for any message that
  * might be from a keypad.
  *
  * @param msg           The CAN message buffer.
- * @returns             TRUE if the message was consumed, FALSE
+ * @returns             true if the message was consumed, false
  *                      if it was not a keypad message.
  */
 extern bool bk_can_receive(const HAL_can_message_t *msg);
@@ -108,7 +115,8 @@ extern bool bk_can_receive(const HAL_can_message_t *msg);
  * Get an event from the keypad.
  *
  * @returns             Event code in the high 4 bits, key number in the low 4.
- *                      BK_EVENT_NONE if no event occurred.
+ *                      BK_EVENT_NONE if no event occurred,
+ *                      BK_EVENT_DISCONNECTED if a keypad is not connected.
  */
 extern uint8_t bk_get_event(void);
 
@@ -116,10 +124,12 @@ extern uint8_t bk_get_event(void);
  * Get the most recent event for a given key.
  *
  * Note that this returns the event that put the key into its current
- * state; it will never return BK_EVENT_NONE.
+ * state.
  *
  * @param key           Key number (0-11)
- * @returns             Event code in the high 4 bits.
+ * @returns             Event code in the high 4 bits, BK_EVENT_NONE if
+ *                      the key number is not valid for the current keypad,
+ *                      BK_EVENT_DISCONNECTED if a keypad is not connected.
  */
 extern uint8_t bk_get_key_event(uint8_t key);
 

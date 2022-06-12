@@ -29,10 +29,10 @@ _HAL_adc_init(HAL_adc_channel_state_t *state)
      * configure the ADC to run as slowly as possible to leave time between
      * interrupts for other things to happen
      */
-    ADCCFG_ADICLK = 1;  // bus clock /2 (10MHz)
-    ADCCFG_ADIV = 3;    // /8 -> 1.25MHz ADCK -> 800ns / cycle
-    ADCCFG_MODE = 2;    // 10-bit mode
-    ADCCFG_ADLSMP = 1;  // long sample time
+    ADCCFG_ADICLK = 1;  /* bus clock /2 (10MHz) */
+    ADCCFG_ADIV = 3;    /* /8 -> 1.25MHz ADCK -> 800ns / cycle */
+    ADCCFG_MODE = 2;    /* 10-bit mode */
+    ADCCFG_ADLSMP = 1;  /* long sample time */
 
     /*
      * total conversion time: 43 ADCK cycles + 5 bus clock cycles

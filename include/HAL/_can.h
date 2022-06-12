@@ -10,10 +10,10 @@
 #include <pt.h>
 
 typedef enum {
-    HAL_can_FM_2x32,    // maps to the CANIDAC IDAMx bits
-    HAL_can_FM_4x16,
-    HAL_can_FM_8x8,
-    HAL_can_FM_NONE
+    HAL_CAN_FM_2x32,    /* maps to the CANIDAC IDAMx bits */
+    HAL_CAN_FM_4x16,
+    HAL_CAN_FM_8x8,
+    HAL_CAN_FM_NONE
 } HAL_can_filter_mode;
 
 typedef union {
@@ -46,7 +46,7 @@ PT_DECLARE(_HAL_can_listen);
  *
  * @param bitrate       CAN bitrate index, see @p _bootrom.h. Pass 0 to
  *                      keep the current bitrate.
- * @param filter_mode   One of the HAL_can_FM constants. HAL_can_FM_NONE
+ * @param filter_mode   One of the HAL_CAN_FM constants. HAL_CAN_FM_NONE
  *                      will keep the current filter configuration.
  * @param filters       Pointer to a HAL_can_filters_t structure containing
  *                      CAN filters. Note that masking 0x1ffffff* will cause
