@@ -4,6 +4,7 @@
 #include <mc9s08dz60.h>
 
 #include <app.h>
+#include <blink_keypad.h>
 #include <lib.h>
 #include <pt.h>
 #include <HAL/7X.h>
@@ -21,21 +22,24 @@ app_init(void)
 
 bool
 app_can_filter(uint32_t id)
-{
-    // check whether the bootrom code wants this message
-    if (MRS_bootrom_filter(id)) {
+{   
+    if (MRS_bootrom_filter(id) ||   /* bootrom interested? */
+        bk_can_filter(id)) {        /* blink keypad handler interested? */
         return true;
     }
-    return false;
+
+    return false;                   /* not interested */
 }
 
 void
 app_can_receive(const HAL_can_message_t *msg)
 {
-    // let the bootrom code look at this message
-    if (MRS_bootrom_rx(msg)) {
+    if (MRS_bootrom_rx(msg) ||      /* handled by bootrom code? */
+        bk_can_receive(msg)) {      /* handled by blink keypad? */
         return;
     }
+
+    /* we could do something here */
 }
 
 void
@@ -70,6 +74,7 @@ PT_DEFINE(main)
             HAL_timer_reset(t, 1000);
             print("tick");
         }
+        PT_RUN(blink_keypad);
         pt_yield(pt);
     }
     pt_end(pt);

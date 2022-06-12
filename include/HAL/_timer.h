@@ -25,19 +25,19 @@
 /**
  * One-shot timer.
  */
-typedef struct _timer {
-    struct _timer   *_next;
-    uint16_t        delay_ms;
+typedef struct _HAL_timer {
+    uint16_t            delay_ms;   /* delay before expiration */
+    struct _HAL_timer   *_next;
 } HAL_timer_t;
 
 /**
  *  One-shot or periodic timer callback.
  */
-typedef struct _timer_call {
-    struct _timer_call *_next;
-    uint16_t        delay_ms;
-    uint16_t        period_ms;          // tick interval between calls, 0 for one-shot
-    void (*callback)(void);             // function to call - must be interrupt-safe
+typedef struct _HAL_timer_call {
+    void (*callback)(void);     /* function to call - must be interrupt-safe */
+    uint16_t        delay_ms;   /* delay to first call */
+    uint16_t        period_ms;  /* tick interval between calls, 0 for one-shot */
+    struct _HAL_timer_call *_next;
 } HAL_timer_call_t;
 
 /**
