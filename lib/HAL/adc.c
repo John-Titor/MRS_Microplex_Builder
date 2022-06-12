@@ -99,7 +99,7 @@ _adc_start(void)
 
 static void
 __interrupt VectorNumber_Vadc
-_adc_complete(void)
+Vadc_handler(void)
 {
     /* store new sample */
     _state[_sequence].samples[_state[_sequence].index++] = ADCR;

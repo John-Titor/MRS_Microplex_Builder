@@ -46,8 +46,12 @@ hexdump(uint8_t *addr, unsigned int count)
 void
 __require_abort(const char *file, int line)
 {
+    ENTER_CRITICAL_SECTION;
+
     print("ABORT: %s:%d", file, line);
 
     for (;;);
+
+    EXIT_CRITICAL_SECTION;
 }
 

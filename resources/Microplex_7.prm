@@ -21,4 +21,42 @@ STACKSIZE 0x0200                        /* Size of the system stack. */
 STACK_CONSUMPTION
     ROOT __start
     END
+/*    ROOT Vcantx_handler */
+/*    END */
+    ROOT Vcanrx_handler
+    END
+/*    ROOT Vcanerr_handler */
+/*    END */
+/*    ROOT Vcanwu_handler */
+/*    END */
+/*    ROOT Vrtc_handler */
+/*    END */
+    ROOT Vadc_handler
+    END
+/*    ROOT Vport_handler */
+/*    END */
+    ROOT Vtpm2ovf_handler
+    END
+    ROOT Vtpm2ch1_handler
+    END
+/*    ROOT Vtpm2ch0_handler */
+/*    END */
+/*    ROOT Vtpm1ovf_handler */
+/*    END */
+/*    ROOT Vtpm1ch5_handler */
+/*    END */
+/*    ROOT Vtpm1ch4_handler */
+/*    END */
+/*    ROOT Vtpm1ch3_handler */
+/*    END */
+/*    ROOT Vtpm1ch2_handler */
+/*    END */
+/*    ROOT Vtpm1ch1_handler */
+/*    END */
+/*    ROOT Vtpm1ch0_handler */
+/*    END */
+/*    ROOT Vlvd_handler */
+/*    END */
+/*    ROOT Vswi_handler */
+/*    END */
 END

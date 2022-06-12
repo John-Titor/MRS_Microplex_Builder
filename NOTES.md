@@ -103,7 +103,8 @@ implementation should be in the source.
 
 Use `#pragma ONCE` instead of `#define` include guards.
 
-Identifiers local to a file should be prefixed with `_`.
+Identifiers local to a file should be prefixed with `_`, unless another 
+rule applies.
 
 Header include order:
  - Standard library headers
@@ -114,9 +115,10 @@ Header include order:
 
 namespaces
 ----------
- - `HAL_`      Public HAL identifiers.
- - `_HAL_`     Private HAL identifiers (not to be referenced from app code).
- - `MRS_`      Public MRS bootrom identifiers.
- - `_MRS_`     Private MRS bootrom identifiers (not to be referenced from app code).
- - `app_`      Public app identifiers, to be supplied by the application.
+ - `HAL_`               Public HAL identifiers.
+ - `_HAL_`              Private HAL identifiers (not to be referenced from app code).
+ - `MRS_`               Public MRS bootrom identifiers.
+ - `_MRS_`              Private MRS bootrom identifiers (not to be referenced from app code).
+ - `app_`               Public app identifiers, to be supplied by the application.
+ - `V<vector>_handler`  Interrupt handler for `<vector>`.
 
