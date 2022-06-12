@@ -73,14 +73,32 @@ extern const MRS_parameters_t   MRS_parameters @ 0x1402;
 
 /** EEPROM offset for the named MRS EEPROM parameter */
 #define MRS_PARAM_OFFSET(_p)    offsetof(MRS_parameters_t, _p)
+
+/** Size of the named MRS EEPROM parameter */
 #define MRS_PARAM_SIZE(_p)      sizeof(MRS_parameters. ## _p)
 
-#define MRS_PARAM_READ(_p, _b)  \
-    HAL_eeprom_read(MRS_PARAM_OFFSET(_p), \
-                    MRS_PARAM_SIZE(_p), \
+/** Copy named parameter to buffer - must be large enough */
+#define MRS_PARAM_READ(_p, _b)              \
+    HAL_eeprom_read(MRS_PARAM_OFFSET(_p),   \
+                    MRS_PARAM_SIZE(_p),     \
                     (uint8_t *)_b)
 
 extern void _HAL_eeprom_write(uint16_t offset, uint8_t len, const uint8_t *data);
+extern void _HAL_eeprom_write_str(uint16_t offset, uint8_t len, const char *data);
+
+/** Set the SoftwareVersion parameter to the string (truncated) in _version */
+#define MRS_set_software_version(_version)                      \
+    _HAL_eeprom_write_str(MRS_PARAM_OFFSET(SoftwareVersion),    \
+                          MRS_PARAM_SIZE(SoftwareVersion),      \
+                          _version)
+
+
+/** Set the ModuleName parameter to the string (truncated) in _name */
+#define MRS_set_module_name(_name)                              \
+    _HAL_eeprom_write_str(MRS_PARAM_OFFSET(ModuleName),         \
+                          MRS_PARAM_SIZE(ModuleName),           \
+                          _name)
+
 
 /**
  * Write data to the EEPROM.

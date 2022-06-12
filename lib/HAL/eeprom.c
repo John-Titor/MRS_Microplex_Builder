@@ -102,13 +102,40 @@ _eeprom_write_sector(uint16_t offset, uint8_t len, const uint8_t *data)
 void
 _HAL_eeprom_write(uint16_t offset, uint8_t len, const uint8_t *data)
 {
+    /*
+     * Even though this is the 'private' interface, refuse to overwrite
+     * any of the immutable or bootloader-owned parameters.
+     */
+    REQUIRE(offset >= MRS_PARAM_OFFSET(BaudrateBootloader1));
+
+    /* Write sector-at-a-time. */
     while (len) {
         uint8_t count = _eeprom_write_sector(offset, len, data);
         len -= count;
         data += count;
     }
 
+    /* Leave page 0 selected so that direct parameter access works. */
     (void)_eeprom_pagesel(0);
+}
+
+void
+_HAL_eeprom_write_str(uint16_t offset, uint8_t len, const char *str)
+{
+    char buf[30];   /* large enough for largest string parameter */
+    uint8_t i;
+
+    REQUIRE(len <= sizeof(buf));
+
+    for (i = 0; i < len; i++) {
+        if (*str != 0) {
+            buf[i] = *str++;
+        } else {
+            buf[i] = '\0';
+        }
+    }
+
+    _HAL_eeprom_write(offset, len, buf);
 }
 
 void
@@ -144,6 +171,7 @@ HAL_eeprom_read(uint16_t offset, uint8_t len, uint8_t *data)
         *data++ = *(uint8_t *)(_EEPROM_BASE + bofs);
     }
 
+    /* Leave page 0 selected so that direct parameter access works. */
     (void)_eeprom_pagesel(0);
 }
 

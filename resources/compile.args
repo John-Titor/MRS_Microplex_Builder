@@ -1,5 +1,6 @@
 -Ms 
 -D__NO_FLOAT__
+-DGIT_VERSION="$(GIT_VERS)"
 -I$(SRCDIR)include
 -I$(MCU)/lib/hc08c/device/src
 -I$(MCU)/lib/hc08c/lib

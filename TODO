@@ -6,12 +6,14 @@ MRS Microplex Firmware Builder:
       ✔ some flavor of callout / callbacks to arbitrary CAN message handlers @done (22-06-04 19:28)
       ✔ app CAN handler needs to be a callback, not polling for messages @done (22-06-04 19:28)
       ✔ stack depth visibility into app threads @done (22-06-10 00:05)
+      ✔ API to update version & module name @done (22-06-12 00:29)
+      ✔ expose git version to compilation @done (22-06-12 00:29)
     ☐ HAL
       ✔ more functional ADC abstraction @done (22-06-03 21:44)
       ✔ more functional PWM / output abstraction @done (22-06-03 21:44)
       ✔ eeprom writing @done (22-06-09 23:11)
-      ☐ bootrom parameter (CAN speed) updating from app
-      ☐ reset reason API
+      ✘ bootrom parameter (CAN speed) updating from app @cancelled (22-06-11 23:58)
+      ✔ reset reason API @done (22-06-11 23:43)
     ☐ CAN
       ✔ transmit, console @done (22-06-03 21:44)
       ☐ receive interrupt
@@ -29,6 +31,9 @@ MRS Microplex Firmware Builder:
     ☐ 7H/7L support
       ✔ verify initial pin config @done (22-06-01 12:17)
       ☐ test on module
+
+not features:
+  - Parameter updates from the app. Use the bootloader protocol or the MRS tools to update parameters.
 
   investigations:
    ✔ scrub compiler `-WmsgSd` args to see if any can be pragma'ed instead, since making them the default may not be desirable @done (22-06-01 09:46)

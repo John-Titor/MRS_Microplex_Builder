@@ -43,6 +43,9 @@ MCU_SRCS	 = $(MCU)/lib/hc08c/src/start08.c \
 
 FORMAT_SRCS	 = $(shell find $(_CWD)lib $(_CWD)src $(_CWD)include -name "*.[ch]")
 
+# export this so the compiler can pick it up
+export GIT_VERS	:= $(shell git describe --always --dirty)
+
 # export these so the linker can pick it up from its config
 export OBJS	:= $(patsubst %.c,$(BUILDDIR)/%.obj,$(APP_SRCS) $(LIB_SRCS)) \
 		   $(patsubst $(MCU)/lib/%.c,$(BUILDDIR)/mcu_lib/%.obj,$(MCU_SRCS))

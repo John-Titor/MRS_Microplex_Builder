@@ -12,7 +12,9 @@ void
 app_init(void)
 {
     HAL_init();
-    print("start");
+    //MRS_set_software_version(GIT_VERSION);
+
+    print("start %s", GIT_VERSION);
 
     HAL_pin_set_duty(OUT_2, 50);
 }

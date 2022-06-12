@@ -6,7 +6,6 @@
 #pragma ONCE
 
 #include <stdint.h>
-
 #include <intrinsics_hc08.h>
 
 /**

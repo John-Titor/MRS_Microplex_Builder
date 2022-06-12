@@ -141,9 +141,9 @@ struct pt {
 
 /**
  * Declare a protothread by name.
- * 
+ *
  * Declares both the protothread function and the thread structure.
- * 
+ *
  * @param _name         Protothread name.
  */
 #define PT_DECLARE(_name)                       \
@@ -152,10 +152,10 @@ struct pt {
 
 /**
  * Heads the definition of a protothread function.
- * 
+ *
  * Should be followed by the body of the function. Also defines the
  * thread structure.
- * 
+ *
  * @param _name         Protothread name.
  */
 #define PT_DEFINE(_name)                        \
@@ -166,14 +166,14 @@ struct pt {
  * Run a protothread by name.
  *
  * Calls the thread function and passes the thread structure.
- * 
+ *
  * @param _name         Protothread name.
  */
 #define PT_RUN(_name)       pt_ ## _name(&__pt_ ## _name)
 
 /**
  * Reset a protothread by name.
- * 
+ *
  * Causes the named protothread to restart the next time it is run.
  *
  * @param _name         Protothread name.

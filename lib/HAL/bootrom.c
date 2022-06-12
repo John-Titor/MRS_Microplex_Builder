@@ -4,6 +4,7 @@
 #include <HAL/_can.h>
 #include <HAL/_bootrom.h>
 #include <HAL/_eeprom.h>
+#include <HAL/_reset.h>
 
 #define _ID_MASK            (HAL_can_ID_EXT | 0x1ffffff0)  /* XXX TODO fetch from EEPROM */
 #define _SCAN_RSP_ID        (HAL_can_ID_EXT | 0x1ffffff0)
@@ -14,10 +15,6 @@
 
 static bool     _module_selected = false;
 static bool     _eeprom_write_enable = false;
-
-static void     _param_copy_bytes(uint16_t param_offset, uint8_t param_len, uint8_t *dst);
-static bool     _param_compare_bytes(uint16_t param_offset, uint8_t param_len, const uint8_t *ref);
-static void     _param_store_bytes(uint16_t param_offset, uint8_t param_len, const uint8_t *src);
 
 typedef struct {
     uint32_t    id;
@@ -155,8 +152,8 @@ _enter_program(const HAL_can_message_t *msg)
 
     /* XXX set EEPROM to "boot to bootloader" mode? */
 
-    /* XXX reset immediately */
-    __asm DCW 0x9e00;
+    /* reset immediately */
+    HAL_reset();
 }
 
 static void
