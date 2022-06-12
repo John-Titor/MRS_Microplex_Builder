@@ -31,7 +31,7 @@ typedef union {
     } filter_8;
 } HAL_can_filters_t;
 
-#define HAL_can_ID_EXT  ((uint32_t)1 << 31)
+#define HAL_CAN_ID_EXT  ((uint32_t)1 << 31)
 
 typedef struct {
     uint32_t        id;

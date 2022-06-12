@@ -155,7 +155,7 @@ _send(uint32_t id,
     txe = CANTBSEL;
 
     /* copy message to registers */
-    if (id & HAL_can_ID_EXT) {
+    if (id & HAL_CAN_ID_EXT) {
         CANTIDR0 = (id >> 21) & 0xff;
         CANTIDR1 = (((id >> 18 & 0x07) << 5) |
                     CANTIDR1_IDE_MASK | CANTIDR1_SRR_MASK |
@@ -199,14 +199,14 @@ HAL_can_putchar(char c)
 
     /* send message if full or newline */
     if ((c == '\n') || (dlc == 8)) {
-        HAL_can_send_debug(HAL_can_ID_EXT | 0x1ffffffeUL, dlc, &data[0]);
+        HAL_can_send_debug(HAL_CAN_ID_EXT | 0x1ffffffeUL, dlc, &data[0]);
         dlc = 0;
     }
 }
 
 static void
 __interrupt VectorNumber_Vcanrx
-_can_rx_interrupt(void)
+Vcanrx_handler(void)
 {
     HAL_can_message_t *msg;
 
@@ -222,7 +222,7 @@ _can_rx_interrupt(void)
                            ((uint32_t)CANRIDR1_ID_15 << 15) |
                            ((uint32_t)CANRIDR2 << 7) |
                            (uint32_t)CANRIDR3_ID) |
-                          HAL_can_ID_EXT;
+                          HAL_CAN_ID_EXT;
             } else {
                 msg->id = (((uint32_t)CANRIDR0 << 3) |
                            (uint32_t)CANRIDR1_ID_18);

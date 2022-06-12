@@ -6,12 +6,12 @@
 #include <HAL/_eeprom.h>
 #include <HAL/_reset.h>
 
-#define _ID_MASK            (HAL_can_ID_EXT | 0x1ffffff0)  /* XXX TODO fetch from EEPROM */
-#define _SCAN_RSP_ID        (HAL_can_ID_EXT | 0x1ffffff0)
-#define _COMMAND_ID         (HAL_can_ID_EXT | 0x1ffffff1)
-#define _RESPONSE_ID        (HAL_can_ID_EXT | 0x1ffffff2)
-#define _EEPROM_READ_ID     (HAL_can_ID_EXT | 0x1ffffff4)
-#define _EEPROM_WRITE_ID    (HAL_can_ID_EXT | 0x1ffffff5)
+#define _ID_MASK            (HAL_CAN_ID_EXT | 0x1ffffff0)  /* XXX TODO fetch from EEPROM */
+#define _SCAN_RSP_ID        (HAL_CAN_ID_EXT | 0x1ffffff0)
+#define _COMMAND_ID         (HAL_CAN_ID_EXT | 0x1ffffff1)
+#define _RESPONSE_ID        (HAL_CAN_ID_EXT | 0x1ffffff2)
+#define _EEPROM_READ_ID     (HAL_CAN_ID_EXT | 0x1ffffff4)
+#define _EEPROM_WRITE_ID    (HAL_CAN_ID_EXT | 0x1ffffff5)
 
 static bool     _module_selected = false;
 static bool     _eeprom_write_enable = false;
