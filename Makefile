@@ -47,13 +47,15 @@ FORMAT_SRCS	 = $(shell find $(_CWD)lib $(_CWD)src $(_CWD)include -name "*.[ch]")
 export GIT_VERS	:= $(shell git describe --always --dirty)
 
 # export these so the linker can pick it up from its config
-export OBJS	:= $(patsubst %.c,$(BUILDDIR)/%.obj,$(APP_SRCS) $(LIB_SRCS)) \
-		   $(patsubst $(MCU)/lib/%.c,$(BUILDDIR)/mcu_lib/%.obj,$(MCU_SRCS))
+export OBJS	:= $(patsubst %.c,$(BUILDDIR)/%.o,$(APP_SRCS) $(LIB_SRCS)) \
+		   $(patsubst $(MCU)/lib/%.c,$(BUILDDIR)/mcu_lib/%.o,$(MCU_SRCS))
 export LIBS	 = $(MCU)/lib/hc08c/lib/ansiis.lib
 
-# make the linker put its artifacts somewhere sensible
+# make the linker put the map file somewhere sensible
 export TEXTPATH	 = $(BUILDDIR)
-export ERRORFILE = $(BUILDDIR)/%n_link_errors.txt
+
+# suppress generation of error files
+export ERRORFILE = /dev/null
 
 # convert \ to / to enable parsing filenames out of error messages 
 CONVERT_SLASHES	 = | tr \\ /
@@ -94,18 +96,22 @@ $(BUILDDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)
 	$(V)wine $(LD) -ArgFile$(_CWD)/resources/link.args -O$@
 
 # build an object file from a source file in ./src
-$(BUILDDIR)/%.obj: %.c $(GLOBAL_DEPS)
+$(BUILDDIR)/%.o: %.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== COMPILE $<
-	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args \
-		-ObjN=$@ $< -Lm=$(@:%.obj=%.d) $(CONVERT_SLASHES)
+	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args 	\
+		-ObjN=$@ $< 					\
+		-Lm=$(@:%.o=%.d) 				\
+		$(CONVERT_SLASHES)
 
 # build an object file from a source file supplied by CW MCU
-$(BUILDDIR)/mcu_lib/%.obj: $(MCU)/lib/%.c $(GLOBAL_DEPS)
+$(BUILDDIR)/mcu_lib/%.o: $(MCU)/lib/%.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== COMPILE $<
-	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args \
-		-ObjN=$@ $< -Lm=$(@:%.obj=%.d) $(CONVERT_SLASHES)
+	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args 	\
+		-ObjN=$@ $< 					\
+		-Lm=$(@:%.o=%.d)				\
+		$(CONVERT_SLASHES)
 
 $(MCU_SRCS): $(MCU)
 
@@ -115,4 +121,4 @@ $(MCU):
 	@test -d $(CW_INSTALL_DIR) || (echo Must set CW_INSTALL_DIR; exit 1)
 	$(V)ln -sf $(abspath $(CW_INSTALL_DIR)) $@
 
--include $(OBJS:.obj=.d)
+-include $(OBJS:.o=.d)

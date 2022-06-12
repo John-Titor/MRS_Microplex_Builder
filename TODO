@@ -35,6 +35,7 @@ MRS Microplex Firmware Builder:
 not features:
   - Parameter updates from the app. Use the bootloader protocol or the MRS tools to update parameters.
   - custom printf - library version is already pretty compact
+  - strict ANSI mode (device headers not compatible)
 
   investigations:
    ✔ scrub compiler `-WmsgSd` args to see if any can be pragma'ed instead, since making them the default may not be desirable @done (22-06-01 09:46)
