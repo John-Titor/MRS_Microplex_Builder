@@ -17,7 +17,7 @@
 -Ms 
 -Qvtpnone
 -ViewHidden
--WmsgFob"%f%e:%l:%c:%m\n"
+-WmsgFob"%f%e:%l:%c: %k: %m\n"
 -WmsgNu=abcde
 -WmsgSd4001
 -Wpd

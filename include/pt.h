@@ -10,9 +10,9 @@
 #include <HAL/_timer.h>
 
 /* Protothread status values */
-#define PT_STATUS_BLOCKED   0
-#define PT_STATUS_FINISHED  1
-#define PT_STATUS_YIELDED   2
+#define _PT_STATUS_BLOCKED   0
+#define _PT_STATUS_FINISHED  1
+#define _PT_STATUS_YIELDED   2
 
 /* disable "removed dead code" */
 #pragma MESSAGE DISABLE C5660
@@ -21,11 +21,9 @@
  * Local continuation using Duff's Device.
  */
 struct pt {
-    unsigned int  label: 13;
-    unsigned int  status: 3;
+    unsigned int  _label: 13;
+    unsigned int  _status: 3;
 };
-#define pt_init()               \
-    { .label = 0, .status = 0 }
 
 /**
  * Protothread start.
@@ -35,13 +33,13 @@ struct pt {
  * Any code preceding pt_begin will run every time the thread is run.
  */
 #define pt_begin(pt)            \
-    switch ((pt)->label) {      \
+    switch ((pt)->_label) {     \
     case 0:
 
-#define pt_label(pt, stat)      \
+#define _pt_label(pt, stat)     \
     do {                        \
-        (pt)->label = __LINE__; \
-        (pt)->status = (stat);  \
+        (pt)->_label = __LINE__;\
+        (pt)->_status = (stat); \
     case __LINE__:;             \
     } while (0)
 
@@ -51,7 +49,7 @@ struct pt {
  * Must be the last thing at the top level in the protothread function.
  */
 #define pt_end(pt)                      \
-    pt_label(pt, PT_STATUS_FINISHED);   \
+    _pt_label(pt, _PT_STATUS_FINISHED); \
     }
 
 /**
@@ -63,28 +61,28 @@ struct pt {
  */
 #define pt_reset(pt)        \
     do {                    \
-        (pt)->label = 0;    \
-        (pt)->status = 0;   \
+        (pt)->_label = 0;   \
+        (pt)->_status = 0;  \
     } while(0)
 
 /*
  * Core protothreads API
  */
-#define pt_status(pt) (pt)->status
+#define _pt_status(pt) (pt)->_status
 
 /**
  * Test whether a protothread is still running.
  *
  * @param pt            The protothread to test.
  */
-#define pt_running(pt) (pt_status(pt) != PT_STATUS_FINISHED)
+#define pt_running(pt) (_pt_status(pt) != _PT_STATUS_FINISHED)
 
 /**
  * Stop a protothread.
  *
  * @param pt            The protothread to stop.
  */
-#define pt_stop(pt) do { (pt)->status = PT_STATUS_FINISHED; } while(0)
+#define pt_stop(pt) do { (pt)->_status = _PT_STATUS_FINISHED; } while(0)
 
 /**
  * Wait until a condition is satisfied.
@@ -95,7 +93,7 @@ struct pt {
  */
 #define pt_wait(pt, cond)                   \
     do {                                    \
-        pt_label(pt, PT_STATUS_BLOCKED);    \
+        _pt_label(pt, _PT_STATUS_BLOCKED);  \
         if (!(cond)) {                      \
             return;                         \
         }                                   \
@@ -110,19 +108,12 @@ struct pt {
  */
 #define pt_yield(pt)                                \
     do {                                            \
-        pt_label(pt, PT_STATUS_YIELDED);            \
-        if (pt_status(pt) == PT_STATUS_YIELDED) {   \
-            (pt)->status = PT_STATUS_BLOCKED;       \
+        _pt_label(pt, _PT_STATUS_YIELDED);          \
+        if (_pt_status(pt) == _PT_STATUS_YIELDED) { \
+            (pt)->_status = _PT_STATUS_BLOCKED;     \
             return;                                 \
         }                                           \
     } while (0)
-
-#define pt_exit(pt, stat)   \
-    do {                    \
-        pt_label(pt, stat); \
-        return;             \
-    } while (0)
-
 
 /**
  * Blocking delay.

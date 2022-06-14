@@ -15,17 +15,17 @@ static const HAL_can_filters_t _HAL_default_filters = {
     }
 };
 
-static HAL_adc_channel_state_t _HAL_7H_adc_state[] = {
-    /* AI_CS_1 */ { 10, HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_2 */ { 2,  HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_3 */ { 11, HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_4 */ { 12, HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_5 */ { 0,  HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_6 */ { 1,  HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_7 */ { 8,  HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_KL15 */ { 14, HAL_ADC_SCALE_KL15, 0, {0} },
-    /* AI_TEMP */ { 26, HAL_ADC_SCALE_TEMP, 0, {0} },
-    /* END     */ { 0,  HAL_ADC_SCALE_END,  0, {0} },
+static _HAL_adc_channel_state_t _HAL_7H_adc_state[] = {
+    /* AI_CS_1 */ { 10, _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_2 */ { 2,  _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_3 */ { 11, _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_4 */ { 12, _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_5 */ { 0,  _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_6 */ { 1,  _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_7 */ { 8,  _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_KL15 */ { 14, _HAL_ADC_SCALE_KL15, 0, {0} },
+    /* AI_TEMP */ { 26, _HAL_ADC_SCALE_TEMP, 0, {0} },
+    /* END     */ { 0,  _HAL_ADC_SCALE_END,  0, {0} },
 };
 
 void
@@ -75,10 +75,10 @@ _HAL_7H_init(void)
     __asm CLI;
 }
 
-static HAL_adc_channel_state_t _HAL_7L_adc_state[] = {
-    /* AI_KL15 */ { 14, HAL_ADC_SCALE_KL15, 0, {0} },
-    /* AI_TEMP */ { 26, HAL_ADC_SCALE_TEMP, 0, {0} },
-    /* END     */ { 0,  HAL_ADC_SCALE_END,  0, {0} },
+static _HAL_adc_channel_state_t _HAL_7L_adc_state[] = {
+    /* AI_KL15 */ { 14, _HAL_ADC_SCALE_KL15, 0, {0} },
+    /* AI_TEMP */ { 26, _HAL_ADC_SCALE_TEMP, 0, {0} },
+    /* END     */ { 0,  _HAL_ADC_SCALE_END,  0, {0} },
 };
 
 void
@@ -128,21 +128,21 @@ _HAL_7L_init(void)
     __asm CLI;
 }
 
-static HAL_adc_channel_state_t _HAL_7X_adc_state[] = {
-    /* AI_CS_1 */ { 10, HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_2 */ { 2,  HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_3 */ { 11, HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_CS_4 */ { 12, HAL_ADC_SCALE_DO_I, 0, {0} },
-    /* AI_OP_1 */ { 0,  HAL_ADC_SCALE_DO_V, 0, {0} },
-    /* AI_OP_2 */ { 1,  HAL_ADC_SCALE_DO_V, 0, {0} },
-    /* AI_OP_3 */ { 8,  HAL_ADC_SCALE_DO_V, 0, {0} },
-    /* AI_OP_4 */ { 9,  HAL_ADC_SCALE_DO_V, 0, {0} },
-    /* AI_1    */ { 13, HAL_ADC_SCALE_30V,  0, {0} },
-    /* AI_2    */ { 6,  HAL_ADC_SCALE_30V,  0, {0} },
-    /* AI_3    */ { 7,  HAL_ADC_SCALE_30V,  0, {0} },
-    /* AI_KL15 */ { 14, HAL_ADC_SCALE_KL15, 0, {0} },
-    /* AI_TEMP */ { 26, HAL_ADC_SCALE_TEMP, 0, {0} },
-    /* END     */ { 0,  HAL_ADC_SCALE_END,  0, {0} },
+static _HAL_adc_channel_state_t _HAL_7X_adc_state[] = {
+    /* AI_CS_1 */ { 10, _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_2 */ { 2,  _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_3 */ { 11, _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_CS_4 */ { 12, _HAL_ADC_SCALE_DO_I, 0, {0} },
+    /* AI_OP_1 */ { 0,  _HAL_ADC_SCALE_DO_V, 0, {0} },
+    /* AI_OP_2 */ { 1,  _HAL_ADC_SCALE_DO_V, 0, {0} },
+    /* AI_OP_3 */ { 8,  _HAL_ADC_SCALE_DO_V, 0, {0} },
+    /* AI_OP_4 */ { 9,  _HAL_ADC_SCALE_DO_V, 0, {0} },
+    /* AI_1    */ { 13, _HAL_ADC_SCALE_30V,  0, {0} },
+    /* AI_2    */ { 6,  _HAL_ADC_SCALE_30V,  0, {0} },
+    /* AI_3    */ { 7,  _HAL_ADC_SCALE_30V,  0, {0} },
+    /* AI_KL15 */ { 14, _HAL_ADC_SCALE_KL15, 0, {0} },
+    /* AI_TEMP */ { 26, _HAL_ADC_SCALE_TEMP, 0, {0} },
+    /* END     */ { 0,  _HAL_ADC_SCALE_END,  0, {0} },
 };
 void
 _HAL_7X_init(void)

@@ -1,7 +1,5 @@
 /** @file
  *
- * blink_keypad.h
- *
  * Driver for the Blink Marine keypads in CanOpen mode.
  *
  */
@@ -17,67 +15,67 @@
  * Blink Marine keypad configuration
  */
 /*#define BK_FIXED_KEYPAD_ID      0x15*/  /* assume fixed keypad ID */
-#define BK_MAX_KEYS             12      /* largest keypad supported */
-#define BK_IDLE_TIMEOUT_MS      1000    /* timeout before assuming keypad gone */
-#define BK_UPDATE_PERIOD_MS     25      /* expected keypad update interval */
-#define BK_BLINK_PERIOD_MS      250     /* time per pattern bit */
-#define BK_TICK_PERIOD_MS       25      /* interval between ticks */
-#define BK_SHORT_PRESS_TICKS    2       /* delay before registering a short press */
-#define BK_LONG_PRESS_1_TICKS   20      /* delay before registering first long press */
-#define BK_LONG_PRESS_2_TICKS   60      /* delay before registering a long press */
-#define BK_LONG_PRESS_3_TICKS  120      /* delay before registering a long press */
+#define BK_MAX_KEYS             12      /**< largest keypad supported */
+#define BK_IDLE_TIMEOUT_MS      1000    /**< timeout before assuming keypad gone */
+#define BK_UPDATE_PERIOD_MS     25      /**< expected keypad update interval */
+#define BK_BLINK_PERIOD_MS      250     /**< time per pattern bit */
+#define BK_TICK_PERIOD_MS       25      /**< interval between ticks */
+#define BK_SHORT_PRESS_TICKS    2       /**< delay before registering a short press */
+#define BK_LONG_PRESS_1_TICKS   20      /**< delay before registering first long press */
+#define BK_LONG_PRESS_2_TICKS   60      /**< delay before registering a long press */
+#define BK_LONG_PRESS_3_TICKS  120      /**< delay before registering a long press */
 
-/**
+/*
  * Keypad event codes.
  */
-#define BK_EVENT_NONE           0xff    /* no new events */
-#define BK_EVENT_DISCONNECTED   0xfe    /* keypad not connected */
-#define BK_EVENT_RELEASE        0x00    /* key was released */
-#define BK_EVENT_SHORT_PRESS    0x10    /* key pressed for BK_SHORT_PRESS_TICKS */
-#define BK_EVENT_LONG_PRESS_1   0x20    /* key pressed for BK_LONG_PRESS_1_TICKS */
-#define BK_EVENT_LONG_PRESS_2   0x30    /* key pressed for BK_LONG_PRESS_2_TICKS */
-#define BK_EVENT_LONG_PRESS_3   0x40    /* key pressed for BK_LONG_PRESS_3_TICKS */
-#define BK_EVENT_MASK           0xf0    /* mask for event value */
-#define BK_KEY_MASK             0x0f    /* mask for key number */
+#define BK_EVENT_NONE           0xff    /**< no new events */
+#define BK_EVENT_DISCONNECTED   0xfe    /**< keypad not connected */
+#define BK_EVENT_RELEASE        0x00    /**< key was released */
+#define BK_EVENT_SHORT_PRESS    0x10    /**< key pressed for BK_SHORT_PRESS_TICKS */
+#define BK_EVENT_LONG_PRESS_1   0x20    /**< key pressed for BK_LONG_PRESS_1_TICKS */
+#define BK_EVENT_LONG_PRESS_2   0x30    /**< key pressed for BK_LONG_PRESS_2_TICKS */
+#define BK_EVENT_LONG_PRESS_3   0x40    /**< key pressed for BK_LONG_PRESS_3_TICKS */
+#define BK_EVENT_MASK           0xf0    /**< mask for event value */
+#define BK_KEY_MASK             0x0f    /**< mask for key number */
 
-/**
+/*
  * Backlight color codes.
  */
-#define BK_BL_COLOR_OFF         0x0
-#define BK_BL_COLOR_RED         0x1
-#define BK_BL_COLOR_GREEN       0x2
-#define BK_BL_COLOR_BLUE        0x3
-#define BK_BL_COLOR_YELLOW      0x4
-#define BK_BL_COLOR_CYAN        0x5
-#define BK_BL_COLOR_MAGENTA     0x6
-#define BK_BL_COLOR_WHITE       0x7
-#define BK_BL_COLOR_AMBER       0x8
-#define BK_BL_COLOR_TEAL        0x9
+#define BK_BL_COLOR_OFF         0x0     /**< backlight off */
+#define BK_BL_COLOR_RED         0x1     /**< red */
+#define BK_BL_COLOR_GREEN       0x2     /**< green */
+#define BK_BL_COLOR_BLUE        0x3     /**< blue */
+#define BK_BL_COLOR_YELLOW      0x4     /**< yellow */
+#define BK_BL_COLOR_CYAN        0x5     /**< cyan */
+#define BK_BL_COLOR_MAGENTA     0x6     /**< magenta */
+#define BK_BL_COLOR_WHITE       0x7     /**< white */
+#define BK_BL_COLOR_AMBER       0x8     /**< amber */
+#define BK_BL_COLOR_TEAL        0x9     /**< teal */
 
-/**
+/*
  * Key color codes.
  */
-#define BK_KEY_COLOR_OFF        0x0
-#define BK_KEY_COLOR_RED        0x1
-#define BK_KEY_COLOR_GREEN      0x2
-#define BK_KEY_COLOR_BLUE       0x4
-#define BK_KEY_COLOR_YELLOW     (BK_KEY_COLOR_RED | BK_KEY_COLOR_GREEN)
-#define BK_KEY_COLOR_CYAN       (BK_KEY_COLOR_GREEN | BK_KEY_COLOR_BLUE)
-#define BK_KEY_COLOR_MAGENTA    (BK_KEY_COLOR_RED | BK_KEY_COLOR_BLUE)
-#define BK_KEY_COLOR_WHITE      (BK_KEY_COLOR_RED | BK_KEY_COLOR_GREEN | BK_KEY_COLOR_BLUE)
-#define BK_COLOR_MASK           0xf
+#define BK_KEY_COLOR_OFF        0x0     /**< key LED off */
+#define BK_KEY_COLOR_RED        0x1     /**< red */
+#define BK_KEY_COLOR_GREEN      0x2     /**< green */
+#define BK_KEY_COLOR_BLUE       0x4     /**< blue */
+#define BK_KEY_COLOR_YELLOW     (BK_KEY_COLOR_RED | BK_KEY_COLOR_GREEN)  /**< yellow */
+#define BK_KEY_COLOR_CYAN       (BK_KEY_COLOR_GREEN | BK_KEY_COLOR_BLUE) /**< cyan */
+#define BK_KEY_COLOR_MAGENTA    (BK_KEY_COLOR_RED | BK_KEY_COLOR_BLUE)   /**< magenta */
+#define BK_KEY_COLOR_WHITE      (BK_KEY_COLOR_RED | BK_KEY_COLOR_GREEN | BK_KEY_COLOR_BLUE)/**< white */
+#define BK_COLOR_MASK           0xf     /**< key color mask */
 
-#define BK_MAX_INTENSITY        0x3f
+#define BK_MAX_INTENSITY        0x3f    /**< max LED intensity */
 
-/**
+/*
  * CAN bus speeds
  */
-#define BK_SPEED_1000           0
-#define BK_SPEED_500            1
-#define BK_SPEED_250            2
-#define BK_SPEED_125            3
+#define BK_SPEED_1000           0       /**< 1Mbps */
+#define BK_SPEED_500            1       /**< 500kbps */
+#define BK_SPEED_250            2       /**< 250kbps */
+#define BK_SPEED_125            3       /**< 125kbps */
 
-/* Keypad handler thread, must be run by app for keypad to function. */
+/** Keypad handler thread, must be run by app for keypad to function. */
 PT_DECLARE(blink_keypad);
 
 /**

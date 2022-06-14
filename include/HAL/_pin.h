@@ -11,8 +11,8 @@
  * Generic GPIO.
  */
 typedef struct {
-    uint8_t     port: 3;    /* A/B/C/D/E/F/NONE */
-    uint8_t     pin: 3;     /* 0-7 */
+    uint8_t     port: 3;    /**< A/B/C/D/E/F/NONE */
+    uint8_t     pin: 3;     /**< 0-7 */
     uint8_t     : 2;
 } HAL_GPIO_t;
 
@@ -20,14 +20,14 @@ typedef struct {
  * Module pin definition
  */
 typedef struct {
-    uint8_t     adc_v: 4;   /* ADC index for voltage (see tables in init.c) */
-    uint8_t     adc_i: 4;   /* ADC index for current (see tables in init.c) */
+    uint8_t     adc_v: 4;   /**< ADC index for voltage (see tables in init.c) */
+    uint8_t     adc_i: 4;   /**< ADC index for current (see tables in init.c) */
 
-    uint8_t     pwm: 3;     /* PWM channel 0-5 */
+    uint8_t     pwm: 3;     /**< PWM channel 0-5 */
     uint8_t     : 5;
 
-    HAL_GPIO_t  range;      /* range-control pin (30/10V) */
-    HAL_GPIO_t  pull;       /* 1k pull-up enable */
+    HAL_GPIO_t  range;      /**< range-control pin (30/10V) */
+    HAL_GPIO_t  pull;       /**< 1k pull-up enable */
 
 } HAL_pin_t;
 
@@ -44,7 +44,7 @@ extern const HAL_pin_t  _HAL_7X_pin[];
  * In this mode, @p HAL_pin_get will return the set value.
  *
  * @param pin           Pin to set.
- * @value               True to drive the output, false to leave it open.
+ * @param value         True to drive the output, false to leave it open.
  */
 extern void     HAL_pin_set(const HAL_pin_t *pin, bool value);
 

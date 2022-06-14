@@ -26,7 +26,7 @@
  * One-shot timer.
  */
 typedef struct _HAL_timer {
-    uint16_t            delay_ms;   /* delay before expiration */
+    uint16_t            delay_ms;   /**< delay before expiration */
     struct _HAL_timer   *_next;
 } HAL_timer_t;
 
@@ -34,9 +34,9 @@ typedef struct _HAL_timer {
  *  One-shot or periodic timer callback.
  */
 typedef struct _HAL_timer_call {
-    void (*callback)(void);     /* function to call - must be interrupt-safe */
-    uint16_t        delay_ms;   /* delay to first call */
-    uint16_t        period_ms;  /* tick interval between calls, 0 for one-shot */
+    void (*callback)(void);         /**< function to call - must be interrupt-safe */
+    uint16_t        delay_ms;       /**< delay to first call */
+    uint16_t        period_ms;      /**< tick interval between calls, 0 for one-shot */
     struct _HAL_timer_call *_next;
 } HAL_timer_call_t;
 
@@ -49,23 +49,34 @@ extern void         _HAL_timer_init(void);
 
 /**
  * get the current time
+ *
+ * @return     Time since system start in microseconds.
  */
 extern HAL_microseconds HAL_timer_us(void);
 
 /**
  * check whether some time has elapsed
+ *
+ * @param[in]  since_us     Epoch to calculate from.
+ * @param[in]  interval_us  Interval to check.
+ *
+ * @return     True if the interval has elapsed, false otherwise.
  */
 extern bool         HAL_timer_elapsed_us(HAL_microseconds since_us, uint16_t interval_us);
 
 /**
  * wait for a period
+ *
+ * @param[in]  delay_us  Delay to wait for.
  */
 extern void         HAL_timer_wait_us(uint16_t delay_us);
 
 /**
  * Register a one-shot timer.
  *
- * @note does nothing to an already-registered timer.
+ * @note       does nothing to an already-registered timer.
+ *
+ * @param      _t    Timer to register.
  */
 #define HAL_timer_register(_t) _HAL_timer_register(&_t)
 extern void         _HAL_timer_register(HAL_timer_t *timer);
@@ -73,13 +84,20 @@ extern void         _HAL_timer_register(HAL_timer_t *timer);
 /**
  * Register a timer callback.
  *
- * @note does nothing to an already-registered callback.
+ * @note       does nothing to an already-registered callback.
+ *
+ * @param      _t    Callback timer to register.
  */
 #define HAL_timer_call_register(_t) _HAL_timer_call_register(&_t)
 extern void         _HAL_timer_call_register(HAL_timer_call_t *call);
 
 /**
- * Reset a one-shot timer or timer callback
+ * Reset a one-shot timer or timer callback.
+ *
+ * @param      _timer  Timer to reset.
+ * @param      _delay  New timeout value to set.
+ *
+ * @return     { description_of_the_return_value }
  */
 #define HAL_timer_reset(_timer, _delay) \
     do {                                \
@@ -90,5 +108,9 @@ extern void         _HAL_timer_call_register(HAL_timer_call_t *call);
 
 /**
  * Test whether a timer or callback has expired
+ *
+ * @param      _timer  Timer to check.
+ *
+ * @return     true if the timer or callback has expired, false otherwise.
  */
 #define HAL_timer_expired(_timer)           ((_timer).delay_ms == 0)

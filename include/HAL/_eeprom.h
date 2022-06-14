@@ -2,10 +2,10 @@
  *
  * EEPROM interface.
  *
- * @Note    EEPROM functions are NOT INTERRUPT SAFE. Do not call
+ * @note    EEPROM functions are NOT INTERRUPT SAFE. Do not call
  *          any of these functions from interrupt context.
  *
- * @Note    Writing to the EEPROM requires a sector erase, which
+ * @note    Writing to the EEPROM requires a sector erase, which
  *          takes no less than 20mS.
  */
 
@@ -14,12 +14,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* decoded CAN speed values */
-#define MRS_CAN_1000KBPS    1
-#define MRS_CAN_800KBPS     2
-#define MRS_CAN_500KBPS     3
-#define MRS_CAN_250KBPS     4
-#define MRS_CAN_125KBPS     5
+/** CAN speeds as encoded in the EEPROM */
+enum {
+    MRS_CAN_1000KBPS    = 1,    /**< 1Mbps */
+    MRS_CAN_800KBPS     = 2,    /**< 800kbps */
+    MRS_CAN_500KBPS     = 3,    /**< 500kbps */
+    MRS_CAN_250KBPS     = 4,    /**< 250kbps */
+    MRS_CAN_125KBPS     = 5,    /**< 125kbps */
+};
 
 /**
  * MRS EEPROM contents.
@@ -27,48 +29,49 @@
  * These are on page 0, which is always selected when the
  * EEPROM is not being actively read or written.
  *
- * @Note    Because the EEPROM page select may be flipped during
+ * @note    Because the EEPROM page select may be flipped during
  *          a read or programming operation, this structure cannot
  *          be safely accessed from an interrupt handler.
  */
 typedef struct {
-    uint16_t    ParameterMagic;
-    uint32_t    SerialNumber;
-    char        PartNumber[12];
-    char        DrawingNumber[12];
-    char        Name[20];
-    char        OrderNumber[8];
-    char        TestDate[8];
-    uint16_t    HardwareVersion;
-    uint8_t     ResetCounter;
-    uint16_t    LibraryVersion;
-    uint8_t     ResetReasonLVD;
-    uint8_t     ResetReasonLOC;
-    uint8_t     ResetReasonILAD;
-    uint8_t     ResetReasonILOP;
-    uint8_t     ResetReasonCOP;
-    uint8_t     MCUType;
-    uint8_t     HardwareCANActive;
+    uint16_t    _ParameterMagic;
+    uint32_t    SerialNumber;           /**< serial number, ID is low 16b */
+    char        PartNumber[12];         /**< MRS part number */
+    char        DrawingNumber[12];      /**< unknown */
+    char        Name[20];               /**< MRS product name */
+    char        OrderNumber[8];         /**< unknown */
+    char        TestDate[8];            /**< module manufacturing test date */
+    uint16_t    HardwareVersion;        /**< unknown */
+    uint8_t     ResetCounter;           /**< unknown */
+    uint16_t    LibraryVersion;         /**< unknown */
+    uint8_t     ResetReasonLVD;         /**< LVD reset counter */
+    uint8_t     ResetReasonLOC;         /**< clock loss reset counter */
+    uint8_t     ResetReasonILAD;        /**< illegal address reset counter */
+    uint8_t     ResetReasonILOP;        /**< illegal instruction reset counter */
+    uint8_t     ResetReasonCOP;         /**< watchdog reset counter */
+    uint8_t     MCUType;                /**< always 1, hcs08 */
+    uint8_t     HardwareCANActive;      /**< unknown */
     uint8_t     _reserved1[3];
-    uint16_t    BootloaderVersion;
-    uint16_t    ProgramState;
-    uint16_t    Portbyte1;
-    uint16_t    Portbyte2;
-    uint16_t    BaudrateBootloader1;
-    uint16_t    BaudrateBootloader2;
-    uint8_t     BootloaderIDExt1;
-    uint32_t    BootloaderID1;
-    uint8_t     BootloaderIDCRC1;
-    uint8_t     BootloaderIDExt2;
-    uint32_t    BootloaderID2;
-    uint8_t     BootloaderIDCRC2;
-    char        SoftwareVersion[20];
-    char        ModuleName[30];
-    uint8_t     BootloaderCANBus;
-    uint16_t    COPWatchdogTimeout;
+    uint16_t    BootloaderVersion;      /**< unknown */
+    uint16_t    ProgramState;           /**< unknown  */
+    uint16_t    Portbyte1;              /**< unknown  */
+    uint16_t    Portbyte2;              /**< unknown  */
+    uint16_t    BaudrateBootloader1;    /**< encoded CAN speed */
+    uint16_t    BaudrateBootloader2;    /**< encoded CAN speed */
+    uint8_t     BootloaderIDExt1;       /**< bootloader CAN ID extended? */
+    uint32_t    BootloaderID1;          /**< bootloader CAN ID */
+    uint8_t     BootloaderIDCRC1;       /**< bootloader CAN ID CRC */
+    uint8_t     BootloaderIDExt2;       /**< bootloader CAN ID extended? */
+    uint32_t    BootloaderID2;          /**< bootloader CAN ID */
+    uint8_t     BootloaderIDCRC2;       /**< bootloader CAN ID CRC */
+    char        SoftwareVersion[20];    /**< application software version */
+    char        ModuleName[30];         /**< application software name */
+    uint8_t     BootloaderCANBus;       /**< unknown */
+    uint16_t    COPWatchdogTimeout;     /**< unknown */
     uint8_t     _reserved2[7];
 } MRS_parameters_t;
 
+/** Direct-mapped version of the MRS parameter structure in EEPROM. */
 extern const MRS_parameters_t   MRS_parameters @ 0x1402;
 
 /** EEPROM offset for the named MRS EEPROM parameter */

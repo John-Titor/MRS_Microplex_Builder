@@ -63,13 +63,16 @@ CONVERT_SLASHES	 = | tr \\ /
 # make Wine wineserver quieter - turn this off when debugging Wine problems
 export WINEDEBUG = -all
 
-.PHONY: all clean reformat
+.PHONY: all clean reformat doc
 .SECONDARY:
 
 all:	$(BUILDDIR)/microplex.elf
 
 clean:
 	rm -rf $(BUILDDIR)
+
+doc:
+	doxygen
 
 reformat:
 	astyle \
@@ -100,7 +103,7 @@ $(BUILDDIR)/%.o: %.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== COMPILE $<
 	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args 	\
-		-ObjN=$@ $< 					\
+		-ObjN=$@ $(abspath $<) 					\
 		-Lm=$(@:%.o=%.d) 				\
 		$(CONVERT_SLASHES)
 

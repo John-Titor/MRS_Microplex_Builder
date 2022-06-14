@@ -10,8 +10,8 @@
 #include <pt.h>
 #include <HAL/_can.h>
 
-/*
- * App main protothread; must be supplied by the app.
+/**
+ * Declare the app main protothread; definition must be supplied by the app.
  */
 PT_DECLARE(main);
 
@@ -64,7 +64,7 @@ extern void app_can_receive(const HAL_can_message_t *buf);
  * Note that traffic filtered by hardware will be ignored, but messages
  * rejected by @p app_can_filter are counted as activity.
  *
- * @bool is_idle        true if the CAN bus has gone idle, false
+ * @param is_idle       true if the CAN bus has gone idle, false
  *                      if traffic has resumed.
  */
 extern void app_can_idle(bool is_idle);

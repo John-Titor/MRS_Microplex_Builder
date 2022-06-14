@@ -4,22 +4,22 @@
 #include <HAL/_timer.h>
 
 static const uint16_t _scale_table[] = {
-    /* HAL_ADC_SCALE_30V */     ADC_SCALE_FACTOR_30V,
-    /* HAL_ADC_SCALE_10V */     ADC_SCALE_FACTOR_10V,
-    /* HAL_ADC_SCALE_DO_V */    ADC_SCALE_FACTOR_DO_V,
-    /* HAL_ADC_SCALE_DO_I */    ADC_SCALE_FACTOR_DO_I,
-    /* HAL_ADC_SCALE_KL15 */    ADC_SCALE_FACTOR_KL15,
-    /* HAL_ADC_SCALE_TEMP */    ADC_SCALE_FACTOR_TEMP,
+    /* _HAL_ADC_SCALE_30V */    _ADC_SCALE_FACTOR_30V,
+    /* _HAL_ADC_SCALE_10V */    _ADC_SCALE_FACTOR_10V,
+    /* _HAL_ADC_SCALE_DO_V */   _ADC_SCALE_FACTOR_DO_V,
+    /* _HAL_ADC_SCALE_DO_I */   _ADC_SCALE_FACTOR_DO_I,
+    /* _HAL_ADC_SCALE_KL15 */   _ADC_SCALE_FACTOR_KL15,
+    /* _HAL_ADC_SCALE_TEMP */   _ADC_SCALE_FACTOR_TEMP,
 };
 
-static HAL_adc_channel_state_t *_state;
+static _HAL_adc_channel_state_t *_state;
 static uint8_t                  _sequence;
 static HAL_timer_call_t         _call;
 
 static void _adc_start(void);
 
 void
-_HAL_adc_init(HAL_adc_channel_state_t *state)
+_HAL_adc_init(_HAL_adc_channel_state_t *state)
 {
     uint8_t i;
 
@@ -44,7 +44,7 @@ _HAL_adc_init(HAL_adc_channel_state_t *state)
     ADCSC2 = 0;
 
     /* configure channels */
-    for (i = 0; _state[i].scale != HAL_ADC_SCALE_END; i++) {
+    for (i = 0; _state[i].scale != _HAL_ADC_SCALE_END; i++) {
         if (_state[i].channel < 8) {
             APCTL1 |= (1 << _state[i].channel);
         } else if (_state[i].channel < 16) {
@@ -60,7 +60,7 @@ _HAL_adc_init(HAL_adc_channel_state_t *state)
 }
 
 void
-_HAL_adc_set_scale(uint8_t index, HAL_adc_scale_t scale)
+_HAL_adc_set_scale(uint8_t index, _HAL_adc_scale_t scale)
 {
     _state[index].scale = (uint8_t)scale;
 }
@@ -73,7 +73,7 @@ HAL_adc_result(uint8_t index)
     uint16_t accum = 0;
 
     /* interrupt-safe loop accumulates samples */
-    for (i = 0; i < HAL_ADC_AVG_SAMPLES; i++) {
+    for (i = 0; i < _HAL_ADC_AVG_SAMPLES; i++) {
         uint16_t v;
         ENTER_CRITICAL_SECTION;
         v = _state[index].samples[i];
@@ -107,7 +107,7 @@ Vadc_handler(void)
     /* proceed to next channel */
     _sequence++;
 
-    if (_state[_sequence].scale != HAL_ADC_SCALE_END) {
+    if (_state[_sequence].scale != _HAL_ADC_SCALE_END) {
         ADCSC1_ADCH = _state[_sequence].channel;
     } else {
         _sequence = 0;
