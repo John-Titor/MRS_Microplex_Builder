@@ -14,6 +14,7 @@ static const uint16_t _scale_table[] = {
 
 static _HAL_adc_channel_state_t *_state;
 static uint8_t                  _sequence;
+static uint8_t                  _bucket;
 static HAL_timer_call_t         _call;
 
 static void _adc_start(void);
@@ -53,8 +54,8 @@ _HAL_adc_init(_HAL_adc_channel_state_t *state)
     }
 
     /* configure a periodic sample kick every 2ms */
-    _call.delay_ms = 2;
-    _call.period_ms = 2;
+    _call.delay_ms = 200;
+    _call.period_ms = 200;
     _call.callback = _adc_start;
     HAL_timer_call_register(_call);
 }
@@ -102,7 +103,7 @@ __interrupt VectorNumber_Vadc
 Vadc_handler(void)
 {
     /* store new sample */
-    _state[_sequence].samples[_state[_sequence].index++] = ADCR;
+    _state[_sequence].samples[_bucket] = ADCR;
 
     /* proceed to next channel */
     _sequence++;
@@ -112,5 +113,8 @@ Vadc_handler(void)
     } else {
         _sequence = 0;
         ADCSC1_AIEN = 0;
+        if (++_bucket >= _HAL_ADC_AVG_SAMPLES) {
+            _bucket = 0;
+        }
     }
 }

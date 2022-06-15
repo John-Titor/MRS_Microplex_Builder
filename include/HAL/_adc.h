@@ -76,7 +76,6 @@ typedef enum {
 typedef struct {
     const uint8_t   channel: 5;
     uint8_t         scale: 3;
-    uint8_t         index;
     uint16_t        samples[_HAL_ADC_AVG_SAMPLES];
 } _HAL_adc_channel_state_t;
 
