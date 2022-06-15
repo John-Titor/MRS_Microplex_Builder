@@ -5,12 +5,12 @@
 
 #define _timer_registered(_timer)    ((_timer)._next != NULL)
 
-#define TIMER_LIST_END      (HAL_timer_t *)4
-#define TIMER_CALL_LIST_END (HAL_timer_call_t *)8
+#define _TIMER_LIST_END      (HAL_timer_t *)4
+#define _TIMER_CALL_LIST_END (HAL_timer_call_t *)8
 
-static HAL_timer_t      *timer_list = TIMER_LIST_END;
-static HAL_timer_call_t *timer_call_list = TIMER_CALL_LIST_END;
-static volatile uint16_t timebase_high_word;
+static HAL_timer_t      *_timer_list = _TIMER_LIST_END;
+static HAL_timer_call_t *_timer_call_list = _TIMER_CALL_LIST_END;
+static volatile uint16_t _timebase_high_word;
 
 void
 _HAL_timer_init(void)
@@ -42,7 +42,7 @@ HAL_timer_us(void)
         ENTER_CRITICAL_SECTION;
 
         /* get the "current" time value */
-        tv = ((uint32_t)timebase_high_word << 16) + TPM2CNT;
+        tv = ((uint32_t)_timebase_high_word << 16) + TPM2CNT;
 
         /* check whether we might have raced with overflow... */
         overflow = TPM2SC & TPM2SC_TOF_MASK;
@@ -74,7 +74,7 @@ static void
 __interrupt VectorNumber_Vtpm2ovf
 Vtpm2ovf_handler(void)
 {
-    timebase_high_word++;
+    _timebase_high_word++;
     TPM2SC_TOF = 0;
 }
 
@@ -87,8 +87,8 @@ _HAL_timer_register(HAL_timer_t *timer)
 
     if (!_timer_registered(*timer)) {
         /* singly-linked insertion at head */
-        timer->_next = timer_list;
-        timer_list = timer;
+        timer->_next = _timer_list;
+        _timer_list = timer;
     }
 
     EXIT_CRITICAL_SECTION;
@@ -105,8 +105,8 @@ _HAL_timer_call_register(HAL_timer_call_t *call)
     if (!_timer_registered(*call)) {
 
         /* singly-linked insertion at head */
-        call->_next = timer_call_list;
-        timer_call_list = call;
+        call->_next = _timer_call_list;
+        _timer_call_list = call;
     }
 
     EXIT_CRITICAL_SECTION;
@@ -127,8 +127,8 @@ Vtpm2ch1_handler(void)
     TPM2C1V += 1000;
 
     /* update timers */
-    for (t = timer_list;
-            t != TIMER_LIST_END;
+    for (t = _timer_list;
+            t != _TIMER_LIST_END;
             t = t->_next) {
         if (t->delay_ms > 0) {
             t->delay_ms--;
@@ -136,8 +136,8 @@ Vtpm2ch1_handler(void)
     }
 
     /* run timer calls */
-    for (tc = timer_call_list;
-            tc != TIMER_CALL_LIST_END;
+    for (tc = _timer_call_list;
+            tc != _TIMER_CALL_LIST_END;
             tc = tc->_next) {
 
         /* if the call is active... */
