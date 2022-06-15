@@ -37,12 +37,6 @@ static uint8_t          _blink_phase;
 #define _UPDATE_INTENSITY    0x2
 
 static void             _tick(void);
-static HAL_timer_call_t _tick_call = {
-    _tick,
-    BK_TICK_PERIOD_MS,
-    BK_TICK_PERIOD_MS
-};
-
 static HAL_timer_t      _idle_timer;
 
 uint8_t
@@ -297,6 +291,11 @@ bk_send_intensity_update()
 PT_DEFINE(blink_keypad)
 {
     static HAL_timer_t  _blink_timer;
+    static HAL_timer_call_t _tick_call = {
+        _tick,
+        BK_TICK_PERIOD_MS,
+        BK_TICK_PERIOD_MS
+    };
 
     pt_begin(pt);
 
