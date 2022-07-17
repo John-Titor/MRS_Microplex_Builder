@@ -2,4 +2,5 @@ EDOUT
 build
 .DS_Store
 *.sublime-workspace
+.vscode
 html
