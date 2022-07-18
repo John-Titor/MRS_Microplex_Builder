@@ -56,6 +56,6 @@ main(void)
         PT_RUN(_HAL_can_listen);
 
         /* run app thread(s) */
-        PT_RUN(main);
+        PT_RUN(app_main);
     }
 }

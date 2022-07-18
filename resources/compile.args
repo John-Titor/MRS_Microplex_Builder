@@ -13,6 +13,7 @@
 -I$(MCU)/lib/hc08c/lib
 -I$(MCU)/lib/hc08c/src
 -I$(SRCDIR)include
+-I$(SRCDIR)app
 -LmCfg=xilmou
 -Ms 
 -Qvtpnone

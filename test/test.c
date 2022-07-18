@@ -48,7 +48,7 @@ app_can_idle(bool is_idle)
     (void)is_idle;
 }
 
-PT_DEFINE(main)
+PT_DEFINE(app_main)
 {
     static HAL_timer_t t;
 

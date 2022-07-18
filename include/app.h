@@ -13,7 +13,7 @@
 /**
  * Declare the app main protothread; definition must be supplied by the app.
  */
-PT_DECLARE(main);
+PT_DECLARE(app_main);
 
 /**
  * Application initialisation hook.
