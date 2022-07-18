@@ -1,0 +1,17 @@
+main:
+  ☐ HAL init
+  ☐ monitor CAN messages
+    ☐ brake signal
+    ☐ engine rpm
+    ☐ selected gear
+
+lights:
+  ☐ send CAN report
+  ☐ toggle lights / rain light on keypress
+
+start:
+  ☐ check engine speed
+  ☐ check brake
+  ☐ check gear
+  ☐ engine stopped timeout
+  ☐ cancel start once engine is running
