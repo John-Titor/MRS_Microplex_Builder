@@ -1,17 +1,18 @@
 main:
-  ☐ HAL init
+  ✔ HAL init @done (22-07-17 17:33)
   ☐ monitor CAN messages
-    ☐ brake signal
-    ☐ engine rpm
-    ☐ selected gear
+    ✔ brake signal @done (22-07-17 17:33)
+    ✔ engine rpm @done (22-07-17 17:33)
+    ✔ selected gear @done (22-07-17 17:33)
 
 lights:
-  ☐ send CAN report
-  ☐ toggle lights / rain light on keypress
+  ✔ send CAN report @done (22-07-17 17:33)
+  ✔ toggle lights / rain light on keypress @done (22-07-17 17:33)
 
 start:
-  ☐ check engine speed
-  ☐ check brake
-  ☐ check gear
-  ☐ engine stopped timeout
-  ☐ cancel start once engine is running
+  ✔ check engine speed @done (22-07-17 17:33)
+  ✔ check brake @done (22-07-17 17:33)
+  ✔ check gear @done (22-07-17 17:33)
+  ✔ engine stopped timeout @done (22-07-17 17:33)
+  ✔ cancel start once engine is running @done (22-07-17 17:33)
+
