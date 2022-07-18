@@ -1,0 +1,19 @@
+main:
+  ☐ HAL init
+
+brake:
+  ☐ monitor DDE brake signal
+  ☐ failsafe mode
+  ☐ power-on mode
+  ☐ attention-getter mode
+  ☐ reduced brightness mode
+
+lights:
+  ☐ monitor lighting message
+  ☐ turn on tail lights as requested
+  ☐ turn on rain lights as requested
+
+fuel:
+  ☐ read 0-5V input
+  ☐ generate periodic report
+
