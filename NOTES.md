@@ -63,8 +63,21 @@ Apps must implement the following functions, prototyped and documented in
     void app_can_receive(HAL_can_message_t *msg)
     void app_can_idle(bool did_idle)
 
-Additionally, app threads (and any required library threads) must be registered 
-in `app_thread_table`.
+The app must define the `app_main` protothread, which must yield regularly in 
+order for the framework to reset the watchdog and process incoming CAN messages.
+
+    PT_DEFINE(app_main)
+    {
+        pt_begin(pt);
+        for (;;) {
+            <... app logic ...>
+            pt_yield();
+        }
+        pt_end(pt);
+    }
+
+Additional protothreads may be declared / defined with `PT_DECLARE` and 
+`PT_DEFINE` respectively, and run from `app_main` with `PT_RUN`.
 
 notes
 =====
