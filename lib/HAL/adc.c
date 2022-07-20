@@ -113,6 +113,7 @@ Vadc_handler(void)
     } else {
         _sequence = 0;
         ADCSC1_AIEN = 0;
+
         if (++_bucket >= _HAL_ADC_AVG_SAMPLES) {
             _bucket = 0;
         }

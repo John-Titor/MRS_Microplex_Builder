@@ -4,3 +4,4 @@ build
 *.sublime-workspace
 .vscode
 html
+err.log

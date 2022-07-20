@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <mc9s08dz60.h>
+#include <lib.h>
 
 /**
  * One-shot timer.
