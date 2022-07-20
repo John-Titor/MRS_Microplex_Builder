@@ -42,6 +42,7 @@ MCU_SRCS	 = $(MCU)/lib/hc08c/src/start08.c \
 		   $(MCU)/lib/hc08c/device/src/mc9s08dz60.c
 
 FORMAT_SRCS	 = $(shell find $(_CWD)lib $(_CWD)src $(_CWD)include -name "*.[ch]")
+APP_FORMAT_SRCS	 = $(shell find $(_CWD)app -name "*.[ch]")
 
 # export this so the compiler can pick it up
 export GIT_VERS	:= $(shell git describe --always --dirty)
@@ -74,23 +75,26 @@ clean:
 doc:
 	doxygen
 
+REFORMAT_OPTS	 = --style=kr \
+		   --indent=spaces=4 \
+		   --indent-cases \
+		   --indent-preprocessor \
+		   --break-blocks \
+		   --pad-oper \
+		   --pad-header \
+		   --unpad-paren \
+		   --add-brackets \
+		   --convert-tabs \
+		   --align-pointer=name \
+		   --keep-one-line-blocks \
+		   --formatted \
+		   --suffix=none \
+
 reformat:
-	astyle \
-	--style=kr \
-	--indent=spaces=4 \
-	--indent-cases \
-	--indent-preprocessor \
-	--break-blocks \
-	--pad-oper \
-	--pad-header \
-	--unpad-paren \
-	--add-brackets \
-	--convert-tabs \
-	--align-pointer=name \
-	--keep-one-line-blocks \
-	--formatted \
-	--suffix=none \
-	$(FORMAT_SRCS)
+	astyle $(REFORMAT_OPTS)	$(APP_FORMAT_SRCS)
+
+reformat-all:
+	astyle $(REFORMAT_OPTS)	$(APP_FORMAT_SRCS) $(FORMAT_SRCS)
 
 # build an application / generate s-records
 $(BUILDDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)
