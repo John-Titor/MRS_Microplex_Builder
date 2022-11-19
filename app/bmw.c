@@ -118,8 +118,8 @@ PT_DEFINE(bmw)
             static uint32_t id;
 
             for (sent = 2, id = CONFIG_BMW_CAN_ID_BASE;
-                    sent < DDE_RESPONSE_SIZE;
-                    sent += 8, id++) {
+                 sent < DDE_RESPONSE_SIZE;
+                 sent += 8, id++) {
                 HAL_can_send_blocking(id, 8, &dde_rx_buffer[sent]);
                 pt_yield(pt);
             }

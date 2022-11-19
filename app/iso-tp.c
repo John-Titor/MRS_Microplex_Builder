@@ -175,8 +175,8 @@ iso_tp_tx_send_next(void)
     uint8_t     i;
 
     if ((iso_tp_send_done() == ISO_TP_BUSY) &&
-            HAL_timer_expired(tp_tx.interval) &&
-            (tp_tx.window_resid > 0)) {
+        HAL_timer_expired(tp_tx.interval) &&
+        (tp_tx.window_resid > 0)) {
 
         tf.consecutive.recipient = tp_tx.recipient;
         tf.consecutive.type = TP_CONSECUTIVE_FRAME;
