@@ -44,7 +44,8 @@ PT_DEFINE(brake)
     pt_wait(pt, g_brake_applied);
 
     /* select intensity */
-    intensity = g_light_status.lights_requested ? CONFIG_BRAKE_INTENSITY_LOW : CONFIG_BRAKE_INTENSITY_HIGH;
+    intensity = g_light_status.lights_requested ? CONFIG_BRAKE_INTENSITY_LOW :
+                CONFIG_BRAKE_INTENSITY_HIGH;
 
     /* do attention getter? */
     if (HAL_timer_expired(idle_timer)) {

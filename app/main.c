@@ -41,9 +41,9 @@ bool
 app_can_filter(uint32_t id)
 {
     if (MRS_bootrom_filter(id) ||   /* bootrom interested? */
-            (id == 0x21a) ||            /* lighting status */
-            (id == 0xa8) ||             /* brake status here */
-            (id == 0x1d2)) {            /* engine speed here */
+        (id == 0x21a) ||            /* lighting status */
+        (id == 0xa8) ||             /* brake status here */
+        (id == 0x1d2)) {            /* engine speed here */
         return true;
     }
 
