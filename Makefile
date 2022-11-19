@@ -7,7 +7,8 @@
 # Set this to where Codewarrior MCU was installed, or pass
 # it on the commandline.
 #
-CW_INSTALL_DIR	?= ~/.wine/drive_c/Freescale/CW\ MCU\ v11.1/MCU
+#CW_INSTALL_DIR	?= ~/.wine/drive_c/Freescale/CW\ MCU\ v11.1/MCU
+CW_INSTALL_DIR	?= ../MCU
 
 _CWD		:= $(dir $(lastword $(MAKEFILE_LIST)))
 ifneq ($(words $(_CWD)),1)
@@ -22,8 +23,9 @@ export SRCDIR	 = $(_CWD)
 export MCU	 = $(BUILDDIR)/MCU
 export RSRCDIR	 = $(_CWD)resources
 
-CC		 = $(MCU)/prog/chc08.exe
-LD		 = $(MCU)/prog/linker.exe
+WINE		:= /opt/homebrew/bin/wine
+CC		 = $(WINE) $(MCU)/prog/chc08.exe
+LD		 = $(WINE) $(MCU)/prog/linker.exe
 
 GLOBAL_DEPS	:= $(MAKEFILE_LIST) \
 		   $(wildcard $(RSRCDIR)/*) \
@@ -100,14 +102,14 @@ reformat-all:
 $(BUILDDIR)/%.elf: $(OBJS) $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== LINK $(notdir $@)
-	$(V)wine $(LD) -ArgFile$(_CWD)/resources/link.args -O$@
+	$(V)$(LD) -ArgFile$(_CWD)/resources/link.args -O$@
 
 # build an object file from a source file in ./src
 $(BUILDDIR)/%.o: %.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== COMPILE $<
-	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args 	\
-		-ObjN=$@ $(abspath $<) 					\
+	$(V)$(CC) -ArgFile$(_CWD)/resources/compile.args 	\
+	 	-ObjN=$@ $(abspath $<) 				\
 		-Lm=$(@:%.o=%.d) 				\
 		$(CONVERT_SLASHES)
 
@@ -115,7 +117,7 @@ $(BUILDDIR)/%.o: %.c $(GLOBAL_DEPS)
 $(BUILDDIR)/mcu_lib/%.o: $(MCU)/lib/%.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
 	@echo ==== COMPILE $<
-	$(V)wine $(CC) -ArgFile$(_CWD)/resources/compile.args 	\
+	$(V)$(CC) -ArgFile$(_CWD)/resources/compile.args 	\
 		-ObjN=$@ $< 					\
 		-Lm=$(@:%.o=%.d)				\
 		$(CONVERT_SLASHES)
