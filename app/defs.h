@@ -30,15 +30,14 @@
 #define OUT_START       OUT_4
 
 /* global state */
-extern bool             g_brake_applied;
-extern uint16_t         g_engine_rpm;
-extern char             g_selected_gear;
-
-struct light_status {
+struct global_state {
+    uint16_t    engine_rpm;
+    char        selected_gear;
+    uint8_t     brake_applied : 1;
     uint8_t     lights_on : 1;
     uint8_t     rain_on : 1;
 };
-extern struct light_status g_light_status;
+extern struct global_state g_state;
 
 /*
  * ISO-TP framer

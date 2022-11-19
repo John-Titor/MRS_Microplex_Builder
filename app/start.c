@@ -16,7 +16,7 @@ PT_DEFINE(start)
     HAL_pin_set(OUT_START, false);
 
     /* check whether engine is running */
-    if (g_engine_rpm > 150) {
+    if (g_state.engine_rpm > 150) {
 
         /* yes, prevent starting at least until delay expires */
         HAL_timer_reset(restart_delay, CONFIG_RESTART_DELAY);
@@ -29,10 +29,10 @@ PT_DEFINE(start)
     }
 
     /* check for a start-inhibited condition */
-    if (!g_brake_applied ||                     /* brake not applied */
-            (g_selected_gear != 'P') ||             /* not in Park */
-            !HAL_timer_expired(restart_delay) ||    /* engine only just stopped */
-            (HAL_pin_get_mV(IN_S_BLOW) > 250)) {    /* DME relay not energised */
+    if (!g_state.brake_applied ||               /* brake not applied */
+        (g_state.selected_gear != 'P') ||       /* not in Park */
+        !HAL_timer_expired(restart_delay) ||    /* engine only just stopped */
+        (HAL_pin_get_mV(IN_S_BLOW) > 250)) {    /* DME relay not energised */
 
         /* illuminate the start key red to indicate start inhibited */
         bk_set_key_led(KEY_START, BK_KEY_COLOR_RED, 0);
@@ -77,7 +77,7 @@ PT_DEFINE(start)
         }
 
         /* check for engine running */
-        if (g_engine_rpm > 500) {
+        if (g_state.engine_rpm > 500) {
 
             /* prevent starting again before delay expires */
             HAL_timer_reset(restart_delay, CONFIG_RESTART_DELAY);

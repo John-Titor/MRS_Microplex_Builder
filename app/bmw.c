@@ -2,6 +2,9 @@
  * Perform a periodic scan of BMW modules to fetch interesting
  * values, and re-broadcast them in messages that less
  * intelligent listeners can pick up.
+ *
+ * Note that parameters already being broadcast by DDE / EGS are
+ * assumed to be handled directly.
  */
 
 #include "defs.h"
@@ -12,10 +15,7 @@
 #define ISO_TIMEOUT 100
 
 /*
- * Setup request that is sent.
- *
- * The reply buffer is transmitted literally in CAN messages starting
- * with ID CONFIG_BMW_CAN_ID_BASE.
+ * Setup request that is sent to configure the DDE.
  */
 static const uint8_t dde_setup_req[] = {
     0x2c, 0x10, // read things
@@ -29,12 +29,14 @@ static const uint8_t dde_setup_req[] = {
     0x06, 0x07, // transmission oil temperature                     1B
     0x0a, 0x8d, // oil pressure status                              1B
 };
+#define DDE_SETUP_REQUEST_SIZE sizeof(dde_setup_req)
 
+/*
+ * Repeat request that causes the previous query to be repeated.
+ */
 static const uint8_t dde_repeat_req[] = {
     0x2c, 0x10, // read things
 };
-
-#define DDE_SETUP_REQUEST_SIZE sizeof(dde_setup_req)
 #define DDE_REPEAT_REQUEST_SIZE sizeof(dde_repeat_req)
 
 // 11 bytes of data + 2 command status bytes
@@ -43,9 +45,6 @@ static const uint8_t dde_repeat_req[] = {
 // we send raw from this buffer in groups of 8 starting at offset 2,
 // so make the buffer multiple-of-8 + 2 large
 static uint8_t dde_rx_buffer[18];
-
-// display gear calculated using selected / current gear
-uint8_t bmw_display_gear;
 
 PT_DEFINE(bmw)
 {
@@ -102,6 +101,16 @@ PT_DEFINE(bmw)
             }
         }
 
+        // Fix up the current gear field; if we are not in 'D',
+        // it needs to reflect the selected gear. After fixup, the
+        // field will be one of P, R, N, 1, 2, 3, 4, 5, 6.
+        //
+        if (g_state.selected_gear != 'D') {
+            dde_rx_buffer[10] = g_state.selected_gear;
+        } else {
+            dde_rx_buffer[10] += '0';
+        }
+
         // Echo the response buffer as a series of CAN frames with
         // IDs starting at 0x700.
         {
@@ -114,15 +123,6 @@ PT_DEFINE(bmw)
                 HAL_can_send_blocking(id, 8, &dde_rx_buffer[sent]);
                 pt_yield(pt);
             }
-        }
-
-        // Compute the 'display' gear using 0e,a6 and the selected
-        // gear reported in 0x1d2
-        //
-        if (g_selected_gear == 'D') {
-            bmw_display_gear = dde_rx_buffer[10] + '0';
-        } else {
-            bmw_display_gear = g_selected_gear;
         }
 
         setup_sent = true;

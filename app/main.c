@@ -1,13 +1,11 @@
 /*
- * Main logic for PDM
+ * Main logic for PDM.
  */
 
 #include "defs.h"
 
-/* global status variables derived from CAN messages */
-bool g_brake_applied;
-uint16_t g_engine_rpm;
-char g_selected_gear;
+/* global status variables */
+struct global_state g_state;
 
 PT_DEFINE(app_main)
 {
@@ -46,11 +44,11 @@ bool
 app_can_filter(uint32_t id)
 {
     if (MRS_bootrom_filter(id) ||   /* bootrom interested? */
-            bk_can_filter(id) ||        /* blink keypad handler interested? */
-            (id == 0xa8) ||             /* brake status here */
-            (id == 0x1d2) ||            /* engine speed here */
-            ((id >= 0x600) &&           /* ISO-TP frame? */
-             (id < 0x6f0))) {
+        bk_can_filter(id) ||        /* blink keypad handler interested? */
+        (id == 0xa8) ||             /* brake status here */
+        (id == 0x1d2) ||            /* engine speed here */
+        ((id >= 0x600) &&           /* ISO-TP frame? */
+         (id < 0x6f0))) {
 
         return true;
     }
@@ -62,39 +60,39 @@ void
 app_can_receive(const HAL_can_message_t *msg)
 {
     if (MRS_bootrom_rx(msg) ||      /* handled by bootrom code? */
-            bk_can_receive(msg) ||      /* handled by blink keypad? */
-            iso_tp_can_rx(msg)) {       /* handled by ISO-TP framer? */
+        bk_can_receive(msg) ||      /* handled by blink keypad? */
+        iso_tp_can_rx(msg)) {       /* handled by ISO-TP framer? */
 
         return;
     }
 
     switch (msg->id) {
     case 0xa8:
-        g_brake_applied = (msg->data[7] > 20);
+        g_state.brake_applied = (msg->data[7] > 20);
         break;
 
     case 0x1d2:
-        g_engine_rpm = ((((uint16_t)msg->data[4] << 8) + msg->data[5]) / 4);
+        g_state.engine_rpm = ((((uint16_t)msg->data[4] << 8) + msg->data[5]) / 4);
 
         switch (msg->data[0]) {
         case 255:
-            g_selected_gear = 'P';
+            g_state.selected_gear = 'P';
             break;
 
         case 210:
-            g_selected_gear = 'R';
+            g_state.selected_gear = 'R';
             break;
 
         case 180:
-            g_selected_gear = 'N';
+            g_state.selected_gear = 'N';
             break;
 
         case 120:
-            g_selected_gear = 'D';
+            g_state.selected_gear = 'D';
             break;
 
         default:
-            g_selected_gear = '?';
+            g_state.selected_gear = '?';
             break;
         }
 

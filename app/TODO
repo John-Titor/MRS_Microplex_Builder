@@ -1,18 +1,38 @@
 main:
   ✔ HAL init @done (22-07-17 17:33)
-  ☐ monitor CAN messages
-    ✔ brake signal @done (22-07-17 17:33)
-    ✔ engine rpm @done (22-07-17 17:33)
-    ✔ selected gear @done (22-07-17 17:33)
+  ☐ keypad
+    ☐ read keypresses
+    ✔ set key LEDs @done (22-11-18 22:45)
+    ☐ set background LEDs
 
-lights:
-  ✔ send CAN report @done (22-07-17 17:33)
-  ✔ toggle lights / rain light on keypress @done (22-07-17 17:33)
+Requirements:
+  starter safety:
+    ✔ inhibit if engine speed > 150rpm @done (22-07-17 17:33)
+    ✔ check brake @done (22-07-17 17:33)
+    ✔ check gear @done (22-07-17 17:33)
+    ✔ engine stopped timeout @done (22-07-17 17:33)
+    ✔ cancel start once engine is running @done (22-07-17 17:33)
+    ✔ DME S_BLOW signal > 250mV @done (22-11-18 22:35)
+    ✔ button not lit when engine running @done (22-11-18 22:36)
+    ✔ button red when start inhibited @done (22-11-18 22:36)
+    ✔ button green when start possible @done (22-11-18 22:36)
+    ✔ button flash while starting @done (22-11-18 22:37)
 
-start:
-  ✔ check engine speed @done (22-07-17 17:33)
-  ✔ check brake @done (22-07-17 17:33)
-  ✔ check gear @done (22-07-17 17:33)
-  ✔ engine stopped timeout @done (22-07-17 17:33)
-  ✔ cancel start once engine is running @done (22-07-17 17:33)
+  light switching:
+    ✔ send CAN report @done (22-07-17 17:33)
+    ✔ toggle lights / rain light on keypress @done (22-07-17 17:33)
+    ✔ toggle key colours white / blue @done (22-11-18 22:46)
 
+  DDE scanning:
+    ☐ monitor CAN messages
+      ✔ brake signal @done (22-07-17 17:33)
+      ✔ engine rpm @done (22-07-17 17:33)
+      ✔ selected gear @done (22-07-17 17:33)
+      ✔ intake air temperature @done (22-11-18 22:54)
+      ✔ manifold air temperature @done (22-11-18 22:54)
+      ✔ exhaust temperature @done (22-11-18 22:54)
+      ✔ boost pressure @done (22-11-18 22:54)
+      ✔ current gear @done (22-11-18 22:54)
+      ✔ transmission temperature @done (22-11-18 22:54)
+      ✔ oil pressure status @done (22-11-18 22:54)
+  

@@ -2,7 +2,8 @@
 
 ## system
 
-The vehicle electronic system consists of this module, the M57 DDE, ZF 6HP transmission controller (EGS), fuel pump controller (EKPM), MK60 ABS, AEM CD-7 dash, and another MicroPlex 7X managing the tail lights.
+The vehicle electronic system consists of this module, the M57 DDE, ZF 6HP transmission controller (EGS),
+fuel pump controller (EKPM), MK60 ABS, AEM CD-7 dash, and another MicroPlex 7X managing the tail lights.
 
 ## pinout
 
@@ -29,7 +30,7 @@ The vehicle electronic system consists of this module, the M57 DDE, ZF 6HP trans
 Ensure that the starter relay can only be activated in a safe state.
 
 Starting requires:
- - engine not running (CAN engine speed below 100 for 250ms)
+ - engine not running (CAN engine speed below 150 for 250ms)
  - brake pedal pressed (CAN brake signal)
  - transmission in park (CAN transmission position) (or neutral? TBD)
  - DME powered on (S_BLOW low)

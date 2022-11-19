@@ -3,8 +3,6 @@
  */
 #include "defs.h"
 
-struct light_status g_light_status;
-
 PT_DEFINE(lights)
 {
     static HAL_timer_t report_timer;
@@ -22,9 +20,9 @@ PT_DEFINE(lights)
                 0,
                 0xf7
             };
-            data[0] = ((g_light_status.lights_on ? 0x04 : 0) |
-                       (g_light_status.rain_on ? 0x40 : 0)),
-                      HAL_can_send(0x21a, 3, &data[0]);
+            data[0] = ((g_state.lights_on ? 0x04 : 0) |
+                       (g_state.rain_on ? 0x40 : 0));
+            (void)HAL_can_send(0x21a, 3, &data[0]);
         }
     }
 

@@ -268,9 +268,9 @@ static void
 iso_tp_rx_flow(uint8_t sender, const tp_flow_t *tf)
 {
     if ((iso_tp_send_done() == ISO_TP_BUSY) &&
-            (sender == tp_tx.recipient) &&
-            (tp_tx.window_resid == 0) &&
-            (tf->flag == TP_FLOW_CONTINUE)) {
+        (sender == tp_tx.recipient) &&
+        (tp_tx.window_resid == 0) &&
+        (tf->flag == TP_FLOW_CONTINUE)) {
 
         // set up sequenced transmission of the next block of frames
         tp_tx.window_resid = tf->block_size ? tf->block_size : 0xff;
@@ -287,8 +287,8 @@ iso_tp_rx_single(uint8_t sender, const tp_single_t *ts)
     uint8_t i;
 
     if ((iso_tp_recv_done() == ISO_TP_BUSY) &&
-            (sender == tp_rx.sender) &&
-            (ts->len == tp_rx.resid)) {
+        (sender == tp_rx.sender) &&
+        (ts->len == tp_rx.resid)) {
 
         for (i = 0; i < tp_rx.resid; i++) {
             tp_rx.buf[i] = ts->data[i];
@@ -305,13 +305,13 @@ iso_tp_rx_first(uint8_t sender, const tp_first_t *tf)
     uint8_t i;
 
     if ((iso_tp_recv_done() == ISO_TP_BUSY) &&
-            (sender == tp_rx.sender) &&
-            (tf->len_hi == 0) &&
-            (tf->len_lo == tp_rx.resid)) {
+        (sender == tp_rx.sender) &&
+        (tf->len_hi == 0) &&
+        (tf->len_lo == tp_rx.resid)) {
 
         for (i = 0;
-                tp_rx.resid && (i < sizeof(tf->data));
-                i++, tp_rx.resid--, tp_rx.buf++) {
+             tp_rx.resid && (i < sizeof(tf->data));
+             i++, tp_rx.resid--, tp_rx.buf++) {
 
             *tp_rx.buf = tf->data[i];
         }
@@ -339,12 +339,12 @@ iso_tp_rx_consecutive(uint8_t sender, const tp_consecutive_t *tc)
     uint8_t i;
 
     if ((iso_tp_recv_done() == ISO_TP_BUSY) &&
-            (sender == tp_rx.sender) &&
-            (tc->index == tp_rx.sequence)) {
+        (sender == tp_rx.sender) &&
+        (tc->index == tp_rx.sequence)) {
 
         for (i = 0;
-                tp_rx.resid && (i < sizeof(tc->data));
-                i++, tp_rx.resid--, tp_rx.buf++) {
+             tp_rx.resid && (i < sizeof(tc->data));
+             i++, tp_rx.resid--, tp_rx.buf++) {
 
             *tp_rx.buf = tc->data[i];
         }
