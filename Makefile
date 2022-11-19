@@ -60,7 +60,7 @@ export TEXTPATH	 = $(BUILDDIR)
 # suppress generation of error files
 export ERRORFILE = /dev/null
 
-# convert \ to / to enable parsing filenames out of error messages 
+# convert \ to / to enable parsing filenames out of error messages
 CONVERT_SLASHES	 = | tr \\ /
 
 # make Wine wineserver quieter - turn this off when debugging Wine problems
@@ -71,16 +71,19 @@ export WINEDEBUG = -all
 
 all:	$(BUILDDIR)/microplex.elf
 
-clean:
+purge:
 	rm -rf $(BUILDDIR)
 
 doc:
 	doxygen
 
-REFORMAT_OPTS	 = --style=kr \
+REFORMAT_OPTS	 = --style=1tbs \
+		   --attach-closing-while \
 		   --indent=spaces=4 \
+		   --indent-preproc-block \
+		   --indent-preproc-define \
 		   --indent-cases \
-		   --indent-preprocessor \
+		   --min-conditional-indent=0 \
 		   --break-blocks \
 		   --pad-oper \
 		   --pad-header \
@@ -89,6 +92,11 @@ REFORMAT_OPTS	 = --style=kr \
 		   --convert-tabs \
 		   --align-pointer=name \
 		   --keep-one-line-blocks \
+		   --break-return-type \
+		   --attach-return-type-decl \
+		   --convert-tabs\
+		   --max-code-length=100 \
+		   --break-after-logical \
 		   --formatted \
 		   --suffix=none \
 

@@ -7,9 +7,9 @@
 #include <HAL/_timer.h>
 
 #ifdef BK_FIXED_KEYPAD_ID
-# define _BK_DEFAULT_KEYPAD_ID  BK_FIXED_KEYPAD_ID
+    #define _BK_DEFAULT_KEYPAD_ID  BK_FIXED_KEYPAD_ID
 #else
-# define _BK_DEFAULT_KEYPAD_ID  0xff
+    #define _BK_DEFAULT_KEYPAD_ID  0xff
 #endif
 
 #define BK_MAX_KEYS            12
