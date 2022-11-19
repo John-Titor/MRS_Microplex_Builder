@@ -21,8 +21,7 @@ PT_DEFINE(brake)
         HAL_pin_set(OUT_BRAKE_L, flash_state ? 1 : 0);
         HAL_pin_set(OUT_BRAKE_R, flash_state ? 0 : 1);
         flash_state = !flash_state;
-        HAL_timer_reset(flash_timer, CONFIG_BRAKE_FAILSAFE_PERIOD);
-        pt_wait(pt, HAL_timer_expired(flash_timer));
+        pt_delay(pt, flash_timer, CONFIG_BRAKE_FAILSAFE_PERIOD);
     }
 
     /* if engine is not running */
@@ -31,13 +30,11 @@ PT_DEFINE(brake)
         HAL_pin_set(OUT_BRAKE_L, flash_state ? 1 : 0);
         HAL_pin_set(OUT_BRAKE_R, flash_state ? 0 : 1);
         flash_state = !flash_state;
-        HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_PERIOD);
-        pt_wait(pt, HAL_timer_expired(flash_timer));
+        pt_delay(pt, flash_timer, CONFIG_BRAKE_REMINDER_PERIOD);
 
         if (flash_state) {
             HAL_pin_set(OUT_BRAKE_R, 0);
-            HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_INTERVAL);
-            pt_wait(pt, HAL_timer_expired(flash_timer));
+            pt_delay(pt, flash_timer, CONFIG_BRAKE_REMINDER_INTERVAL);
         }
     }
 
@@ -57,8 +54,7 @@ PT_DEFINE(brake)
             HAL_pin_set_duty(OUT_BRAKE_L, flash_state ? intensity : 0);
             HAL_pin_set_duty(OUT_BRAKE_R, flash_state ? 0 : intensity);
             flash_state = flash_state ? false : true;
-            HAL_timer_reset(flash_timer, CONFIG_BRAKE_ATTENTION_PERIOD);
-            pt_wait(pt, HAL_timer_expired(flash_timer));
+            pt_delay(pt, flash_timer, CONFIG_BRAKE_ATTENTION_PERIOD);
         }
     }
 
