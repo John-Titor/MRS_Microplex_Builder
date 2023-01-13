@@ -1,0 +1,19 @@
+main:
+  ✔ HAL init @done (22-07-17 20:08)
+
+brake:
+  ✔ monitor DDE brake signal @done (22-07-17 20:08)
+  ✔ monitor engine rpm -> engine on/off @done (22-07-17 20:09)
+  ✔ failsafe mode @done (22-07-19 19:28)
+  ✔ power-on mode @done (22-07-19 19:28)
+  ✔ attention-getter mode @done (22-07-19 19:28)
+  ✔ reduced brightness mode @done (22-07-19 19:28)
+
+lights:
+  ✔ monitor lighting message @done (22-07-17 20:08)
+  ✔ turn on tail lights as requested @done (22-07-17 20:20)
+  ✔ blink rain lights as requested @done (22-07-17 20:20)
+
+fuel:
+  ✔ read 0-5V input @done (22-07-19 18:41)
+  ✔ generate periodic report @done (22-07-19 18:41)
