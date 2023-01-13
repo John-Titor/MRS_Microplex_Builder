@@ -1,1 +1,1 @@
-APP_SRCS	:= $(wildcard app/*.c)
+APP_SRCS	:= $(wildcard $(APP)/*.c)
