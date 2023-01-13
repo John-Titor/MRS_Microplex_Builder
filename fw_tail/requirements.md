@@ -16,7 +16,7 @@ The vehicle electronic system consists of this module, the M57 DDE, ZF 6HP trans
 | 6   | T15_MRS | KL15     | Ignition-on signal
 | 7   | -       | IN_2	   |
 | 8   | -       | IN_3	   |
-| 9   | RAIN    | OUT_4	   | rain lights
+| 9   | REVERSE | OUT_4	   | reverse light/signal
 | 10  | TAIL    | OUT_3	   | tail lights
 | 11  | BRAKE_R | OUT_2	   | right brake light
 | 12  | BRAKE_L | OUT_1	   | left brake light
@@ -39,12 +39,18 @@ The brake lights shall operate at reduced brightness when the tail lights are on
 The left and right brake light shall flash for 250ms every 4s, alternating one then the other, when power is on, the engine is not running, and the brake is not applied.
 
 ## fuel level
-Fuel level will be monitored and reported every 1s as a percentage in the range 0-100%.
+Fuel level will be monitored and reported every 1s as a percentage in the range 0-100%. 
+The BMW fuel level message (0x349) expresses the level in volume units; it would require knowledge of the actual capacity of the cell. Could be more informative?
 
 ## tail lights
-Operate the tail and rain lights in accordance with the lighting message sent by the PDM.
+Operate the tail/rain lights in accordance with the lighting message sent by the PDM.
 
-## CAN messages of interest
+## reverse signal
+Operate the reverse signal in 
+
+## CAN messages of interest accordance with the lighting message sent by the PDM.
+
+http://www.loopybunny.co.uk/CarPC/can/21A.html
 
 | id       | details 
 |----------|-----------------
@@ -53,6 +59,9 @@ Operate the tail and rain lights in accordance with the lighting message sent by
 |          | bytes 4/5 = engine speed * 4
 | 21a/538  | byte 0 bit 2 = marker/tail lights on
 |          | byte 0 bit 6 = rear fog/rain lights on
+|          | byte 1 bit 1 = reverse light/signal on
+
+https://github.com/nberlette/bmw-dbc/blob/main/src/bmw-e90.dbc
 
 BO_ 168 EngineAndBrake: 8 DME
  SG_ BrakePressed : 61|1@0+ (1,0) [0|1] "" XXX

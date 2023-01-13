@@ -13,6 +13,7 @@ lights:
   ✔ monitor lighting message @done (22-07-17 20:08)
   ✔ turn on tail lights as requested @done (22-07-17 20:20)
   ✔ blink rain lights as requested @done (22-07-17 20:20)
+  ☐ reverse signal in place of rain light
 
 fuel:
   ✔ read 0-5V input @done (22-07-19 18:41)

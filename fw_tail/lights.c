@@ -17,6 +17,15 @@ PT_DEFINE(lights)
             g_light_status.lights_on = g_light_status.lights_requested;
         }
 
+#ifdef OUT_REVERSE
+        /* reverse signal on / off according to CAN message */
+        if (g_light_status.reverse_on != g_light_status.reverse_requested) {
+            HAL_pin_set(OUT_REVERSE, g_light_status.reverse_requested ? true : false);
+            g_light_status.reverse_on = g_light_status.reverse_requested;
+        }
+#endif
+
+#ifdef OUT_RAIN_LIGHT
         /* rain light blink / off according to CAN message */
         if (g_light_status.rain_requested) {
             if (HAL_timer_expired(rain_blink)) {
@@ -33,6 +42,7 @@ PT_DEFINE(lights)
         } else {
             HAL_pin_set(OUT_RAIN_LIGHT, false);
         }
+#endif
 
         pt_yield(pt);
     }

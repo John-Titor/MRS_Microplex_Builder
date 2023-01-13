@@ -69,6 +69,7 @@ app_can_receive(const HAL_can_message_t *msg)
     case 0x21a:
         g_light_status.lights_requested = (msg->data[0] & 0x04) ? 1 : 0;
         g_light_status.rain_requested = (msg->data[0] & 0x40) ? 1 : 0;
+        g_light_status.reverse_requested = (msg->data[1] & 0x01) ? 1 : 0;
         break;
 
     default:

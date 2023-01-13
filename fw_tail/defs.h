@@ -37,7 +37,8 @@
 #define IN_FUEL_LEVEL   IN_1
 
 /* output mapping */
-#define OUT_RAIN_LIGHT  OUT_1
+#define OUT_REVERSE     OUT_1
+//#define OUT_RAIN_LIGHT  OUT_1
 #define OUT_TAIL_LIGHTS OUT_2
 #define OUT_BRAKE_R     OUT_3
 #define OUT_BRAKE_L     OUT_4
@@ -52,6 +53,8 @@ struct light_status {
     uint8_t     lights_requested : 1;
     uint8_t     rain_on : 1;
     uint8_t     rain_requested : 1;
+    uint8_t     reverse_on : 1;
+    uint8_t     reverse_requested : 1;
 };
 extern struct light_status g_light_status;
 
