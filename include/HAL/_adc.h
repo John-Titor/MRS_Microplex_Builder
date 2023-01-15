@@ -19,16 +19,19 @@
  *
  * Current sense outputs are the same but for mA.
  *
- * AI_1/2/3:
- * --------
- * 1K pullup mode: TBD
- * 20mA mode: TBD (claimed 25mA)
  */
 
 #pragma ONCE
 
 #include <stdint.h>
 
+/*
+ * AI_1/2/3:
+ * --------
+ * 1K pullup mode: pullup connected to KL30, but no KL30 sampling
+ *                 available, requires application-specific calibration.
+ * 20mA mode: not supported
+ */
 #define _ADC_SCALE_FACTOR_30V   17900   /* VALIDATED @ 4.860V */
 #define _ADC_SCALE_FACTOR_10V   6065    /* VALIDATED @ 4.860V */
 

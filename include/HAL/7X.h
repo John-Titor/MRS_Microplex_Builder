@@ -40,8 +40,8 @@
  * CAN_EN           PORT_F.0    -   CAN transceiver EN
  * CAN_STB_N        PORT_F.2    -   CAN transceiver STB
  * CAN_WAKE         PORT_E.5    -   CAN transceiver WAKE
- * DO_20MA_1        PORT_D.0    -   20mA current sink mode for AI_1
- * DO_20MA_2        PORT_A.3    -   20mA current sink mode for AI_2
+ * DO_20MA_1        PORT_D.0    -   20mA current sink mode for AI_1 (not supported)
+ * DO_20MA_2        PORT_A.3    -   20mA current sink mode for AI_2 (not supported)
  * DO_30V_10V_1     PORT_F.5    -   AI_1 scale select: 0 = 0-10V, 1 = 0-30V
  * DO_30V_10V_2     PORT_E.0    -   AI_2 scale select: 0 = 0-10V, 1 = 0-30V
  * DO_30V_10V_3     PORT_A.4    -   AI_3 scale select: 0 = 0-10V, 1 = 0-30V
