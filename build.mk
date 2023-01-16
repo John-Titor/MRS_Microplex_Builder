@@ -43,6 +43,7 @@ $(APP_ELF): $(OBJS) $(GLOBAL_DEPS)
 # build an object file from a source file in ./src
 $(BUILDDIR)/%.o: %.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
+	@rm -f $@
 	@echo ==== COMPILE $<
 	$(V)$(CC) -ArgFile$(CURDIR)/resources/compile.args	\
 		-ObjN=$@ $(abspath $<)				\
@@ -52,6 +53,7 @@ $(BUILDDIR)/%.o: %.c $(GLOBAL_DEPS)
 # build an object file from a source file supplied by CW MCU
 $(BUILDDIR)/mcu_lib/%.o: $(MCU)/lib/%.c $(GLOBAL_DEPS)
 	@mkdir -p $(@D)
+	@rm -f $@
 	@echo ==== COMPILE $<
 	$(V)$(CC) -ArgFile$(CURDIR)/resources/compile.args	\
 		-ObjN=$@ $<					\
