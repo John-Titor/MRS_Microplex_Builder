@@ -18,6 +18,10 @@
 #define CONFIG_BMW_SCAN_INTERVAL    250
 #define CONFIG_BMW_CAN_ID_BASE      0x700
 
+/* status report interval */
+#define CONFIG_STATUS_INTERVAL      250
+#define CONFIG_STATUS_REPORT_ID     0x780
+
 /* keypad key mapping */
 #define KEY_LIGHTS      4
 #define KEY_RAIN        5
@@ -29,13 +33,18 @@
 /* output mapping */
 #define OUT_START       OUT_4
 
-/* global state */
+/* global state - must be <= 8B in size for status reporter */
 struct global_state {
     uint16_t    engine_rpm;
     char        selected_gear;
     uint8_t     brake_applied : 1;
     uint8_t     lights_on : 1;
     uint8_t     rain_on : 1;
+    uint8_t     can_idle : 1;
+    uint8_t     keypad_active : 1;
+    uint8_t     start_inhibited : 1;
+    uint8_t     start_waiting : 1;
+    uint8_t     starting : 1;
 };
 extern struct global_state g_state;
 
@@ -65,3 +74,4 @@ PT_DECLARE(lights);
 PT_DECLARE(start);
 PT_DECLARE(iso_tp);
 PT_DECLARE(bmw);
+PT_DECLARE(status);

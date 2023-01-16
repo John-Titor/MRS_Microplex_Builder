@@ -25,7 +25,7 @@ PT_DEFINE(brake)
     }
 
     /* if engine is not running */
-    while (!g_engine_running) {
+    while (!g_state.engine_running) {
         /* quick left-then-right flash every 4s */
         HAL_pin_set(OUT_BRAKE_L, flash_state ? 1 : 0);
         HAL_pin_set(OUT_BRAKE_R, flash_state ? 0 : 1);
@@ -41,10 +41,10 @@ PT_DEFINE(brake)
     /* turn brake lights off and wait for brake to be applied */
     HAL_pin_set(OUT_BRAKE_L, 0);
     HAL_pin_set(OUT_BRAKE_R, 0);
-    pt_wait(pt, g_brake_applied);
+    pt_wait(pt, g_state.brake_applied);
 
     /* select intensity */
-    intensity = g_light_status.lights_requested ? CONFIG_BRAKE_INTENSITY_LOW :
+    intensity = g_state.lights_requested ? CONFIG_BRAKE_INTENSITY_LOW :
                 CONFIG_BRAKE_INTENSITY_HIGH;
 
     /* do attention getter? */
@@ -62,7 +62,7 @@ PT_DEFINE(brake)
     /* turn brake lights on and wait for brake to be released */
     HAL_pin_set_duty(OUT_BRAKE_L, intensity);
     HAL_pin_set_duty(OUT_BRAKE_R, intensity);
-    pt_wait(pt, !g_brake_applied);
+    pt_wait(pt, !g_state.brake_applied);
 
     /* reset idle timer */
     HAL_timer_reset(idle_timer, CONFIG_BRAKE_ATTENTION_DELAY);

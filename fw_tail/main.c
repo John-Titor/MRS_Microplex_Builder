@@ -5,10 +5,7 @@
 #include "defs.h"
 
 /* global status variables derived from CAN messages */
-bool g_brake_applied;
-bool g_can_idle;
-bool g_engine_running;
-struct light_status g_light_status;
+struct global_state g_state;
 
 PT_DEFINE(app_main)
 {
@@ -23,6 +20,9 @@ PT_DEFINE(app_main)
 
         /* run the fuel level logic */
         PT_RUN(fuel);
+
+        /* run the status reporter */
+        PT_RUN(status);
 
         /* run system threads and reset watchdog */
         pt_yield(pt);
@@ -67,9 +67,9 @@ app_can_receive(const HAL_can_message_t *msg)
         break;
 
     case 0x21a:
-        g_light_status.lights_requested = (msg->data[0] & 0x04) ? 1 : 0;
-        g_light_status.rain_requested = (msg->data[0] & 0x40) ? 1 : 0;
-        g_light_status.reverse_requested = (msg->data[1] & 0x01) ? 1 : 0;
+        g_state.lights_requested = (msg->data[0] & 0x04) ? 1 : 0;
+        g_state.rain_requested = (msg->data[0] & 0x40) ? 1 : 0;
+        g_state.reverse_requested = (msg->data[1] & 0x01) ? 1 : 0;
         break;
 
     default:

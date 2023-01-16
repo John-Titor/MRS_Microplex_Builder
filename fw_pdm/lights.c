@@ -1,5 +1,5 @@
 /*
- * CAN lighting message logic.
+ * BMW CAN lighting message logic.
  */
 #include "defs.h"
 

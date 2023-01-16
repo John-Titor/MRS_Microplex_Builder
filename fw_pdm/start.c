@@ -13,6 +13,7 @@ PT_DEFINE(start)
     HAL_timer_register(restart_delay);
 
     /* turn off the starter relay */
+    g_state.starting = 0;
     HAL_pin_set(OUT_START, false);
 
     /* check whether engine is running */
@@ -25,8 +26,10 @@ PT_DEFINE(start)
         bk_set_key_led(KEY_START, BK_KEY_COLOR_OFF, 0);
 
         /* self-reset and try again */
+        g_state.start_waiting = 1;
         goto restart;
     }
+    g_state.start_waiting = 0;
 
     /* check for a start-inhibited condition */
     if (!g_state.brake_applied ||               /* brake not applied */
@@ -38,8 +41,10 @@ PT_DEFINE(start)
         bk_set_key_led(KEY_START, BK_KEY_COLOR_RED, 0);
 
         /* self-reset and try again */
+        g_state.start_inhibited = 1;
         goto restart;
     }
+    g_state.start_inhibited = 0;
 
     /* check start button state */
     switch (bk_get_key_event(KEY_START)) {
@@ -51,6 +56,7 @@ PT_DEFINE(start)
 
         /* start button has been pressed; turn on the starter relay */
         HAL_pin_set(OUT_START, true);
+        g_state.starting = 1;
         break;
 
     default:

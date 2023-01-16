@@ -27,6 +27,9 @@ PT_DEFINE(app_main)
         /* run the ISO-TP framer */
         PT_RUN(iso_tp);
 
+        /* run the status reporter */
+        PT_RUN(status);
+
         /* run system threads and reset watchdog */
         pt_yield(pt);
     }
@@ -106,5 +109,5 @@ app_can_receive(const HAL_can_message_t *msg)
 void
 app_can_idle(bool is_idle)
 {
-    (void)is_idle;
+    g_state.can_idle = is_idle ? 1 : 0;
 }

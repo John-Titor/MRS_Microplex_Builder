@@ -33,6 +33,10 @@
 #define CONFIG_FUEL_MSG_INTERVAL        1000    /* 1s */
 #define CONFIG_FUEL_MSG_ID              0x710
 
+/* status report interval */
+#define CONFIG_STATUS_INTERVAL          250
+#define CONFIG_STATUS_REPORT_ID         0x781
+
 /* input mapping */
 #define IN_FUEL_LEVEL   IN_1
 
@@ -44,11 +48,10 @@
 #define OUT_BRAKE_L     OUT_4
 
 /* global state */
-extern bool             g_brake_applied;
-extern bool             g_engine_running;
-extern bool             g_can_idle;
-
-struct light_status {
+struct global_state {
+    uint8_t     brake_applied : 1;
+    uint8_t     engine_running : 1;
+    uint8_t     can_idle : 1;
     uint8_t     lights_on : 1;
     uint8_t     lights_requested : 1;
     uint8_t     rain_on : 1;
@@ -56,9 +59,10 @@ struct light_status {
     uint8_t     reverse_on : 1;
     uint8_t     reverse_requested : 1;
 };
-extern struct light_status g_light_status;
+extern struct global_state g_state;
 
 /* worker threads */
 PT_DECLARE(brake);
 PT_DECLARE(lights);
 PT_DECLARE(fuel);
+PT_DECLARE(status);
