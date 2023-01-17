@@ -10,7 +10,9 @@ PT_DEFINE(keypad)
     pt_begin(pt);
 
     bk_set_key_led(KEY_LIGHTS, BK_KEY_COLOR_WHITE, 0);
+#ifdef KEY_RAIN
     bk_set_key_led(KEY_RAIN, BK_KEY_COLOR_WHITE, 0);
+#endif
 
     for (;;) {
         /* get keypad event */
@@ -29,11 +31,12 @@ PT_DEFINE(keypad)
                 bk_set_key_led(KEY_LIGHTS, g_state.lights_on ? BK_KEY_COLOR_BLUE : BK_KEY_COLOR_WHITE, 0);
 
             }
-
+#ifdef KEY_RAIN
             if ((key == KEY_RAIN) && (event == BK_EVENT_SHORT_PRESS)) {
                 g_state.rain_on = (g_state.rain_on ? 0 : 1);
                 bk_set_key_led(KEY_RAIN, g_state.lights_on ? BK_KEY_COLOR_BLUE : BK_KEY_COLOR_WHITE, 0);
             }
+#endif /* KEY_RAIN */
         } else {
             g_state.keypad_active = 0;
         }

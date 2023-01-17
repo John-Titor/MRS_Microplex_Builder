@@ -24,6 +24,9 @@ PT_DEFINE(app_main)
         /* run the start button logic */
         PT_RUN(start);
 
+        /* run the BMW scanner */
+        PT_RUN(bmw);
+
         /* run the ISO-TP framer */
         PT_RUN(iso_tp);
 
@@ -51,7 +54,8 @@ app_can_filter(uint32_t id)
         (id == 0xa8) ||             /* brake status here */
         (id == 0x1d2) ||            /* engine speed here */
         ((id >= 0x600) &&           /* ISO-TP frame? */
-         (id < 0x6f0))) {
+         (id < 0x6f0)) ||           /* Note: blink keypad must not be on ID 0x12, 0x18, 0xf1 */
+        (id == 0x7ff)) {            /* debug en/disable? */
 
         return true;
     }
@@ -99,6 +103,16 @@ app_can_receive(const HAL_can_message_t *msg)
             break;
         }
 
+        break;
+
+    case 0x7ff:
+        if ((msg->data[0] == 'd') &&
+            (msg->data[1] == 'e') &&
+            (msg->data[2] == 'b') &&
+            (msg->data[3] == 'u') &&
+            (msg->data[4] == 'g')) {
+            g_state.debug_enable = msg->data[5] ? 1 : 0;
+        }
         break;
 
     default:

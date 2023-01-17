@@ -35,4 +35,22 @@ Requirements:
       ✔ current gear @done (22-11-18 22:54)
       ✔ transmission temperature @done (22-11-18 22:54)
       ✔ oil pressure status @done (22-11-18 22:54)
-  
+
+  tests:
+    ✔ send status message @done (23-01-16 21:18)
+    ✔ detect CAN idle @done (23-01-16 21:18)
+    ✔ pass brake signal through lights message @done (23-01-16 21:18)
+    ✔ send BMW scan setup message @done (23-01-16 22:44)
+    ✔ ISO-TP flow control @done (23-01-16 22:47)
+    ✔ forward BMW response message @done (23-01-16 22:44)
+    ✔ send BMW scan repeat message @done (23-01-16 22:44)
+    ✔ revert to BMW scan setup message on timeout @done (23-01-16 22:46)
+    ☐ detect & init keypad
+    ☐ switch lights with keypad
+    ☐ clear start-inhibit with preconditions met
+    ☐ start with conditions met
+    ☐ clear start on button release
+    ☐ clear start on engine RPM > 500
+    ☐ persist start-wait condition after engine stop
+
+

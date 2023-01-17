@@ -10,7 +10,6 @@
 #include "defs.h"
 
 #define ISO_DDE_ID  0x12
-#define ISO_TOOL_ID 0xf1
 
 #define ISO_TIMEOUT 100
 

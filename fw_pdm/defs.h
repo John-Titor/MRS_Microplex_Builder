@@ -23,8 +23,13 @@
 #define CONFIG_STATUS_REPORT_ID     0x780
 
 /* keypad key mapping */
+#define KEY_A           0
+#define KEY_B           1
+#define KEY_C           2
+#define KEY_D           3
 #define KEY_LIGHTS      4
-#define KEY_RAIN        5
+//#define KEY_RAIN        5
+#define KEY_G           6
 #define KEY_START       7
 
 /* input mapping */
@@ -45,6 +50,7 @@ struct global_state {
     uint8_t     start_inhibited : 1;
     uint8_t     start_waiting : 1;
     uint8_t     starting : 1;
+    uint8_t     debug_enable : 1;
 };
 extern struct global_state g_state;
 

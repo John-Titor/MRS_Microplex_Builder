@@ -20,8 +20,10 @@ PT_DEFINE(lights)
                 0,
                 0xf7
             };
-            data[0] = ((g_state.lights_on ? 0x04 : 0) |
+            data[0] = ((g_state.brake_applied ? 0x80 : 0) |
+                       (g_state.lights_on ? 0x04 : 0) |
                        (g_state.rain_on ? 0x40 : 0));
+            data[1] = g_state.selected_gear == 'R' ? 0x01 : 0;
             (void)HAL_can_send(0x21a, 3, &data[0]);
         }
     }
