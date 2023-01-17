@@ -353,7 +353,7 @@ PT_DEFINE(blink_keypad)
                     { 0x2f, 0x11, 0x20, 0x00, 0x01 },           /* enable boot message */
                     { 0x2f, 0x12, 0x20, 0x00, 0x01 }            /* auto-start */
                 };
-                uint8_t i;
+                static uint8_t i;
 
                 for (i = 0; i < (sizeof(_init_messages) / 8); i++) {
                     HAL_can_send_debug(0x600 + _keypad_id, 8, &_init_messages[i][0]);
