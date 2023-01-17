@@ -100,4 +100,5 @@ PT_DEFINE(start)
 
 restart:
     pt_reset(pt);
+    return;
 }

@@ -28,7 +28,7 @@
 #define KEY_C           2
 #define KEY_D           3
 #define KEY_LIGHTS      4
-//#define KEY_RAIN        5
+#define KEY_RAIN        5
 #define KEY_G           6
 #define KEY_START       7
 

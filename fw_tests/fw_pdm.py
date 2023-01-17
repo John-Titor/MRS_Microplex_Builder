@@ -57,6 +57,7 @@ class PDMTests(unittest.TestCase):
         self.interface.stop()
 
     def get_status(self):
+        self.interface.drain()
         return RX_pdm_status(self.interface.recv(1, filter=[PDM_STATUS_ID]))
 
     def get_lights(self):
@@ -170,6 +171,91 @@ class PDMTests(unittest.TestCase):
         self.assertEqual(req.data[2], 0x10)     # request length
         self.assertEqual(req.data[3], 0x2c)     # scan packet
         self.assertEqual(req.data[4], 0x10)     # ...
+
+    def test_04_keypad(self):
+        """
+        Verify keypad setup & operation
+        """
+
+        # wait for reset
+        req = self.interface.recv(1, filter=[0x000])
+        self.assertNotEqual(req, None, "no keypad reset message on wire")
+        self.assertEqual(req.dlc, 2)
+        self.assertEqual(req.data[0], 0x81)
+        self.assertEqual(req.data[1], 0x00)
+
+        # respond with boot message
+        self.interface.send_raw(can.Message(arbitration_id=0x715,
+                                            is_extended_id=False,
+                                            data=b'\x00'))
+
+        # wait for model ID query
+        req = self.interface.recv(1, filter=[0x615])
+        self.assertNotEqual(req, None, "no keypad ID query on wire")
+        self.assertEqual(req.dlc, 8)
+        self.assertEqual(req.data[0], 0x40)
+        self.assertEqual(req.data[1], 0x0b)
+        self.assertEqual(req.data[2], 0x10)
+        req = self.interface.recv(1, filter=[0x615])
+        self.assertEqual(req.dlc, 8)
+        self.assertEqual(req.data[0], 0x60)
+        req = self.interface.recv(1, filter=[0x615])
+        self.assertEqual(req.dlc, 8)
+        req = self.interface.recv(1, filter=[0x615])
+        self.assertEqual(req.dlc, 8)
+        req = self.interface.recv(1, filter=[0x615])
+        self.assertEqual(req.dlc, 8)
+        req = self.interface.recv(1, filter=[0x615])
+        self.assertEqual(req.dlc, 8)
+        req = self.interface.recv(1, filter=[0x615])
+        self.assertEqual(req.dlc, 8)
+        self.assertNotEqual(req, None, "missing one or more setup messages")
+
+        # respond with ID data
+        self.interface.send_raw(can.Message(arbitration_id=0x595,
+                                            is_extended_id=False,
+                                            data=b'\x00PKP2400'))
+
+        status = self.get_status()
+        self.assertFalse(status.keypad_active, "keypad prematurely active")
+
+        time.sleep(0.2)
+        # send a key press/release
+        self.interface.send_raw(can.Message(arbitration_id=0x195,
+                                            is_extended_id=False,
+                                            data=b'\x01\x00\x00\x00\x00'))
+        self.interface.send_raw(can.Message(arbitration_id=0x195,
+                                            is_extended_id=False,
+                                            data=b'\x00\x00\x00\x00\x00'))
+
+        status = self.get_status()
+        self.assertTrue(status.keypad_active, "keypad unexpectedly inactive")
+
+        # send a key down event for KEY_LIGHTS
+        self.interface.send_raw(can.Message(arbitration_id=0x195,
+                                            is_extended_id=False,
+                                            data=b'\x10\x00\x00\x00\x00'))
+
+        # ... and check that lights are on in the next status message
+        status = self.get_status()
+        self.assertTrue(status.lights_on, "lights did not turn on with keypress")
+
+        # release the key...
+        self.interface.send_raw(can.Message(arbitration_id=0x195,
+                                            is_extended_id=False,
+                                            data=b'\x00\x00\x00\x00\x00'))
+        # ... and then press it again
+        time.sleep(0.1)
+        self.interface.send_raw(can.Message(arbitration_id=0x195,
+                                            is_extended_id=False,
+                                            data=b'\x10\x00\x00\x00\x00'))
+        status = self.get_status()
+        self.assertFalse(status.lights_on, "lights did not turn off with keypress")
+
+        # idle and wait for the firmware to give up on the keyboard
+        time.sleep(2)
+        status = self.get_status()
+        self.assertTrue(status.keypad_active, "keypad unexpectedly still active")
 
 
 if __name__ == '__main__':
