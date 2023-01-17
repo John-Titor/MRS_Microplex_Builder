@@ -47,17 +47,23 @@
 #define OUT_BRAKE_R     OUT_3
 #define OUT_BRAKE_L     OUT_4
 
-/* global state */
+/* global state - bits on wire LSB first */
 struct global_state {
-    uint8_t     brake_applied : 1;
-    uint8_t     engine_running : 1;
-    uint8_t     can_idle : 1;
+    /* byte 0 */
+    uint8_t     brake_on : 1;
+    uint8_t     brake_requested : 1;
     uint8_t     lights_on : 1;
     uint8_t     lights_requested : 1;
     uint8_t     rain_on : 1;
     uint8_t     rain_requested : 1;
     uint8_t     reverse_on : 1;
     uint8_t     reverse_requested : 1;
+
+    /* byte 1 */
+    uint8_t     engine_running : 1;
+    uint8_t     can_idle : 1;
+    uint8_t     debug_enable : 1;
+    uint8_t     spare : 5;
 };
 extern struct global_state g_state;
 

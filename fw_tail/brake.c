@@ -14,9 +14,11 @@ PT_DEFINE(brake)
     pt_begin(pt);
     HAL_timer_register(flash_timer);
     HAL_timer_register(idle_timer);
+    g_state.brake_on = 0;
+    g_state.brake_requested = 0;
 
     /* if CAN contact has been lost / regained, we reset back to here */
-    while (g_can_idle) {
+    while (g_state.can_idle) {
         /* alternate flash left/right brake lights at full brightness */
         HAL_pin_set(OUT_BRAKE_L, flash_state ? 1 : 0);
         HAL_pin_set(OUT_BRAKE_R, flash_state ? 0 : 1);
@@ -24,24 +26,43 @@ PT_DEFINE(brake)
         pt_delay(pt, flash_timer, CONFIG_BRAKE_FAILSAFE_PERIOD);
     }
 
-    /* if engine is not running */
-    while (!g_state.engine_running) {
-        /* quick left-then-right flash every 4s */
-        HAL_pin_set(OUT_BRAKE_L, flash_state ? 1 : 0);
-        HAL_pin_set(OUT_BRAKE_R, flash_state ? 0 : 1);
-        flash_state = !flash_state;
-        pt_delay(pt, flash_timer, CONFIG_BRAKE_REMINDER_PERIOD);
-
-        if (flash_state) {
-            HAL_pin_set(OUT_BRAKE_R, 0);
-            pt_delay(pt, flash_timer, CONFIG_BRAKE_REMINDER_INTERVAL);
-        }
-    }
-
-    /* turn brake lights off and wait for brake to be applied */
+    /* turn brake lights off and do wait-for-brake behaviour */
     HAL_pin_set(OUT_BRAKE_L, 0);
     HAL_pin_set(OUT_BRAKE_R, 0);
-    pt_wait(pt, g_state.brake_applied);
+    HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_INTERVAL);
+    flash_count = 0;
+    while (!g_state.brake_requested) {
+
+        /* do engine-off reminder flashes */
+        if (g_state.engine_running) {
+            HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_INTERVAL);
+            flash_count = 0;
+        } else {
+            if (HAL_timer_expired(flash_timer)) {
+                switch (flash_count) {
+                case 0:
+                    HAL_pin_set(OUT_BRAKE_L, 1);
+                    HAL_pin_set(OUT_BRAKE_R, 0);
+                    flash_count = 1;
+                    HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_PERIOD);
+                    break;
+                case 1:
+                    HAL_pin_set(OUT_BRAKE_L, 0);
+                    HAL_pin_set(OUT_BRAKE_R, 1);
+                    flash_count = 2;
+                    HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_PERIOD);
+                    break;
+                default:
+                    HAL_pin_set(OUT_BRAKE_L, 0);
+                    HAL_pin_set(OUT_BRAKE_R, 0);
+                    flash_count = 0;
+                    HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_INTERVAL);
+                    break;
+                }
+            }
+        }
+        pt_yield(pt);
+    }
 
     /* select intensity */
     intensity = g_state.lights_requested ? CONFIG_BRAKE_INTENSITY_LOW :
@@ -62,7 +83,8 @@ PT_DEFINE(brake)
     /* turn brake lights on and wait for brake to be released */
     HAL_pin_set_duty(OUT_BRAKE_L, intensity);
     HAL_pin_set_duty(OUT_BRAKE_R, intensity);
-    pt_wait(pt, !g_state.brake_applied);
+    g_state.brake_on = 1;
+    pt_wait(pt, !g_state.brake_requested);
 
     /* reset idle timer */
     HAL_timer_reset(idle_timer, CONFIG_BRAKE_ATTENTION_DELAY);

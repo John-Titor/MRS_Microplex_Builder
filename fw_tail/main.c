@@ -42,8 +42,9 @@ app_can_filter(uint32_t id)
 {
     if (MRS_bootrom_filter(id) ||   /* bootrom interested? */
         (id == 0x21a) ||            /* lighting status */
-        (id == 0xa8) ||             /* brake status here */
-        (id == 0x1d2)) {            /* engine speed here */
+        (id == 0xa8) ||             /* brake status */
+        (id == 0x1d2) ||            /* engine speed */
+        (id == 0x7ff)) {            /* debug enable */
         return true;
     }
 
@@ -59,17 +60,27 @@ app_can_receive(const HAL_can_message_t *msg)
 
     switch (msg->id) {
     case 0xa8:
-        g_brake_applied = (msg->data[7] > 20);
+        g_state.brake_requested = (msg->data[7] > 20) ? 1 : 0;
         break;
 
     case 0x1d2:
-        g_engine_running = (msg->data[4] > 0);    /* >= 64rpm */
+        g_state.engine_running = (msg->data[4] > 0) ? 1 : 0;    /* >= 64rpm */
         break;
 
     case 0x21a:
         g_state.lights_requested = (msg->data[0] & 0x04) ? 1 : 0;
         g_state.rain_requested = (msg->data[0] & 0x40) ? 1 : 0;
         g_state.reverse_requested = (msg->data[1] & 0x01) ? 1 : 0;
+        break;
+
+    case 0x7ff:
+        if ((msg->data[0] == 'd') &&
+            (msg->data[1] == 'e') &&
+            (msg->data[2] == 'b') &&
+            (msg->data[3] == 'u') &&
+            (msg->data[4] == 'g')) {
+            g_state.debug_enable = msg->data[5] ? 1 : 0;
+        }
         break;
 
     default:
@@ -80,8 +91,10 @@ app_can_receive(const HAL_can_message_t *msg)
 void
 app_can_idle(bool is_idle)
 {
-    g_can_idle = is_idle;
+    g_state.can_idle = is_idle ? 1 : 0;
 
-    /* brake logic changes behaviour based on CAN idle state */
-    PT_RESET(brake);
+    /* brake logic changes behaviour based on CAN idle state in non-debug mode */
+    if (!g_state.debug_enable) {
+        PT_RESET(brake);
+    }
 }
