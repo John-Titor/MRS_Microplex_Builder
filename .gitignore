@@ -5,3 +5,4 @@ build
 .vscode
 html
 err.log
+__pycache__

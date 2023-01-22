@@ -363,7 +363,7 @@ PT_DEFINE(blink_keypad)
         } while ((_num_keys == 0) || (_keypad_id == 0xff));
 
         /* we've found a keypad and we know how big it is, use it */
-        print("keypad @ %x with %d keys", _keypad_id, _num_keys);
+        /*print("keypad @ %x with %u keys", (unsigned int)_keypad_id, (unsigned int)_num_keys);*/
 
         for (;;) {
 
