@@ -201,30 +201,57 @@ bk_get_key_event(uint8_t key)
 void
 bk_set_key_led(uint8_t key, uint8_t colors, uint8_t pattern)
 {
-    _led_state[key].color_a = colors & BK_COLOR_MASK;
-    _led_state[key].color_b = (colors >> 4) & BK_COLOR_MASK;
+    uint8_t color_a = colors & BK_COLOR_MASK;
+    uint8_t color_b = (colors >> 4) & BK_COLOR_MASK;
+
+    /* only trigger update if A/B colors actually change */
+    if (color_a != _led_state[key].color_a) {
+        _led_state[key].color_a = color_a;
+        _update_flags |= _UPDATE_KEYS;
+    }
+    if (color_b != _led_state[key].color_b) {
+        _led_state[key].color_b = color_b;
+        _update_flags |= _UPDATE_KEYS;
+    }
     _led_state[key].pattern = pattern;
-    _update_flags |= _UPDATE_KEYS;
 }
 
 void
-bk_set__key_intensity(uint8_t intensity)
+bk_set_key_intensity(uint8_t intensity)
 {
-    _key_intensity = intensity & BK_MAX_INTENSITY;
-    _update_flags |= _UPDATE_INTENSITY;
+    if (intensity > BK_MAX_INTENSITY) {
+        intensity = BK_MAX_INTENSITY;
+    }
+
+    /* only trigger update if intensity actually changes */
+    if (_key_intensity != intensity) {
+        _key_intensity = intensity;
+        _update_flags |= _UPDATE_INTENSITY;
+    }
 }
 
 void
-bk_set__backlight_color(uint8_t color)
+bk_set_backlight_color(uint8_t color)
 {
-    _backlight_color = color & BK_COLOR_MASK;
+    color &= BK_COLOR_MASK;
+    /* only trigger update if color actually changes */
+    if (_backlight_color != color) {
+        _backlight_color = color;
+        _update_flags |= _UPDATE_INTENSITY;
+    }
 }
 
 void
-bk_set__backlight_intensity(uint8_t intensity)
+bk_set_backlight_intensity(uint8_t intensity)
 {
-    _backlight_intensity = intensity & BK_MAX_INTENSITY;
-    _update_flags |= _UPDATE_INTENSITY;
+    if (intensity > BK_MAX_INTENSITY) {
+        intensity = BK_MAX_INTENSITY;
+    }
+    /* only trigger updatge if intensity actually changes */
+    if (_backlight_intensity != intensity) {
+        _backlight_intensity = intensity;
+        _update_flags |= _UPDATE_INTENSITY;
+    }
 }
 
 uint8_t
@@ -290,6 +317,7 @@ bk_send_intensity_update()
 
 PT_DEFINE(blink_keypad)
 {
+    static uint8_t i;
     static HAL_timer_t  _blink_timer;
     static HAL_timer_call_t _tick_call = {
         _tick,
@@ -306,7 +334,6 @@ PT_DEFINE(blink_keypad)
     /* Zero keypad-derived state at thread start so that we can be reset. */
     _num_keys = 0;
     _keypad_id = _BK_DEFAULT_KEYPAD_ID;
-    (void)memset(&_key_state, 0, sizeof(_key_state));
 
     for (;;) {
         /* We start here with no idea about keypad ID (unless hardcoded) or size. */
@@ -316,7 +343,7 @@ PT_DEFINE(blink_keypad)
              * Give the keypad time to start talking to us after whatever we
              * just did to it.
              */
-            pt_delay(pt, _blink_timer, BK_UPDATE_PERIOD_MS * 2);
+            pt_delay(pt, _blink_timer, BK_UPDATE_PERIOD_MS * 10);
 
             /*
              * First, try to find a keypad.
@@ -353,11 +380,11 @@ PT_DEFINE(blink_keypad)
                     { 0x2f, 0x11, 0x20, 0x00, 0x01 },           /* enable boot message */
                     { 0x2f, 0x12, 0x20, 0x00, 0x01 }            /* auto-start */
                 };
-                static uint8_t i;
 
                 for (i = 0; i < (sizeof(_init_messages) / 8); i++) {
                     HAL_can_send_debug(0x600 + _keypad_id, 8, &_init_messages[i][0]);
-                    pt_yield(pt);
+                    pt_delay(pt, _blink_timer, 2);
+                    //pt_yield(pt);
                 }
             }
         } while ((_num_keys == 0) || (_keypad_id == 0xff));
@@ -365,25 +392,43 @@ PT_DEFINE(blink_keypad)
         /* we've found a keypad and we know how big it is, use it */
         /*print("keypad @ %x with %u keys", (unsigned int)_keypad_id, (unsigned int)_num_keys);*/
 
+        /* request button / backlight LED updates*/
+        _update_flags = _UPDATE_KEYS | _UPDATE_INTENSITY;
+
+        /* reset key state as though everything has just been released */
+        for (i = 0; i < _num_keys; i++) {
+            /* key is not currently pressed */
+            _key_state[i].counter = 0;
+        }
+
+        /* reset the idle timer */
+        HAL_timer_reset(_idle_timer, BK_IDLE_TIMEOUT_MS);
+
+        /* loop in keypad-active mode */
         for (;;) {
 
             /*
              * Wait until it's time to send an update; either because it's time
-             * for a new animation iteration or because an LED state change was
+             * for a new animation iteration or because an update to the keypad was
              * requested.
              */
-            pt_wait(pt, HAL_timer_expired(_blink_timer) || (_update_flags & _UPDATE_KEYS));
-            _update_flags = 0;
+            pt_wait(pt, HAL_timer_expired(_blink_timer) || (_update_flags != 0));
 
             if (HAL_timer_expired(_blink_timer)) {
                 HAL_timer_reset(_blink_timer, BK_BLINK_PERIOD_MS);
                 _blink_phase = (_blink_phase + 1) & 0x7;
+                _update_flags |= _UPDATE_KEYS;
             }
 
-            bk_send_led_update();
+            if (_update_flags & _UPDATE_KEYS) {
+                bk_send_led_update();
+            }
 
-            /* this is kind of spammy, may want to be frugal with it */
-            bk_send_intensity_update();
+            if (_update_flags & _UPDATE_INTENSITY) {
+                bk_send_intensity_update();
+            }
+
+            _update_flags = 0;
 
             /*
              * If the keypad disappears, reset back to the default search-for-keypad
@@ -391,7 +436,7 @@ PT_DEFINE(blink_keypad)
              */
             if (HAL_timer_expired(_idle_timer)) {
                 pt_reset(pt);
-                pt_yield(pt);
+                return;
             }
         }
     }
