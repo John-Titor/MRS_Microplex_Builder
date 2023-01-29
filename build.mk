@@ -12,6 +12,10 @@ GLOBAL_DEPS	:= $(MAKEFILE_LIST)				\
 		   $(wildcard $(RSRCDIR)/*)			\
 		   $(MCU)
 
+# export preprocessor defines
+export DEFINES	:= $(addprefix -D,$(APP_DEFINES)) \
+		   -D__NO_FLOAT__
+
 # export these so the linker can pick it up from its config
 export OBJS	:= $(patsubst %.c,$(BUILDDIR)/%.o,$(APP_SRCS) $(LIB_SRCS)) \
 		   $(patsubst $(MCU)/lib/%.c,$(BUILDDIR)/mcu_lib/%.o,$(MCU_SRCS))

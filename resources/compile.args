@@ -3,9 +3,12 @@
 -Cni
 -Cq
 -Cs08
--D__NO_FLOAT__
 -DGIT_VERSION="$(GIT_VERS)"
+$(DEFINES)
 -F2
+-Ms
+-NoPath
+-Os
 -I$(MCU)/lib/hc08c/device/asm_include
 -I$(MCU)/lib/hc08c/device/include
 -I$(MCU)/lib/hc08c/device/src
@@ -18,6 +21,7 @@
 -Ms 
 -Qvtpnone
 -ViewHidden
+-W2
 -WmsgFob"%f%e:%l:%c: %k: %m\n"
 -WmsgNu=abcde
 -WmsgSd4001
