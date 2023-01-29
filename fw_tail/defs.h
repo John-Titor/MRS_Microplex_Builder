@@ -8,7 +8,7 @@
 #include <pt.h>
 
 /* Brake light attention config */
-#define CONFIG_BRAKE_ATTENTION_PERIOD   250
+#define CONFIG_BRAKE_ATTENTION_PERIOD   125
 #define CONFIG_BRAKE_ATTENTION_CYCLES   3       /* 1.5s */
 #define CONFIG_BRAKE_ATTENTION_DELAY    4000    /* 4s */
 
@@ -41,11 +41,11 @@
 #define IN_FUEL_LEVEL   IN_1
 
 /* output mapping */
-#define OUT_REVERSE     OUT_1
+#define OUT_REVERSE     OUT_4
 //#define OUT_RAIN_LIGHT  OUT_1
-#define OUT_TAIL_LIGHTS OUT_2
-#define OUT_BRAKE_R     OUT_3
-#define OUT_BRAKE_L     OUT_4
+#define OUT_TAIL_LIGHTS OUT_3
+#define OUT_BRAKE_R     OUT_2
+#define OUT_BRAKE_L     OUT_1
 
 /* global state - bits on wire LSB first */
 struct global_state {

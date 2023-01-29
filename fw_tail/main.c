@@ -11,6 +11,12 @@ PT_DEFINE(app_main)
 {
     pt_begin(pt);
 
+    /* ensure all outputs off */
+    HAL_pin_set(OUT_1, false);
+    HAL_pin_set(OUT_2, false);
+    HAL_pin_set(OUT_3, false);
+    HAL_pin_set(OUT_4, false);
+
     for (;;) {
         /* run the brake logic */
         PT_RUN(brake);
@@ -92,6 +98,12 @@ void
 app_can_idle(bool is_idle)
 {
     g_state.can_idle = is_idle ? 1 : 0;
+
+    if (is_idle) {
+        g_state.lights_requested = true;
+        g_state.rain_requested = false;
+        g_state.reverse_requested = false;
+    }
 
     /* brake logic changes behaviour based on CAN idle state in non-debug mode */
     if (!g_state.debug_enable) {

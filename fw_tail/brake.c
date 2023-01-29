@@ -14,6 +14,8 @@ PT_DEFINE(brake)
     pt_begin(pt);
     HAL_timer_register(flash_timer);
     HAL_timer_register(idle_timer);
+    HAL_pin_set(OUT_BRAKE_L, 0);
+    HAL_pin_set(OUT_BRAKE_R, 0);
     g_state.brake_on = 0;
     g_state.brake_requested = 0;
 
