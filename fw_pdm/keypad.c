@@ -42,7 +42,7 @@ static const struct {
     bool    (*action)(uint8_t event);
 } key_actions[] = {
     { KEY_LIGHTS,   BK_KEY_COLOR_WHITE, BK_KEY_COLOR_GREEN, handle_light_press },
-    { KEY_RAIN,     BK_KEY_COLOR_WHITE, BK_KEY_COLOR_MAGENTA, handle_rain_press },
+    { KEY_RAIN,     BK_KEY_COLOR_WHITE, BK_KEY_COLOR_YELLOW, handle_rain_press },
     { BK_EVENT_NONE, 0, 0, NULL }
 };
 
@@ -52,6 +52,7 @@ PT_DEFINE(keypad)
 
     bk_set_key_led(KEY_LIGHTS, BK_KEY_COLOR_WHITE, 0);
     bk_set_key_led(KEY_RAIN, BK_KEY_COLOR_WHITE, 0);
+    bk_set_key_intensity(BK_MAX_INTENSITY);
 
     for (;;) {
         /* get keypad event */

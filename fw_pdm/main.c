@@ -18,6 +18,9 @@ PT_DEFINE(app_main)
         /* run the keypad logic */
         PT_RUN(keypad);
 
+        /* run the input sampler */
+        PT_RUN(input);
+
         /* run the lights logic */
         PT_RUN(lights);
 
@@ -78,23 +81,25 @@ app_can_receive(const HAL_can_message_t *msg)
         g_state.brake_applied = (msg->data[7] > 20);
         break;
 
-    case 0x1d2:
+    case 0xaa:
         g_state.engine_rpm = ((((uint16_t)msg->data[4] << 8) + msg->data[5]) / 4);
+        break;
 
+    case 0x1d2:
         switch (msg->data[0]) {
-        case 255:
+        case 0xe1:
             g_state.selected_gear = 'P';
             break;
 
-        case 210:
+        case 0xd2:
             g_state.selected_gear = 'R';
             break;
 
-        case 180:
+        case 0xb4:
             g_state.selected_gear = 'N';
             break;
 
-        case 120:
+        case 0x78:
             g_state.selected_gear = 'D';
             break;
 

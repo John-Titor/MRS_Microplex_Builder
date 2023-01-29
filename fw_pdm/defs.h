@@ -9,18 +9,24 @@
 #include <blink_keypad.h>
 
 /* restart hold-off delay */
-#define CONFIG_RESTART_DELAY        250
+#define CONFIG_RESTART_DELAY            250
 
 /* CAN light message interval */
-#define CONFIG_LIGHT_MSG_INTERVAL   250
+#define CONFIG_LIGHT_MSG_INTERVAL       250
+
+/* input signal sampling interval */
+#define CONFIG_INPUT_SAMPLE_INTERVAL    50
 
 /* BMW scanner config */
-#define CONFIG_BMW_SCAN_INTERVAL    250
-#define CONFIG_BMW_CAN_ID_BASE      0x700
+#define CONFIG_BMW_SCAN_INTERVAL        250
+#define CONFIG_BMW_CAN_ID_BASE          0x700
 
 /* status report interval */
-#define CONFIG_STATUS_INTERVAL      250
-#define CONFIG_STATUS_REPORT_ID     0x780
+#define CONFIG_STATUS_INTERVAL          250
+#define CONFIG_STATUS_REPORT_ID         0x780
+
+/* S_BLOW DDE-on threshold - below this, assume DDE on */
+#define CONFIG_DDE_SWITCH_MV            5000
 
 /* keypad key mapping */
 #define KEY_A           0
@@ -36,11 +42,12 @@
 #define IN_S_BLOW       IN_1
 
 /* output mapping */
-#define OUT_START       OUT_4
+#define OUT_START       OUT_1
 
 /* global state - must be <= 8B in size for status reporter */
 struct global_state {
     uint16_t    engine_rpm;
+    uint16_t    dde_switch_mv;
     char        selected_gear;
     uint8_t     brake_applied : 1;
     uint8_t     lights_on : 1;
@@ -76,6 +83,7 @@ extern bool iso_tp_can_rx(const HAL_can_message_t *msg);
 
 /* worker threads */
 PT_DECLARE(keypad);
+PT_DECLARE(input);
 PT_DECLARE(lights);
 PT_DECLARE(start);
 PT_DECLARE(iso_tp);
