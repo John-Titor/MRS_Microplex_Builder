@@ -142,6 +142,7 @@
 #define DO_HSD_SEN      _PTAD.Bits.PTAD5
 #define DO_20MA_1       _PTDD.Bits.PTDD0
 #define DO_20MA_2       _PTAD.Bits.PTAD3
+#define AI_3_PU         _PTDD.Bits.PTDD3
 
 /* Module pins - see _pin.h for API */
 #define OUT_1           &_HAL_7X_pin[0]
