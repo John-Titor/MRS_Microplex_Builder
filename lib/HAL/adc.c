@@ -17,7 +17,9 @@ static uint8_t                  _sequence;
 static uint8_t                  _bucket;
 static HAL_timer_call_t         _call;
 
-static void _adc_start(void);
+static void _adc_tick(void);
+
+HAL_microseconds adc_channel_interval;
 
 void
 _HAL_adc_init(_HAL_adc_channel_state_t *state)
@@ -27,19 +29,17 @@ _HAL_adc_init(_HAL_adc_channel_state_t *state)
     _state = state;
 
     /*
-     * configure the ADC to run as slowly as possible to leave time between
-     * interrupts for other things to happen
+     * Configure the ADC to run as slowly as possible to leave time between
+     * interrupts for other things to happen.
+     * 
+     * Observed interval between interrupts ~60µs (2400 cycles).
+     * 
+     * XXX note: not using interrupts here
      */
     ADCCFG_ADICLK = 1;  /* bus clock /2 (10MHz) */
     ADCCFG_ADIV = 3;    /* /8 -> 1.25MHz ADCK -> 800ns / cycle */
     ADCCFG_MODE = 2;    /* 10-bit mode */
     ADCCFG_ADLSMP = 1;  /* long sample time */
-
-    /*
-     * total conversion time: 43 ADCK cycles + 5 bus clock cycles
-     * (43 * 0.8) + (5 * 0.05) = 34.65µs
-     * 34µs @ 40MHz = ~1300 CPU cycles, _adc_complete() ~ 250 cycles.
-     */
 
     /* configure for manual conversion trigger */
     ADCSC2 = 0;
@@ -53,11 +53,14 @@ _HAL_adc_init(_HAL_adc_channel_state_t *state)
         }
     }
 
-    /* configure a periodic sample kick every 2ms */
-    _call.delay_ms = 200;
-    _call.period_ms = 200;
-    _call.callback = _adc_start;
+    /* configure a periodic sample kick every 1ms */
+    _call.delay_ms = 1;
+    _call.period_ms = 1;
+    _call.callback = _adc_tick;
     HAL_timer_call_register(_call);
+
+    /* start the first conversion */
+    ADCSC1 = _state[0].channel;
 }
 
 void
@@ -73,7 +76,6 @@ HAL_adc_result(uint8_t index)
     uint32_t b;
     uint16_t accum = 0;
 
-    /* interrupt-safe loop accumulates samples */
     for (i = 0; i < _HAL_ADC_AVG_SAMPLES; i++) {
         uint16_t v;
         ENTER_CRITICAL_SECTION;
@@ -88,34 +90,20 @@ HAL_adc_result(uint8_t index)
 }
 
 static void
-_adc_start(void)
-{
-    /* ensure that we completed the sequence last time around */
-    REQUIRE(_sequence == 0);
-
-    /* start conversion on the first channel and enable completion interrupt */
-    ADCSC1_ADCH = _state[0].channel;
-    ADCSC1_AIEN = 1;
-}
-
-static void
-__interrupt VectorNumber_Vadc
-Vadc_handler(void)
+_adc_tick(void)
 {
     /* store new sample */
     _state[_sequence].samples[_bucket] = ADCR;
 
-    /* proceed to next channel */
-    _sequence++;
-
-    if (_state[_sequence].scale != _HAL_ADC_SCALE_END) {
-        ADCSC1_ADCH = _state[_sequence].channel;
-    } else {
+    /* proceed to next channel / bucket */
+    if (_state[++_sequence].scale >= _HAL_ADC_SCALE_END) {
         _sequence = 0;
-        ADCSC1_AIEN = 0;
 
         if (++_bucket >= _HAL_ADC_AVG_SAMPLES) {
             _bucket = 0;
         }
     }
+
+    /* start next conversion, no interrupt */
+    ADCSC1 = _state[_sequence].channel;
 }

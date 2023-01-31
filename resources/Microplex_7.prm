@@ -31,8 +31,8 @@ STACK_CONSUMPTION
 /*    END */
 /*    ROOT Vrtc_handler */
 /*    END */
-    ROOT Vadc_handler
-    END
+/*    ROOT Vadc_handler */
+/*    END */
 /*    ROOT Vport_handler */
 /*    END */
     ROOT Vtpm2ovf_handler
