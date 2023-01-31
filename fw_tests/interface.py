@@ -191,24 +191,39 @@ class ManualPower(object):
         print('POWER: turn module power on (T30 and T15)')
 
 
-class AnaGatePower(object):
-    def __init__(self, can_bus):
+class InterfaceOutput(object):
+    def __init__(self, can_bus, pin):
         self._connection = can_bus.connection
+        self._pin = pin
+        self._value = None
 
-    def set_power_off(self):
-        self._connection.set_analog_out(1, 0)
-        self._connection.set_analog_out(2, 0)
-        self._power_on = False
+    def set(self, value):
+        self._connection.set_analog_out(self._pin, value)
+        self._value = value
 
-    def set_power_t30(self):
-        self._connection.set_analog_out(1, 12000)
-        self._connection.set_analog_out(2, 0)
-        self._power_on = True
+    def set_off(self):
+        self.set(0)
 
-    def set_power_t30_t15(self):
-        self._connection.set_analog_out(1, 12000)
-        self._connection.set_analog_out(2, 12000)
-        self._power_on = True
+    def set_on(self):
+        self.set(12000)
+
+    def get(self):
+        return self._value
+
+
+class InterfaceInput(object):
+    def __init__(self, can_bus, pin):
+        self._connection = can_bus.connection
+        self._pin = pin
+
+    def get(self):
+        return self._connection.get_analog_in(self._pin)
+
+    def is_off(self):
+        return self.get() < 2000
+
+    def is_on(self):
+        return self.get() > 10000
 
 
 class Interface(object):
@@ -222,9 +237,16 @@ class Interface(object):
                             bitrate=args.bitrate * 1000)
 
         if args.interface_name == 'anagate':
-            self._power_agent = AnaGatePower(self._bus)
+            self.out_t30 = InterfaceOutput(self._bus, 1)
+            self.out_t15 = InterfaceOutput(self._bus, 2)
+            self.out_3 = InterfaceOutput(self._bus, 3)
+            self.out_4 = InterfaceOutput(self._bus, 4)
+            self.in_0 = InterfaceInput(self._bus, 1)
+            self.in_1 = InterfaceInput(self._bus, 2)
+            self.in_2 = InterfaceInput(self._bus, 3)
+            self.in_3 = InterfaceInput(self._bus, 4)
         else:
-            self._power_agent = ManualPower()
+            raise RuntimeError("only AnaGate interfaces supported")
 
     def __del__(self):
         self._bus.shutdown()
@@ -233,7 +255,7 @@ class Interface(object):
         self.set_power_off()
         time.sleep(0.25)
         self.drain()
-        self.set_power_t30()
+        self.set_power_on()
 
         # wait for the module to sign on
         while True:
@@ -289,13 +311,12 @@ class Interface(object):
                     return msg
 
     def set_power_off(self):
-        self._power_agent.set_power_off()
+        self.out_t30.set_off()
+        self.out_t15.set_off()
 
-    def set_power_t30(self):
-        self._power_agent.set_power_t30()
-
-    def set_power_t30_t15(self):
-        self._power_agent.set_power_t30_t15()
+    def set_power_on(self):
+        self.out_t30.set_on()
+        self.out_t15.set_on()
 
     def drain(self):
         """
@@ -313,4 +334,3 @@ class Interface(object):
     def _trace(self, msg):
         if self._verbose:
             print(msg)
-
