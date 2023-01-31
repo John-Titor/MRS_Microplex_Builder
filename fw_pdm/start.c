@@ -52,7 +52,7 @@ PT_DEFINE(start)
     case BK_EVENT_LONG_PRESS_2:
     case BK_EVENT_LONG_PRESS_3:
         /* start button has been pressed; set LED flashing */
-        bk_set_key_led(KEY_START, BK_KEY_COLOR_GREEN, 0x33);
+        bk_set_key_led(KEY_START, BK_KEY_COLOR_GREEN, 0xaa);
 
         /* start button has been pressed; turn on the starter relay */
         HAL_pin_set(OUT_START, true);
