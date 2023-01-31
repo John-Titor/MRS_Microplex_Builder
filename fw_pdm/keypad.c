@@ -58,18 +58,13 @@ PT_DEFINE(keypad)
         /* get keypad event */
         uint8_t code = bk_get_event();
 
-        if (code == BK_EVENT_NONE) {
-            /* do nothing */
-        } else if (code == BK_EVENT_DISCONNECTED) {
-            /* we lost the keypad... */
-            g_state.keypad_active = 0;
-        } else {
+        g_state.keypad_active = (code != BK_EVENT_DISCONNECTED);
+
+        if (code < BK_EVENT_DISCONNECTED) {
             /* got an event from the keypad */
             uint8_t key = code & BK_KEY_MASK;
             uint8_t event = code & BK_EVENT_MASK;
             uint8_t i;
-
-            g_state.keypad_active = 1;
 
             /* scan handlers */
             for (i = 0; key_actions[i].key != BK_EVENT_NONE; i++) {

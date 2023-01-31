@@ -12,29 +12,33 @@ PT_DEFINE(app_main)
     pt_begin(pt);
 
     for (;;) {
-        /* run the keypad handler */
-        PT_RUN(blink_keypad);
+        /* run the master-power handler */
+        PT_RUN(power);
 
-        /* run the keypad logic */
-        PT_RUN(keypad);
+        /* if the system is in the 'running' state... */
+        if (power_system_should_run()) {
 
-        /* run the input sampler */
-        PT_RUN(input);
+            /* run the keypad handler */
+            PT_RUN(blink_keypad);
 
-        /* run the lights logic */
-        PT_RUN(lights);
+            /* run the keypad logic */
+            PT_RUN(keypad);
 
-        /* run the start button logic */
-        PT_RUN(start);
+            /* run the lights logic */
+            PT_RUN(lights);
 
-        /* run the BMW scanner */
-        PT_RUN(bmw);
+            /* run the start button logic */
+            PT_RUN(start);
 
-        /* run the ISO-TP framer */
-        PT_RUN(iso_tp);
+            /* run the BMW scanner */
+            PT_RUN(bmw);
 
-        /* run the status reporter */
-        PT_RUN(status);
+            /* run the ISO-TP framer */
+            PT_RUN(iso_tp);
+
+            /* run the status reporter */
+            PT_RUN(status);
+        }
 
         /* run system threads and reset watchdog */
         pt_yield(pt);
@@ -55,6 +59,7 @@ app_can_filter(uint32_t id)
     if (MRS_bootrom_filter(id) ||   /* bootrom interested? */
         bk_can_filter(id) ||        /* blink keypad handler interested? */
         (id == 0xa8) ||             /* brake status here */
+        (id == 0xaa) ||             /* engine speed here */
         (id == 0x1d2) ||            /* engine speed here */
         ((id >= 0x600) &&           /* ISO-TP frame? */
          (id < 0x6f0)) ||           /* Note: blink keypad must not be on ID 0x12, 0x18, 0xf1 */

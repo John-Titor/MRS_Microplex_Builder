@@ -180,17 +180,6 @@ class RX_ack(RXMessage):
             self.status = "unknown"
 
 
-class ManualPower(object):
-    def set_power_off(self):
-        print('POWER: turn module power off')
-
-    def set_power_t30(self):
-        print('POWER: turn module power on (T30 only)')
-
-    def set_power_t30_t15(self):
-        print('POWER: turn module power on (T30 and T15)')
-
-
 class InterfaceOutput(object):
     def __init__(self, can_bus, pin):
         self._connection = can_bus.connection
@@ -241,10 +230,10 @@ class Interface(object):
             self.out_t15 = InterfaceOutput(self._bus, 2)
             self.out_3 = InterfaceOutput(self._bus, 3)
             self.out_4 = InterfaceOutput(self._bus, 4)
-            self.in_0 = InterfaceInput(self._bus, 1)
-            self.in_1 = InterfaceInput(self._bus, 2)
-            self.in_2 = InterfaceInput(self._bus, 3)
-            self.in_3 = InterfaceInput(self._bus, 4)
+            self.in_1 = InterfaceInput(self._bus, 1)
+            self.in_2 = InterfaceInput(self._bus, 2)
+            self.in_3 = InterfaceInput(self._bus, 3)
+            self.in_4 = InterfaceInput(self._bus, 4)
         else:
             raise RuntimeError("only AnaGate interfaces supported")
 

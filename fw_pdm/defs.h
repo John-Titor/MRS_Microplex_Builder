@@ -8,6 +8,18 @@
 #include <pt.h>
 #include <blink_keypad.h>
 
+/* KL15 power-off threshold (mV) */
+#define CONFIG_POWER_OFF_THRESHOLD      5000
+
+/* delay between T30 on and T15 on */
+#define CONFIG_POWER_ON_DELAY           100
+
+/* delay between KL15 off and T30 off */
+#define CONFIG_POWER_OFF_DELAY          500
+
+/* power-killed LED blink rate */
+#define CONFIG_POWER_BLINK_INTERVAL     100
+
 /* restart hold-off delay */
 #define CONFIG_RESTART_DELAY            250
 
@@ -40,14 +52,17 @@
 
 /* input mapping */
 #define IN_S_BLOW       IN_1
+#define IN_KILL         IN_3
 
 /* output mapping */
 #define OUT_START       OUT_1
+#define OUT_T15         OUT_2
+#define OUT_POWER_LED   OUT_3
+#define OUT_T30         OUT_4
 
 /* global state - must be <= 8B in size for status reporter */
 struct global_state {
     uint16_t    engine_rpm;
-    uint16_t    dde_switch_mv;
     char        selected_gear;
     uint8_t     brake_applied : 1;
     uint8_t     lights_on : 1;
@@ -81,9 +96,11 @@ extern uint8_t iso_tp_send_done(void);
 extern uint8_t iso_tp_recv_done(void);
 extern bool iso_tp_can_rx(const HAL_can_message_t *msg);
 
+extern bool power_system_should_run(void);
+
 /* worker threads */
+PT_DECLARE(power);
 PT_DECLARE(keypad);
-PT_DECLARE(input);
 PT_DECLARE(lights);
 PT_DECLARE(start);
 PT_DECLARE(iso_tp);

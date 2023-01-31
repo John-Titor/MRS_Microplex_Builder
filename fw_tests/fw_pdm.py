@@ -49,19 +49,55 @@ class PDMTests(unittest.TestCase):
         self.interface = Interface(g_args)
         self.interface.start()
         # wait for a status message (in addition to the module sign-on)
-        rsp = self.interface.recv(1, filter=[PDM_STATUS_ID])
+        rsp = self.interface.recv(2, filter=[PDM_STATUS_ID])
+
         # enable debug mode
         self.interface.send(TX_debug(True))
+
+        # module-specific outputs
+        self.kl30 = self.interface.out_t30
+        self.kl15 = self.interface.out_t15
+        self.s_blow = self.interface.out_3
+        self.kill = self.interface.out_4
 
     def tearDown(self):
         self.interface.stop()
 
     def get_status(self):
         self.interface.drain()
-        return RX_pdm_status(self.interface.recv(1, filter=[PDM_STATUS_ID]))
+        rsp = self.interface.recv(1, filter=[PDM_STATUS_ID])
+        if rsp is not None:
+            return RX_pdm_status(rsp)
+        return None
 
     def get_lights(self):
         return RX_lights(self.interface.recv(1, filter=[LIGHT_CTRL_ID]))
+
+    def s_start_mV(self):
+        return self.interface.in_1.get()
+
+    def t15_mV(self):
+        return self.interface.in_2.get()
+
+    def led_mV(self):
+        return self.interface.in_3.get()
+
+    def t30_mV(self):
+        return self.interface.in_4.get()
+
+    def led_assert_blinking(self):
+        """
+        verify that the LED seems to be blinking
+        """
+        count = 0
+        total = 100
+        for i in range(total):
+            if (self.led_mV() > 6000):
+                count += 1
+            time.sleep(0.015)
+        duty_cycle = int((count * 100) / total)
+        self.assertGreater(duty_cycle, 40, "LED duty cycle too short")
+        self.assertLess(duty_cycle, 60, "LED duty cycle too long")
 
     def test_00_get_status(self):
         """
@@ -106,8 +142,6 @@ class PDMTests(unittest.TestCase):
 
         # send brake-apply message
         self.interface.send(TX_brake(True))
-        time.sleep(0.1)
-        self.interface.drain()
 
         # check brake applied state / light on
         status = self.get_status()
@@ -217,19 +251,7 @@ class PDMTests(unittest.TestCase):
                                             data=b'\x00PKP2400'))
 
         status = self.get_status()
-        self.assertFalse(status.keypad_active, "keypad prematurely active")
-
-        time.sleep(0.2)
-        # send a key press/release
-        self.interface.send_raw(can.Message(arbitration_id=0x195,
-                                            is_extended_id=False,
-                                            data=b'\x01\x00\x00\x00\x00'))
-        self.interface.send_raw(can.Message(arbitration_id=0x195,
-                                            is_extended_id=False,
-                                            data=b'\x00\x00\x00\x00\x00'))
-
-        status = self.get_status()
-        self.assertTrue(status.keypad_active, "keypad unexpectedly inactive")
+        self.assertTrue(status.keypad_active, "keypad not active after probe")
 
         # send a key down event for KEY_LIGHTS
         self.interface.send_raw(can.Message(arbitration_id=0x195,
@@ -244,6 +266,11 @@ class PDMTests(unittest.TestCase):
         self.interface.send_raw(can.Message(arbitration_id=0x195,
                                             is_extended_id=False,
                                             data=b'\x00\x00\x00\x00\x00'))
+
+        # ... and check that lights are still in the next status message
+        status = self.get_status()
+        self.assertTrue(status.lights_on, "lights did not remain on when key was released")
+
         # ... and then press it again
         time.sleep(0.1)
         self.interface.send_raw(can.Message(arbitration_id=0x195,
@@ -252,10 +279,159 @@ class PDMTests(unittest.TestCase):
         status = self.get_status()
         self.assertFalse(status.lights_on, "lights did not turn off with keypress")
 
-        # idle and wait for the firmware to give up on the keyboard
-        time.sleep(2)
+        # idle and wait for the firmware to give up on the keypad, should take ~1s
+        time.sleep(1.5)
         status = self.get_status()
-        self.assertTrue(status.keypad_active, "keypad unexpectedly still active")
+        self.assertFalse(status.keypad_active, "keypad unexpectedly still active")
+
+    def test_05_power_basic(self):
+        """
+        verify power-related behaviours
+        """
+
+        # We have already verified that the module boots OK when T30 and T15 are
+        # turned on at the same time by running other tests, so that's not re-tested
+        # here.
+
+        # power off the module and verify that it stops sending status messages
+        self.kl15.set_off()
+        self.kl30.set_off()
+        status = self.get_status()
+        self.assertIsNone(status, "module did not power down")
+        self.assertLess(self.t15_mV(), 1000, "T15 unexpectedly asserted")
+        self.assertLess(self.t30_mV(), 1000, "T30 unexpectedly asserted")
+        self.assertLess(self.led_mV(), 1000, "LED unexpectedly on")
+
+        # power on the module and verify that it doesn't send a status message
+        self.kl30.set_on()
+        status = self.get_status()
+        self.assertIsNone(status, "module powered up unexpectedly")
+        self.assertLess(self.t15_mV(), 1000, "T15 unexpectedly asserted")
+        self.assertLess(self.t30_mV(), 1000, "T30 unexpectedly asserted")
+        self.assertLess(self.led_mV(), 1000, "LED unexpectedly on")
+
+        # now apply T15 and verify that we get a status message and the rails come up
+        # we don't test the startup delay here as it is very short
+        self.kl15.set_on()
+        time.sleep(.5)  # module startup can be slow
+        status = self.get_status()
+        self.assertIsNotNone(status, "module did not start in response to KL15")
+        time.sleep(1)   # analog inputs can be slow
+        self.assertGreater(self.t15_mV(), 8000, "T15 unexpectedly not asserted")
+        self.assertGreater(self.t30_mV(), 8000, "T30 unexpectedly not asserted")
+        self.assertGreater(self.led_mV(), 8000, "LED unexpectedly off")
+
+        # drop T15 and verify that the system powers off
+        self.kl15.set_off()
+        time.sleep(1)   # shutdown should take ~1s, plus analog settle time
+        self.assertLess(self.t15_mV(), 1000, "T15 unexpectedly asserted")
+        self.assertLess(self.t30_mV(), 1000, "T30 unexpectedly asserted")
+        self.assertLess(self.led_mV(), 1000, "LED unexpectedly on")
+
+    def test_06_power_kill(self):
+        """
+        verify kill-line behaviours
+        """
+
+        # power off the module
+        self.kl15.set_off()
+        self.kl30.set_off()
+
+        # raise the kill line and verify that the module does not power on
+        self.kl30.set_on()
+        self.kl15.set_on()
+        self.kill.set_on()
+        time.sleep(1)
+        status = self.get_status()
+        self.assertIsNone(status, "module powered up but should be killed")
+        self.assertLess(self.t15_mV(), 1000, "T15 unexpectedly asserted")
+        self.assertLess(self.t30_mV(), 1000, "T30 unexpectedly asserted")
+        self.led_assert_blinking()
+
+        # power off the module and drop the kill line
+        self.kl15.set_off()
+        self.kl30.set_off()
+        self.kill.set_off()
+        time.sleep(1)
+
+        # power up the module and let it boot
+        self.kl30.set_on()
+        self.kl15.set_on()
+        time.sleep(1)
+        status = self.get_status()
+        self.assertIsNotNone(status, "module failed to power up")
+
+        # now kill it
+        self.kill.set_on()
+        time.sleep(3)
+        self.assertLess(self.t15_mV(), 1000, "T15 unexpectedly asserted")
+        self.assertLess(self.t30_mV(), 1000, "T30 unexpectedly asserted")
+        self.led_assert_blinking()
+
+    def test_07_start(self):
+        """
+        Verify start behaviour
+        """
+
+        self.assertLess(self.s_start_mV(), 1000, "S_START output unexpectedly asserted")
+
+        # verify that engine RPM > 1000 forces waiting state
+        self.interface.send_raw(can.Message(arbitration_id=0xaa,
+                                            is_extended_id=False,
+                                            data=b'\x00\x00\x00\x00\x10\x00\x00\x00'))
+        status = self.get_status()
+        self.assertTrue(status.start_waiting, "start unexpectedly not waiting for engine to stop")
+
+        # set engine RPM to zero and verify inhibited state
+        self.interface.send_raw(can.Message(arbitration_id=0xaa,
+                                            is_extended_id=False,
+                                            data=b'\x00\x00\x00\x00\x00\x00\x00\x00'))
+        status = self.get_status()
+        self.assertTrue(status.start_inhibited, "start unexpectedly not inhibited")
+        self.assertFalse(status.start_waiting, "start unexpectedly waiting for engine to stop")
+
+        # send a gear status message for 'P'
+        self.interface.send_raw(can.Message(arbitration_id=0x1d2,
+                                            is_extended_id=False,
+                                            data=b'\xe1\x00\x00\x00\x00\x00\x00\x00'))
+        status = self.get_status()
+        self.assertEqual(status.selected_gear, 0x50, "not in Park as expected")
+
+        # apply the brake and wait to ensure the restart delay timer has expired
+        self.interface.send(TX_brake(True))
+        time.sleep(0.5)
+
+        status = self.get_status()
+        self.assertFalse(status.start_inhibited, "start unexpectedly inhibited")
+        self.assertFalse(status.start_waiting, "start unexpectedly waiting for engine to stop")
+
+        # send a keypad boot message
+        self.interface.send_raw(can.Message(arbitration_id=0x715,
+                                            is_extended_id=False,
+                                            data=b'\x00'))
+        # wait for keypad model ID query
+        req = self.interface.recv(1, filter=[0x615])
+
+        # respond with ID data and make sure we were recognised
+        self.interface.send_raw(can.Message(arbitration_id=0x595,
+                                            is_extended_id=False,
+                                            data=b'\x00PKP2400'))
+        status = self.get_status()
+        self.assertTrue(status.keypad_active, "keypad not active after probe")
+
+        # send a key down event for KEY_START
+        self.interface.send_raw(can.Message(arbitration_id=0x195,
+                                            is_extended_id=False,
+                                            data=b'\x80\x00\x00\x00\x00'))
+        status = self.get_status()
+        self.assertFalse(status.starting, "engine start too soon")
+        self.assertLess(self.s_start_mV(), 1000, "S_START output unexpectedly asserted")
+        self.assertFalse(status.start_inhibited, "start unexpectedly inhibited")
+        self.assertFalse(status.start_waiting, "start unexpectedly waiting for engine to stop")
+        time.sleep(0.5)
+        status = self.get_status()
+        self.assertGreater(self.s_start_mV(), 8000, "S_START output unexpectedly not asserted")
+        self.assertTrue(status.starting, "engine not starting")
 
 
 if __name__ == '__main__':
@@ -278,6 +454,10 @@ if __name__ == '__main__':
     parser.add_argument('--verbose',
                         action='store_true',
                         help='print verbose progress information')
+    parser.add_argument('-k',
+                        type=str,
+                        metavar='PATTERN',
+                        help='execute tests matching PATTERN')
 
     g_args = parser.parse_args()
 

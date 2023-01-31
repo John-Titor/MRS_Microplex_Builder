@@ -35,7 +35,7 @@ PT_DEFINE(start)
     if (!g_state.brake_applied ||               /* brake not applied */
         (g_state.selected_gear != 'P') ||       /* not in Park */
         !HAL_timer_expired(restart_delay) ||    /* engine only just stopped */
-        (g_state.dde_switch_mv > CONFIG_DDE_SWITCH_MV)) {   /* DDE relay not energised */
+        (HAL_pin_get_mV(IN_S_BLOW) > CONFIG_DDE_SWITCH_MV)) {   /* DDE relay not energised */
 
         /* illuminate the start key red to indicate start inhibited */
         bk_set_key_led(KEY_START, BK_KEY_COLOR_RED, 0);
