@@ -39,6 +39,16 @@ static uint8_t          _blink_phase;
 static void             _tick(void);
 static HAL_timer_t      _idle_timer;
 
+static const uint8_t _init_messages[][8] = {
+    { 0x40, 0x0b, 0x10 },                       /* get model ID */
+    { 0x60 },                                   /* continue model ID */
+    { 0x2b, 0x00, 0x18, 0x05, 25, 0 },          /* 25ms announce interval */
+    { 0x2f, 0x00, 0x21, 0x00, 0x00 },           /* disable demo mode */
+    { 0x2f, 0x14, 0x20, 0x00, 0x02 },           /* fast flash only at startup */
+    { 0x2f, 0x11, 0x20, 0x00, 0x01 },           /* enable boot message */
+    { 0x2f, 0x12, 0x20, 0x00, 0x01 }            /* auto-start */
+};
+
 uint8_t
 bk_num_keys(void)
 {
@@ -151,6 +161,10 @@ bk_get_event(void)
     uint8_t i;
     uint8_t current_state = BK_EVENT_NONE;
 
+    if (_num_keys == 0) {
+        return BK_EVENT_DISCONNECTED;
+    }
+
     /* scan key state & look for un-reported state changes */
     for (i = 0; i < _num_keys; i++) {
 
@@ -168,12 +182,13 @@ bk_get_event(void)
         }
     }
 
+    /* if we found a key event, update the last-reported state of the key */
     if (i < _num_keys) {
         _key_state[i].reported_state = current_state;
-        return current_state | i;
+        current_state |= i;
     }
 
-    return _num_keys ? BK_EVENT_NONE : BK_EVENT_DISCONNECTED;
+    return current_state;
 }
 
 uint8_t
@@ -331,115 +346,97 @@ PT_DEFINE(blink_keypad)
     HAL_timer_register(_idle_timer);
     HAL_timer_register(_blink_timer);
 
-    /* Zero keypad-derived state at thread start so that we can be reset. */
+    /* reset keypad ID info */
     _num_keys = 0;
     _keypad_id = _BK_DEFAULT_KEYPAD_ID;
 
-    for (;;) {
-        /* We start here with no idea about keypad ID (unless hardcoded) or size. */
-
-        do {
-            /*
-             * Give the keypad time to start talking to us after whatever we
-             * just did to it.
-             */
-            pt_delay(pt, _blink_timer, BK_UPDATE_PERIOD_MS * 10);
-
-            /*
-             * First, try to find a keypad.
-             *
-             * ID may be hardcoded, or discovered by receiving a boot-up message.
-             * We can't do anything else until we know what it is.
-             */
-            if (_keypad_id == 0xff) {
-
-                /*
-                 * Send reset-all and hope that shakes a boot-up message
-                 * out of the keypad. If it has been turned off, we have
-                 * to have it hardcoded.
-                 */
-                static const uint8_t _reset_all[] = {0x81, 0x00};
-                HAL_can_send_debug(0x00, sizeof(_reset_all), _reset_all);
-                continue;
-            }
-
-            /*
-             * Configure the keypad the way we like it, and along the way
-             * learn how many keys it has.
-             *
-             * The only way to do this seems to be to read the Model ID
-             * and parse out the x/y dimensions from the text. Insane.
-             */
-            {
-                static const uint8_t _init_messages[][8] = {
-                    { 0x40, 0x0b, 0x10 },                       /* get model ID */
-                    { 0x60 },                                   /* continue model ID */
-                    { 0x2b, 0x00, 0x18, 0x05, 25, 0 },          /* 25ms announce interval */
-                    { 0x2f, 0x00, 0x21, 0x00, 0x00 },           /* disable demo mode */
-                    { 0x2f, 0x14, 0x20, 0x00, 0x02 },           /* fast flash only at startup */
-                    { 0x2f, 0x11, 0x20, 0x00, 0x01 },           /* enable boot message */
-                    { 0x2f, 0x12, 0x20, 0x00, 0x01 }            /* auto-start */
-                };
-
-                for (i = 0; i < (sizeof(_init_messages) / 8); i++) {
-                    HAL_can_send_debug(0x600 + _keypad_id, 8, &_init_messages[i][0]);
-                    pt_delay(pt, _blink_timer, 2);
-                    //pt_yield(pt);
-                }
-            }
-        } while ((_num_keys == 0) || (_keypad_id == 0xff));
-
-        /* we've found a keypad and we know how big it is, use it */
-        /*print("keypad @ %x with %u keys", (unsigned int)_keypad_id, (unsigned int)_num_keys);*/
-
-        /* request button / backlight LED updates*/
-        _update_flags = _UPDATE_KEYS | _UPDATE_INTENSITY;
-
-        /* reset key state as though everything has just been released */
-        for (i = 0; i < _num_keys; i++) {
-            /* key is not currently pressed */
-            _key_state[i].counter = 0;
-        }
-
-        /* reset the idle timer */
-        HAL_timer_reset(_idle_timer, BK_IDLE_TIMEOUT_MS);
-
-        /* loop in keypad-active mode */
-        for (;;) {
-
-            /*
-             * Wait until it's time to send an update; either because it's time
-             * for a new animation iteration or because an update to the keypad was
-             * requested.
-             */
-            pt_wait(pt, HAL_timer_expired(_blink_timer) || (_update_flags != 0));
-
-            if (HAL_timer_expired(_blink_timer)) {
-                HAL_timer_reset(_blink_timer, BK_BLINK_PERIOD_MS);
-                _blink_phase = (_blink_phase + 1) & 0x7;
-                _update_flags |= _UPDATE_KEYS;
-            }
-
-            if (_update_flags & _UPDATE_KEYS) {
-                bk_send_led_update();
-            }
-
-            if (_update_flags & _UPDATE_INTENSITY) {
-                bk_send_intensity_update();
-            }
-
-            _update_flags = 0;
-
-            /*
-             * If the keypad disappears, reset back to the default search-for-keypad
-             * state.
-             */
-            if (HAL_timer_expired(_idle_timer)) {
-                pt_reset(pt);
-                return;
-            }
-        }
+    /* reset all keys to not-pressed state */
+    for (i = 0; i < _num_keys; i++) {
+        _key_state[i].counter = 0;
     }
+
+    /*
+     * Try to find a keypad.
+     *
+     * ID may be hardcoded, or discovered by receiving a boot-up message.
+     * We can't do anything else until we know what it is.
+     */
+    while (_keypad_id == 0xff) {
+
+        /*
+         * Send reset-all and hope that shakes a boot-up message
+         * out of the keypad. If it has been turned off, we have
+         * to have it hardcoded.
+         */
+        static const uint8_t _reset_all[] = {0x81, 0x00};
+        HAL_can_send_debug(0x00, sizeof(_reset_all), _reset_all);
+
+        /*
+         * Wait for a response.
+         */
+        pt_delay(pt, _blink_timer, BK_UPDATE_PERIOD_MS * 5);
+
+    }
+
+    /*
+     * We might have a keypad; try to configure it the way we like it, and along the way
+     * learn how many keys it has.
+     *
+     * The only way to do this seems to be to read the Model ID
+     * and parse out the x/y dimensions from the text. Insane.
+     */
+    for (i = 0; i < (sizeof(_init_messages) / 8); i++) {
+        HAL_can_send_debug(0x600 + _keypad_id, 8, &_init_messages[i][0]);
+        pt_delay(pt, _blink_timer, 2);
+    }
+
+    /*
+     * Wait for a response; if we don't get one, reset and try again.
+     */
+    pt_delay(pt, _blink_timer, BK_UPDATE_PERIOD_MS * 5);
+    if (_num_keys == 0) {
+        pt_reset(pt);
+        return;
+    }
+
+    /* we've found a keypad and we know how big it is, use it */
+    /*print("keypad @ %x with %u keys", (unsigned int)_keypad_id, (unsigned int)_num_keys);*/
+
+    /* reset the idle timer */
+    HAL_timer_reset(_idle_timer, BK_IDLE_TIMEOUT_MS);
+
+    /* request button / backlight LED updates */
+    _update_flags = _UPDATE_KEYS | _UPDATE_INTENSITY;
+
+    /* loop until we stop hearing from the keypad */
+    while (!HAL_timer_expired(_idle_timer)) {
+
+        /*
+         * Wait until it's time to send an update; either because it's time
+         * for a new animation iteration or because an update to the keypad was
+         * requested.
+         */
+        pt_wait(pt, HAL_timer_expired(_blink_timer) || (_update_flags != 0));
+
+        if (HAL_timer_expired(_blink_timer)) {
+            HAL_timer_reset(_blink_timer, BK_BLINK_PERIOD_MS);
+            _blink_phase = (_blink_phase + 1) & 0x7;
+            _update_flags |= _UPDATE_KEYS;
+        }
+
+        if (_update_flags & _UPDATE_KEYS) {
+            bk_send_led_update();
+        }
+
+        if (_update_flags & _UPDATE_INTENSITY) {
+            bk_send_intensity_update();
+        }
+
+        _update_flags = 0;
+    }
+
+    pt_reset(pt);
+    return;
 
     pt_end(pt);
 }
