@@ -165,20 +165,20 @@ _HAL_7X_init(void)
     _PTCPE.Byte = 0x00;
     _PTCDS.Byte = 0x00;
 
-    _PTDD.Byte = 0x00;
+    _PTDD.Byte = 0x08;
     _PTDDD.Byte = 0xf9;
     _PTDSE.Byte = 0xff;
     _PTDPE.Byte = 0x00;
     _PTDDS.Byte = 0x00;
 
-    _PTED.Byte = 0x00;
+    _PTED.Byte = 0x01;
     _PTEDD.Byte = 0x15;
     _PTESE.Byte = 0xff;
     _PTEPE.Byte = 0x00;
     _PTEDS.Byte = 0x00;
 
-    _PTFD.Byte = 0x05;
-    _PTFDD.Byte = 0x15;
+    _PTFD.Byte = 0x25;
+    _PTFDD.Byte = 0x25;
     _PTFSE.Byte = 0xff;
     _PTFPE.Byte = 0x00;
     _PTFDS.Byte = 0x00;
