@@ -49,7 +49,8 @@
 
 /* global state - bits on wire LSB first */
 struct global_state {
-    /* byte 0 */
+    uint16_t    fuel_mv;
+
     uint8_t     brake_on : 1;
     uint8_t     brake_requested : 1;
     uint8_t     lights_on : 1;
@@ -59,7 +60,6 @@ struct global_state {
     uint8_t     reverse_on : 1;
     uint8_t     reverse_requested : 1;
 
-    /* byte 1 */
     uint8_t     engine_running : 1;
     uint8_t     can_idle : 1;
     uint8_t     debug_enable : 1;

@@ -20,7 +20,7 @@ PT_DEFINE(brake)
     g_state.brake_requested = 0;
 
     /* if CAN contact has been lost / regained, we reset back to here */
-    while (g_state.can_idle) {
+    while (g_state.can_idle && !g_state.debug_enable) {
         /* alternate flash left/right brake lights at full brightness */
         HAL_pin_set(OUT_BRAKE_L, flash_state ? 1 : 0);
         HAL_pin_set(OUT_BRAKE_R, flash_state ? 0 : 1);

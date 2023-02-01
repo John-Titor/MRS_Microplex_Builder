@@ -99,14 +99,13 @@ app_can_idle(bool is_idle)
 {
     g_state.can_idle = is_idle ? 1 : 0;
 
-    if (is_idle) {
+    /* disable default behaviours in CAN-idle mode */
+    if (is_idle && !g_state.debug_enable) {
         g_state.lights_requested = true;
         g_state.rain_requested = false;
         g_state.reverse_requested = false;
-    }
 
-    /* brake logic changes behaviour based on CAN idle state in non-debug mode */
-    if (!g_state.debug_enable) {
+        /* brake logic changes behaviour based on CAN idle state */
         PT_RESET(brake);
     }
 }
