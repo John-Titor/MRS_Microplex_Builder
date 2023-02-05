@@ -29,6 +29,7 @@ PT_DEFINE(start)
         g_state.start_waiting = 1;
         goto restart;
     }
+
     g_state.start_waiting = 0;
 
     /* check for a start-inhibited condition */
@@ -44,6 +45,7 @@ PT_DEFINE(start)
         g_state.start_inhibited = 1;
         goto restart;
     }
+
     g_state.start_inhibited = 0;
 
     /* check start button state */

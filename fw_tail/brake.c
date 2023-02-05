@@ -33,6 +33,7 @@ PT_DEFINE(brake)
     HAL_pin_set(OUT_BRAKE_R, 0);
     HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_INTERVAL);
     flash_count = 0;
+
     while (!g_state.brake_requested) {
 
         /* do engine-off reminder flashes */
@@ -48,12 +49,14 @@ PT_DEFINE(brake)
                     flash_count = 1;
                     HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_PERIOD);
                     break;
+
                 case 1:
                     HAL_pin_set(OUT_BRAKE_L, 0);
                     HAL_pin_set(OUT_BRAKE_R, 1);
                     flash_count = 2;
                     HAL_timer_reset(flash_timer, CONFIG_BRAKE_REMINDER_PERIOD);
                     break;
+
                 default:
                     HAL_pin_set(OUT_BRAKE_L, 0);
                     HAL_pin_set(OUT_BRAKE_R, 0);
@@ -63,6 +66,7 @@ PT_DEFINE(brake)
                 }
             }
         }
+
         pt_yield(pt);
     }
 

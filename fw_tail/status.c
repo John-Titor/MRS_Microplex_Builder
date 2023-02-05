@@ -18,5 +18,6 @@ PT_DEFINE(status)
         /* send state info */
         HAL_can_send_blocking(CONFIG_STATUS_REPORT_ID, sizeof(g_state), (const uint8_t *)&g_state);
     }
+
     pt_end(pt);
 }

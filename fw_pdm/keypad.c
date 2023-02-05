@@ -15,6 +15,7 @@ handle_light_press(uint8_t event)
             g_state.lights_on = 1;
         }
     }
+
     return g_state.lights_on ? true : false;
 }
 
@@ -28,6 +29,7 @@ handle_rain_press(uint8_t event)
             g_state.rain_on = 1;
         }
     }
+
     return g_state.rain_on ? true : false;
 }
 
@@ -39,7 +41,7 @@ static const struct {
     /* color to set when 'on' (also while pressed) */
     uint8_t color_on;
     /* handler for event - returns true if 'on', false if 'off' */
-    bool    (*action)(uint8_t event);
+    bool (*action)(uint8_t event);
 } key_actions[] = {
     { KEY_LIGHTS,   BK_KEY_COLOR_WHITE, BK_KEY_COLOR_GREEN, handle_light_press },
     { KEY_RAIN,     BK_KEY_COLOR_WHITE, BK_KEY_COLOR_YELLOW, handle_rain_press },
@@ -69,7 +71,8 @@ PT_DEFINE(keypad)
             /* scan handlers */
             for (i = 0; key_actions[i].key != BK_EVENT_NONE; i++) {
                 if (key == key_actions[i].key) {
-                    bk_set_key_led(key, key_actions[i].action(event) ? key_actions[i].color_on : key_actions[i].color_off, 0);
+                    bk_set_key_led(key, key_actions[i].action(event) ? key_actions[i].color_on :
+                                   key_actions[i].color_off, 0);
                     break;
                 }
             }

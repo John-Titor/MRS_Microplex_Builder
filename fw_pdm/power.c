@@ -22,7 +22,7 @@ note right of P_INIT
  KL15 and KILL inputs need time for the ADC filters
  to stabilise. KILL pull-up must be on for this to
  work correctly.
- Turn on the LED so that we know the system is in 
+ Turn on the LED so that we know the system is in
  this state. It will either stay on, or flash if we
  go to P_OFF.
 end note
@@ -32,7 +32,7 @@ P_INIT: entry / T30 = 0
 P_INIT: entry / T15 = 0
 P_INIT -down[bold]-> P_INIT_DONE : timeout 100ms
 note on link
- ADC sample buffer is 8 deep, 12 channels sampled 
+ ADC sample buffer is 8 deep, 12 channels sampled
  at 1ms intervals, so should settle in ~100ms.
 end note
 
@@ -220,6 +220,7 @@ PT_DEFINE(power)
             if (HAL_timer_expired(power_timeout)) {
                 enter_p_init_done();
             }
+
             break;
 
         case P_INIT_DONE:
@@ -230,6 +231,7 @@ PT_DEFINE(power)
             } else {
                 enter_p_on_wait();
             }
+
             break;
 
         case P_ON_WAIT:
@@ -238,18 +240,21 @@ PT_DEFINE(power)
             } else if (HAL_timer_expired(power_timeout)) {
                 enter_p_on();
             }
+
             break;
 
         case P_ON:
             if (kill || !kl15) {
                 enter_p_off_wait();
             }
+
             break;
 
         case P_OFF_WAIT:
             if (!s_blow || HAL_timer_expired(power_timeout)) {
                 enter_p_off();
             }
+
             break;
 
         case P_OFF:
@@ -260,7 +265,9 @@ PT_DEFINE(power)
             /* this is fatal */
             enter_p_off();
         }
+
         pt_yield(pt);
     }
+
     pt_end(pt);
 }

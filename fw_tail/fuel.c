@@ -18,7 +18,7 @@ fuel_report_level(void)
 
     buf[0] = percent & 0xff;
     (void)HAL_can_send_blocking(CONFIG_FUEL_MSG_ID, sizeof(buf), &buf[0]);
- }
+}
 
 PT_DEFINE(fuel)
 {

@@ -123,6 +123,7 @@ app_can_receive(const HAL_can_message_t *msg)
             (msg->data[4] == 'g')) {
             g_state.debug_enable = msg->data[5] ? 1 : 0;
         }
+
         break;
 
     default:
