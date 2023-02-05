@@ -67,7 +67,7 @@ PT_DEFINE(start)
         goto restart;
     }
 
-    /* loop waiting for start button to be released or engine speed over 500rpm */
+    /* loop waiting for start button to be released */
     for (;;) {
 
         /* check for start key released or keypad disconnect */
@@ -80,16 +80,6 @@ PT_DEFINE(start)
 
         default:
             break;
-        }
-
-        /* check for engine running */
-        if (g_state.engine_rpm > 500) {
-
-            /* prevent starting again before delay expires */
-            HAL_timer_reset(restart_delay, CONFIG_RESTART_DELAY);
-
-            /* self-reset back to not-starting state */
-            goto restart;
         }
 
         /* still starting, yield to other threads */
