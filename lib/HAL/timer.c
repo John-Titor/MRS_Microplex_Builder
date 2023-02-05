@@ -128,8 +128,8 @@ Vtpm2ch1_handler(void)
 
     /* update timers */
     for (t = _timer_list;
-            t != _TIMER_LIST_END;
-            t = t->_next) {
+         t != _TIMER_LIST_END;
+         t = t->_next) {
         if (t->delay_ms > 0) {
             t->delay_ms--;
         }
@@ -137,8 +137,8 @@ Vtpm2ch1_handler(void)
 
     /* run timer calls */
     for (tc = _timer_call_list;
-            tc != _TIMER_CALL_LIST_END;
-            tc = tc->_next) {
+         tc != _TIMER_CALL_LIST_END;
+         tc = tc->_next) {
 
         /* if the call is active... */
         if (tc->delay_ms > 0) {

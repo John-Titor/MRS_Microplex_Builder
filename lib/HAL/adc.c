@@ -31,9 +31,9 @@ _HAL_adc_init(_HAL_adc_channel_state_t *state)
     /*
      * Configure the ADC to run as slowly as possible to leave time between
      * interrupts for other things to happen.
-     * 
+     *
      * Observed interval between interrupts ~60µs (2400 cycles).
-     * 
+     *
      * XXX note: not using interrupts here
      */
     ADCCFG_ADICLK = 1;  /* bus clock /2 (10MHz) */

@@ -85,8 +85,8 @@ _dispatch_handler(const _handler_t *handler, uint8_t table_len, const HAL_can_me
 {
     while (table_len--) {
         if ((handler->id == msg->id) &&                             /* command match */
-                (handler->len <= msg->dlc) &&                       /* message is long enough */
-                !memcmp(handler->cmd, msg->data, handler->len)) {   /* prefix matches */
+            (handler->len <= msg->dlc) &&                       /* message is long enough */
+            !memcmp(handler->cmd, msg->data, handler->len)) {   /* prefix matches */
 
             handler->func(msg);
             return true;
@@ -114,9 +114,9 @@ MRS_bootrom_rx(const HAL_can_message_t *msg)
     }
 
     if (_module_selected &&
-            _dispatch_handler(_selected_handlers,
-                              sizeof(_selected_handlers) / sizeof(_handler_t),
-                              msg)) {
+        _dispatch_handler(_selected_handlers,
+                          sizeof(_selected_handlers) / sizeof(_handler_t),
+                          msg)) {
         return true;
     }
 
@@ -222,10 +222,10 @@ _write_eeprom(const HAL_can_message_t *msg)
 
         /* Special-case CAN bitrate updates. */
         if ((address == MRS_PARAM_OFFSET(BaudrateBootloader1)) &&
-                (len == 2) &&                           /* write just this value */
-                ((src[0] ^ src[1]) == 0xff) &&          /* check code is OK */
-                (src[1] >= MRS_CAN_1000KBPS) &&         /* value is within bounds */
-                (src[1] <= MRS_CAN_125KBPS)) {
+            (len == 2) &&                           /* write just this value */
+            ((src[0] ^ src[1]) == 0xff) &&          /* check code is OK */
+            (src[1] >= MRS_CAN_1000KBPS) &&         /* value is within bounds */
+            (src[1] <= MRS_CAN_125KBPS)) {
 
             /* update both copies */
             _HAL_eeprom_write(MRS_PARAM_OFFSET(BaudrateBootloader2),

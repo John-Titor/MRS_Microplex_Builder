@@ -48,7 +48,7 @@ extern void     HAL_pin_set_duty(const HAL_pin_t *pin, uint8_t duty);
 
 /**
  * Configure and drive a DO pin in digital output mode.
- * 
+ *
  * This is a convenience wrapper equivalent to `HAL_pin_set_duty(value ? 100 : 0)`.
  *
  * @param pin           Pin to set.

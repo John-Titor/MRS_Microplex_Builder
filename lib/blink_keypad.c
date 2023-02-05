@@ -85,9 +85,9 @@ bk_can_receive(const HAL_can_message_t *msg)
     if (_keypad_id == 0xff) {
         /* Process a keypad boot message and learn the keypad ID. */
         if ((msg->id >= 0x700)
-                && (msg->id <= 0x77f)
-                && (msg->dlc == 1)
-                && (msg->data[0] == 0)) {
+            && (msg->id <= 0x77f)
+            && (msg->dlc == 1)
+            && (msg->data[0] == 0)) {
 
             _keypad_id = msg->id & 0x7f;
             return true;
@@ -103,11 +103,11 @@ bk_can_receive(const HAL_can_message_t *msg)
          * Model ID read. Be fairly conservative.
          */
         if ((msg->id == 0x580 + _keypad_id)
-                && (msg->dlc == 8)
-                && (msg->data[0] == 0)
-                && (msg->data[1] == 'P')
-                && (msg->data[2] == 'K')
-                && (msg->data[3] == 'P')) {
+            && (msg->dlc == 8)
+            && (msg->data[0] == 0)
+            && (msg->data[1] == 'P')
+            && (msg->data[2] == 'K')
+            && (msg->data[3] == 'P')) {
 
             uint8_t nk = msg->data[5] - '0';
 
@@ -127,9 +127,9 @@ bk_can_receive(const HAL_can_message_t *msg)
 
     /* process a key-state message */
     if ((msg->id == (0x180 + _keypad_id))
-            && (msg->dlc == 5)
-            && (msg->data[2] == 0)
-            && (msg->data[3] == 0)) {
+        && (msg->dlc == 5)
+        && (msg->data[2] == 0)
+        && (msg->data[3] == 0)) {
 
         /* for each key... */
         for (i = 0; i < _num_keys; i ++) {
@@ -224,10 +224,12 @@ bk_set_key_led(uint8_t key, uint8_t colors, uint8_t pattern)
         _led_state[key].color_a = color_a;
         _update_flags |= _UPDATE_KEYS;
     }
+
     if (color_b != _led_state[key].color_b) {
         _led_state[key].color_b = color_b;
         _update_flags |= _UPDATE_KEYS;
     }
+
     _led_state[key].pattern = pattern;
 }
 
@@ -249,6 +251,7 @@ void
 bk_set_backlight_color(uint8_t color)
 {
     color &= BK_COLOR_MASK;
+
     /* only trigger update if color actually changes */
     if (_backlight_color != color) {
         _backlight_color = color;
@@ -262,6 +265,7 @@ bk_set_backlight_intensity(uint8_t intensity)
     if (intensity > BK_MAX_INTENSITY) {
         intensity = BK_MAX_INTENSITY;
     }
+
     /* only trigger updatge if intensity actually changes */
     if (_backlight_intensity != intensity) {
         _backlight_intensity = intensity;
@@ -394,6 +398,7 @@ PT_DEFINE(blink_keypad)
      * Wait for a response; if we don't get one, reset and try again.
      */
     pt_delay(pt, _blink_timer, BK_UPDATE_PERIOD_MS * 5);
+
     if (_num_keys == 0) {
         pt_reset(pt);
         return;
