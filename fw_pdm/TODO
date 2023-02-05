@@ -1,9 +1,9 @@
 main:
   ✔ HAL init @done (22-07-17 17:33)
-  ☐ keypad
-    ☐ read keypresses
+  ✔ keypad @done (23-02-04 18:21)
+    ✔ read keypresses @done (23-02-04 18:21)
     ✔ set key LEDs @done (22-11-18 22:45)
-    ☐ set background LEDs
+    ✔ set background LEDs @done (23-02-04 18:21)
 
 Requirements:
   starter safety:
@@ -11,12 +11,13 @@ Requirements:
     ✔ check brake @done (22-07-17 17:33)
     ✔ check gear @done (22-07-17 17:33)
     ✔ engine stopped timeout @done (22-07-17 17:33)
-    ✔ cancel start once engine is running @done (22-07-17 17:33)
-    ✔ DME S_BLOW signal > 250mV @done (22-11-18 22:35)
+    ✘ cancel start once engine is running @cancelled (23-02-04 18:20)
+    ✔ DME S_BLOW signal > 3000mV @done (22-11-18 22:35)
     ✔ button not lit when engine running @done (22-11-18 22:36)
     ✔ button red when start inhibited @done (22-11-18 22:36)
     ✔ button green when start possible @done (22-11-18 22:36)
     ✔ button flash while starting @done (22-11-18 22:37)
+    ☐ cancel start if shifted from P or brake released
 
   light switching:
     ✔ send CAN report @done (22-07-17 17:33)
@@ -45,12 +46,12 @@ Requirements:
     ✔ forward BMW response message @done (23-01-16 22:44)
     ✔ send BMW scan repeat message @done (23-01-16 22:44)
     ✔ revert to BMW scan setup message on timeout @done (23-01-16 22:46)
-    ☐ detect & init keypad
-    ☐ switch lights with keypad
-    ☐ clear start-inhibit with preconditions met
-    ☐ start with conditions met
-    ☐ clear start on button release
-    ☐ clear start on engine RPM > 500
-    ☐ persist start-wait condition after engine stop
+    ✔ detect & init keypad @done (23-02-04 18:19)
+    ✔ switch lights with keypad @done (23-02-04 18:19)
+    ✔ clear start-inhibit with preconditions met @done (23-02-04 18:19)
+    ✔ start with conditions met @done (23-02-04 18:20)
+    ✔ clear start on button release @done (23-02-04 18:20)
+    ✘ clear start on engine RPM > 500 @cancelled (23-02-04 18:20)
+    ✔ persist start-wait condition after engine stop @done (23-02-04 18:20)
 
 

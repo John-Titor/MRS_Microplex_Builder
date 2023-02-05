@@ -186,6 +186,13 @@ do_p_off(void)
     if (HAL_timer_expired(power_timeout)) {
         HAL_timer_reset(power_timeout, CONFIG_POWER_BLINK_INTERVAL);
         HAL_pin_set(OUT_POWER_LED, blink_state);
+
+        /* toggle CAN_STB_N in case we failed to go to sleep */
+        CAN_STB_N = blink_state;
+
+        /* make sure DO_POWER is clear */
+        DO_POWER = 0;
+
         blink_state = !blink_state;
     }
 }
